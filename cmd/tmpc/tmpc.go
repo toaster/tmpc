@@ -447,7 +447,7 @@ func (t *tmpc) showSettings() {
 	}
 	shoutcastURLEntry := widget.NewEntry()
 	shoutcastURLEntry.SetText(t.fyne.Preferences().String("shoutcastURL"))
-	shoutcastURLEntry.SetPlaceHolder("mpd.example.com:8000")
+	shoutcastURLEntry.SetPlaceHolder("http://mpd.example.com:8000")
 	shoutcastURLEntry.OnChanged = func(s string) {
 		t.fyne.Preferences().SetString("shoutcastURL", s)
 	}
