@@ -142,7 +142,7 @@ func (r *playerStatusRenderer) Refresh() {
 		} else {
 			r.progressBar.ReInit(0, r.song.Time, 0)
 			r.aTitle.Text = fmt.Sprintf("%s - %s (%d)", r.song.AlbumArtist, r.song.Album, r.song.Year)
-			r.title.Text = r.song.Title
+			r.title.Text = r.song.DisplayTitle()
 		}
 		canvas.Refresh(r.aTitle)
 		canvas.Refresh(r.title)

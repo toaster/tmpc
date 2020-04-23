@@ -42,7 +42,7 @@ func newSongListAlbumSong(contextMenu *fyne.Menu, song *mpd.Song, insertSelectio
 			pad:           coverSize,
 			texts: []string{
 				fmt.Sprintf("%02d", song.Track),
-				song.Title,
+				song.DisplayTitle(),
 				timeString(song.Time),
 			},
 		},
