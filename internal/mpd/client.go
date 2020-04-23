@@ -179,7 +179,6 @@ func (c *Client) Pause(p bool) error {
 
 func (c *Client) retry(f func() error) error {
 	if err := f(); err != nil {
-		return err
 		c.c.Close()
 		c.c, err = mpd.DialAuthenticated("tcp", c.url, c.pass)
 		if err != nil {
