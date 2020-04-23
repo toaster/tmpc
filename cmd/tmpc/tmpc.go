@@ -4,10 +4,6 @@ import (
 	"log"
 	"strings"
 
-	"fyne.io/fyne/dialog"
-	"fyne.io/fyne/layout"
-	"github.com/pkg/errors"
-
 	"github.com/toaster/tmpc/internal/mpd"
 	"github.com/toaster/tmpc/internal/repo"
 	"github.com/toaster/tmpc/internal/shoutcast"
@@ -16,8 +12,11 @@ import (
 	"fyne.io/fyne"
 	"fyne.io/fyne/app"
 	"fyne.io/fyne/canvas"
+	"fyne.io/fyne/dialog"
+	"fyne.io/fyne/layout"
 	"fyne.io/fyne/theme"
 	"fyne.io/fyne/widget"
+	"github.com/pkg/errors"
 )
 
 type tmpc struct {
