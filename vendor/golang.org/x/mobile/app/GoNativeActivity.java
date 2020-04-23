@@ -21,7 +21,7 @@ public class GoNativeActivity extends NativeActivity {
 		return getCacheDir().getAbsolutePath();
 	}
 
-	static int getRune(int deviceId, int keyCode, int metaState) {
+	int getRune(int deviceId, int keyCode, int metaState) {
 		try {
 			int rune = KeyCharacterMap.load(deviceId).get(keyCode, metaState);
 			if (rune == 0) {

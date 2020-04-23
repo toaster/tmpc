@@ -5,7 +5,7 @@
 // Code generated from gl.go using go generate. DO NOT EDIT.
 // See doc.go for details.
 
-// +build darwin linux openbsd windows
+// +build linux darwin windows openbsd
 // +build gldebug
 
 package gl
@@ -2898,10 +2898,10 @@ func (ctx *context) StencilOpSeparate(face, sfail, dpfail, dppass Enum) {
 		blocking: true})
 }
 
-func (ctx *context) TexImage2D(target Enum, level int, internalFormat int, width, height int, format Enum, ty Enum, data []byte) {
+func (ctx *context) TexImage2D(target Enum, level int, width, height int, format Enum, ty Enum, data []byte) {
 	defer func() {
 		errstr := ctx.errDrain()
-		log.Printf("gl.TexImage2D(%v, %v, %v, %v, %v, %v, %v, len(%d)) %v", target, level, internalFormat, width, height, format, ty, len(data), errstr)
+		log.Printf("gl.TexImage2D(%v, %v, %v, %v, %v, %v, len(%d)) %v", target, level, width, height, format, ty, len(data), errstr)
 	}()
 	parg := unsafe.Pointer(nil)
 	if len(data) > 0 {
@@ -2913,7 +2913,7 @@ func (ctx *context) TexImage2D(target Enum, level int, internalFormat int, width
 
 			a0: target.c(),
 			a1: uintptr(level),
-			a2: uintptr(internalFormat),
+			a2: uintptr(format),
 			a3: uintptr(width),
 			a4: uintptr(height),
 			a5: format.c(),

@@ -47,6 +47,7 @@ type TabContainer struct {
 	BaseWidget
 
 	Items       []*TabItem
+	OnChanged   func(tab *TabItem)
 	current     int
 	tabLocation TabLocation
 }
@@ -55,7 +56,7 @@ type TabContainer struct {
 func (t *TabContainer) Show() {
 	t.BaseWidget.Show()
 	t.SelectTabIndex(t.current)
-	t.refresh(t)
+	t.Refresh()
 }
 
 // SelectTab sets the specified TabItem to be selected and its content visible.
@@ -78,7 +79,7 @@ func (t *TabContainer) CurrentTab() *TabItem {
 
 // SelectTabIndex sets the TabItem at the specific index to be selected and its content visible.
 func (t *TabContainer) SelectTabIndex(index int) {
-	if index < 0 || index >= len(t.Items) {
+	if index < 0 || index >= len(t.Items) || t.current == index {
 		return
 	}
 
@@ -94,7 +95,11 @@ func (t *TabContainer) SelectTabIndex(index int) {
 
 	r := cache.Renderer(t).(*tabContainerRenderer)
 	r.Layout(t.size)
-	t.refresh(t)
+	t.Refresh()
+
+	if t.OnChanged != nil {
+		t.OnChanged(t.Items[t.current])
+	}
 }
 
 // CurrentTabIndex returns the index of the currently selected TabItem.
@@ -134,7 +139,11 @@ func (t *TabContainer) MinSize() fyne.Size {
 func (t *TabContainer) buildTabBar(buttons []fyne.CanvasObject) *fyne.Container {
 	var lay fyne.Layout
 	if fyne.CurrentDevice().IsMobile() {
-		lay = layout.NewGridLayout(len(buttons))
+		cells := len(buttons)
+		if cells == 0 {
+			cells = 1
+		}
+		lay = layout.NewGridLayout(cells)
 	} else if t.tabLocation == TabLocationLeading || t.tabLocation == TabLocationTrailing {
 		lay = layout.NewVBoxLayout()
 	} else {
@@ -338,8 +347,10 @@ func (t *tabContainerRenderer) Refresh() {
 	t.line.Refresh()
 
 	for i, child := range t.container.Items {
-		old := t.objects[i]
+		tab := t.tabBar.Objects[i].(*tabButton)
+		tab.setText(child.Text)
 
+		old := t.objects[i]
 		if old == child.Content {
 			continue
 		}
@@ -392,6 +403,15 @@ type tabButton struct {
 func (b *tabButton) MinSize() fyne.Size {
 	b.ExtendBaseWidget(b)
 	return b.BaseWidget.MinSize()
+}
+
+func (b *tabButton) setText(text string) {
+	if text == b.Text {
+		return
+	}
+
+	b.Text = text
+	b.Refresh()
 }
 
 func (b *tabButton) CreateRenderer() fyne.WidgetRenderer {
@@ -520,6 +540,7 @@ func (r *tabButtonRenderer) Objects() []fyne.CanvasObject {
 }
 
 func (r *tabButtonRenderer) Refresh() {
+	r.label.Text = r.button.Text
 	r.label.Color = theme.TextColor()
 	r.label.TextSize = theme.TextSize()
 

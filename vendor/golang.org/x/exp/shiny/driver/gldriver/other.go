@@ -16,9 +16,6 @@ import (
 	"golang.org/x/exp/shiny/screen"
 )
 
-const useLifecycler = true
-const handleSizeEventsAtChannelReceive = true
-
 func newWindow(opts *screen.NewWindowOptions) (uintptr, error) { return 0, nil }
 
 func initWindow(id *windowImpl) {}

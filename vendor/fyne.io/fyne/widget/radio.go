@@ -1,12 +1,12 @@
 package widget
 
 import (
-	"image/color"
 	"math"
 
 	"fyne.io/fyne"
 	"fyne.io/fyne/canvas"
 	"fyne.io/fyne/driver/desktop"
+	"fyne.io/fyne/internal/widget"
 	"fyne.io/fyne/theme"
 )
 
@@ -20,10 +20,9 @@ type radioRenderItem struct {
 }
 
 type radioRenderer struct {
+	widget.BaseRenderer
 	items []*radioRenderItem
-
-	objects []fyne.CanvasObject
-	radio   *Radio
+	radio *Radio
 }
 
 func removeDuplicates(options []string) []string {
@@ -100,10 +99,6 @@ func (r *radioRenderer) applyTheme() {
 	}
 }
 
-func (r *radioRenderer) BackgroundColor() color.Color {
-	return theme.BackgroundColor()
-}
-
 func (r *radioRenderer) Refresh() {
 	r.applyTheme()
 	r.radio.removeDuplicateOptions()
@@ -118,14 +113,14 @@ func (r *radioRenderer) Refresh() {
 
 			focusIndicator := canvas.NewCircle(theme.BackgroundColor())
 
-			r.objects = append(r.objects, focusIndicator, icon, text)
+			r.SetObjects(append(r.Objects(), focusIndicator, icon, text))
 			r.items = append(r.items, &radioRenderItem{icon, text, focusIndicator})
 		}
 		r.Layout(r.radio.Size())
 	} else if len(r.items) > len(r.radio.Options) {
 		total := len(r.radio.Options)
 		r.items = r.items[:total]
-		r.objects = r.objects[:total*2]
+		r.SetObjects(r.Objects()[:total*2])
 	}
 
 	for i, item := range r.items {
@@ -153,19 +148,12 @@ func (r *radioRenderer) Refresh() {
 	canvas.Refresh(r.radio.super())
 }
 
-func (r *radioRenderer) Objects() []fyne.CanvasObject {
-	return r.objects
-}
-
-func (r *radioRenderer) Destroy() {
-}
-
 // Radio widget has a list of text labels and radio check icons next to each.
 // Changing the selection (only one can be selected) will trigger the changed func.
 type Radio struct {
 	DisableableWidget
 	Horizontal bool
-	Mandatory  bool
+	Required   bool
 	OnChanged  func(string) `json:"-"`
 	Options    []string
 	Selected   string
@@ -238,7 +226,7 @@ func (r *Radio) Tapped(event *fyne.PointEvent) {
 	clicked := r.Options[index]
 
 	if r.Selected == clicked {
-		if r.Mandatory {
+		if r.Required {
 			return
 		}
 		r.Selected = ""
@@ -276,22 +264,11 @@ func (r *Radio) CreateRenderer() fyne.WidgetRenderer {
 		items = append(items, &radioRenderItem{icon, text, focusIndicator})
 	}
 
-	return &radioRenderer{items, objects, r}
-}
-
-// SetMandatory sets if the radio must have a selection.
-func (r *Radio) SetMandatory(m bool) {
-	r.Mandatory = m
-	if r.Selected == "" && len(r.Options) > 0 {
-		r.Selected = r.Options[0]
-	}
+	return &radioRenderer{widget.NewBaseRenderer(objects), items, r}
 }
 
 // SetSelected sets the radio option, it can be used to set a default option.
 func (r *Radio) SetSelected(option string) {
-	if option == "" && r.Mandatory && len(r.Options) > 0 {
-		option = r.Options[0]
-	}
 	if r.Selected == option {
 		return
 	}
