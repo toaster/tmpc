@@ -7,7 +7,7 @@ import (
 	"fyne.io/fyne/theme"
 )
 
-// Group widget is list of widgets that contains a visual border around the list and a group title at the top.
+// Group widget contains a list of widgets that are grouped under a dividing line and title at the top.
 type Group struct {
 	BaseWidget
 
@@ -64,7 +64,7 @@ func NewGroup(title string, children ...fyne.CanvasObject) *Group {
 // This group will scroll when the available space is less than needed to display the items it contains.
 func NewGroupWithScroller(title string, children ...fyne.CanvasObject) *Group {
 	box := NewVBox(children...)
-	group := &Group{BaseWidget{}, title, box, NewScrollContainer(box)}
+	group := &Group{BaseWidget{}, title, box, NewVScrollContainer(box)}
 
 	Renderer(group).Layout(group.MinSize())
 	return group

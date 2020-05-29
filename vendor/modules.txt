@@ -13,6 +13,7 @@ fyne.io/fyne/internal/driver/glfw
 fyne.io/fyne/internal/driver/gomobile
 fyne.io/fyne/internal/painter/software
 fyne.io/fyne/test
+fyne.io/fyne/storage
 fyne.io/fyne/internal/cache
 fyne.io/fyne/internal/widget
 fyne.io/fyne/internal/driver
@@ -25,7 +26,7 @@ github.com/davecgh/go-spew/spew
 github.com/fhs/gompd/mpd
 # github.com/fsnotify/fsnotify v1.4.9
 github.com/fsnotify/fsnotify
-# github.com/fyne-io/mobile v0.0.1
+# github.com/fyne-io/mobile v0.0.2-0.20200511203347-825e44fe5a95
 github.com/fyne-io/mobile/app
 github.com/fyne-io/mobile/event/key
 github.com/fyne-io/mobile/event/lifecycle
@@ -33,15 +34,17 @@ github.com/fyne-io/mobile/event/paint
 github.com/fyne-io/mobile/event/size
 github.com/fyne-io/mobile/event/touch
 github.com/fyne-io/mobile/gl
-github.com/fyne-io/mobile/exp/f32
 github.com/fyne-io/mobile/app/internal/callfn
 github.com/fyne-io/mobile/geom
 github.com/fyne-io/mobile/internal/mobileinit
+github.com/fyne-io/mobile/exp/f32
 # github.com/go-gl/gl v0.0.0-20190320180904-bf2b1f2f34d7
 github.com/go-gl/gl/v3.1/gles2
 github.com/go-gl/gl/v3.2-core/gl
 # github.com/go-gl/glfw/v3.3/glfw v0.0.0-20200222043503-6f7a984d4dc4
 github.com/go-gl/glfw/v3.3/glfw
+# github.com/godbus/dbus/v5 v5.0.3
+github.com/godbus/dbus/v5
 # github.com/goki/freetype v0.0.0-20181231101311-fa8a33aabaff
 github.com/goki/freetype
 github.com/goki/freetype/truetype
@@ -63,8 +66,6 @@ github.com/hajimehoshi/go-mp3/internal/huffman
 # github.com/hajimehoshi/oto v0.3.2
 github.com/hajimehoshi/oto
 github.com/hajimehoshi/oto/internal/mux
-# github.com/nfnt/resize v0.0.0-20180221191011-83c6a9932646
-github.com/nfnt/resize
 # github.com/pkg/errors v0.9.1
 github.com/pkg/errors
 # github.com/pmezard/go-difflib v1.0.0
@@ -87,7 +88,8 @@ golang.org/x/exp/shiny/driver/internal/event
 golang.org/x/exp/shiny/driver/internal/lifecycler
 golang.org/x/exp/shiny/driver/internal/win32
 golang.org/x/exp/shiny/driver/internal/x11key
-# golang.org/x/image v0.0.0-20200119044424-58c23975cae1
+# golang.org/x/image v0.0.0-20200430140353-33d19683fad8
+golang.org/x/image/draw
 golang.org/x/image/font
 golang.org/x/image/math/fixed
 golang.org/x/image/math/f64

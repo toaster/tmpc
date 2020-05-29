@@ -1,8 +1,8 @@
 package test
 
 import (
+	"fmt"
 	"image"
-	"image/draw"
 	"image/png"
 	"os"
 	"path/filepath"
@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"fyne.io/fyne"
+	"fyne.io/fyne/driver/desktop"
 	"fyne.io/fyne/internal/cache"
 	"fyne.io/fyne/internal/driver"
 
@@ -17,16 +18,13 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-// SecondaryTappableCanvasObject is an interface used by the secondary tap helper methods.
-type SecondaryTappableCanvasObject interface {
-	fyne.CanvasObject
-	fyne.SecondaryTappable
-}
-
-// TappableCanvasObject is an interface used by the tap helper methods.
-type TappableCanvasObject interface {
-	fyne.CanvasObject
-	fyne.Tappable
+// AssertCanvasTappableAt asserts that the canvas is tappable at the given position.
+func AssertCanvasTappableAt(t *testing.T, c fyne.Canvas, pos fyne.Position) bool {
+	if o, _ := findTappable(c, pos); o == nil {
+		t.Errorf("No tappable found at %#v", pos)
+		return false
+	}
+	return true
 }
 
 // AssertImageMatches asserts that the given image is the same as the one stored in the master file.
@@ -34,7 +32,7 @@ type TappableCanvasObject interface {
 // The test `t` fails if the given image is not equal to the loaded master image.
 // In this case the given image is written into a file in `testdata/failed/<masterFilename>` (relative to the test).
 // This path is also reported, thus the file can be used as new master.
-func AssertImageMatches(t *testing.T, masterFilename string, img image.Image) bool {
+func AssertImageMatches(t *testing.T, masterFilename string, img image.Image, msgAndArgs ...interface{}) bool {
 	wd, err := os.Getwd()
 	require.NoError(t, err)
 	masterPath := filepath.Join(wd, "testdata", masterFilename)
@@ -51,54 +49,130 @@ func AssertImageMatches(t *testing.T, masterFilename string, img image.Image) bo
 	defer file.Close()
 	raw, _, err := image.Decode(file)
 	require.NoError(t, err)
-	expected := image.NewRGBA(raw.Bounds())
-	draw.Draw(expected, expected.Bounds(), raw, image.Pt(0, 0), draw.Src)
 
-	if !assert.Equal(t, expected, img, "Image did not match master. Actual image written to %s.", failedPath) {
+	masterPix := pixelsForImage(t, raw) // let's just compare the pixels directly
+	capturePix := pixelsForImage(t, img)
+
+	var msg string
+	if len(msgAndArgs) > 0 {
+		msg = fmt.Sprintf(msgAndArgs[0].(string)+"\n", msgAndArgs[1:]...)
+	}
+	if !assert.Equal(t, masterPix, capturePix, "%sImage did not match master. Actual image written to file://%s.", msg, failedPath) {
 		require.NoError(t, writeImage(failedPath, img))
 		return false
 	}
 	return true
 }
 
-// Tap simulates a left mouse click on the specified object.
-func Tap(obj TappableCanvasObject) {
-	TapAt(obj, fyne.NewPos(1, 1))
-}
-
-// TapAt simulates a left mouse click on the passed object at a specified place within it.
-func TapAt(obj TappableCanvasObject, pos fyne.Position) {
-	c := fyne.CurrentApp().Driver().CanvasForObject(obj)
-	absPos := fyne.CurrentApp().Driver().AbsolutePositionForObject(obj)
-	ev := &fyne.PointEvent{AbsolutePosition: absPos.Add(pos), Position: pos}
-	tap(c, obj, ev)
-}
-
-// TapCanvas taps at an absolute position on the canvas.
-// It fails the test if there is no fyne.Tappable reachable at the position.
-func TapCanvas(t *testing.T, c fyne.Canvas, pos fyne.Position) {
+// Drag drags at an absolute position on the canvas.
+// deltaX/Y is the dragging distance: <0 for dragging up/left, >0 for dragging down/right.
+func Drag(c fyne.Canvas, pos fyne.Position, deltaX, deltaY int) {
 	matches := func(object fyne.CanvasObject) bool {
-		if _, ok := object.(fyne.Tappable); ok {
+		if _, ok := object.(fyne.Draggable); ok {
 			return true
 		}
 		return false
 	}
-	o, absPos := driver.FindObjectAtPositionMatching(pos, matches, c.Overlays().Top(), c.Content())
-	require.NotNil(t, o, "no tappable found at %#v", pos)
-	tap(c, o.(TappableCanvasObject), &fyne.PointEvent{AbsolutePosition: pos, Position: pos.Subtract(absPos)})
+	o, p, _ := driver.FindObjectAtPositionMatching(pos, matches, c.Overlays().Top(), c.Content())
+	if o == nil {
+		return
+	}
+	e := &fyne.DragEvent{
+		PointEvent: fyne.PointEvent{Position: p},
+		DraggedX:   deltaX,
+		DraggedY:   deltaY,
+	}
+	o.(fyne.Draggable).Dragged(e)
+	o.(fyne.Draggable).DragEnd()
+}
+
+// MoveMouse simulates a mouse movement to the given position.
+func MoveMouse(c fyne.Canvas, pos fyne.Position) {
+	if fyne.CurrentDevice().IsMobile() {
+		return
+	}
+
+	tc, _ := c.(*testCanvas)
+	var oldHovered, hovered desktop.Hoverable
+	if tc != nil {
+		oldHovered = tc.hovered
+	}
+	matches := func(object fyne.CanvasObject) bool {
+		if _, ok := object.(desktop.Hoverable); ok {
+			return true
+		}
+		return false
+	}
+	o, p, _ := driver.FindObjectAtPositionMatching(pos, matches, c.Overlays().Top(), c.Content())
+	if o != nil {
+		hovered = o.(desktop.Hoverable)
+		me := &desktop.MouseEvent{
+			PointEvent: fyne.PointEvent{
+				AbsolutePosition: pos,
+				Position:         p,
+			},
+		}
+		if hovered == oldHovered {
+			hovered.MouseMoved(me)
+		} else {
+			if oldHovered != nil {
+				oldHovered.MouseOut()
+			}
+			hovered.MouseIn(me)
+		}
+	} else if oldHovered != nil {
+		oldHovered.MouseOut()
+	}
+	if tc != nil {
+		tc.hovered = hovered
+	}
+}
+
+// Scroll scrolls at an absolute position on the canvas.
+// deltaX/Y is the scrolling distance: <0 for scrolling up/left, >0 for scrolling down/right.
+func Scroll(c fyne.Canvas, pos fyne.Position, deltaX, deltaY int) {
+	matches := func(object fyne.CanvasObject) bool {
+		if _, ok := object.(fyne.Scrollable); ok {
+			return true
+		}
+		return false
+	}
+	o, _, _ := driver.FindObjectAtPositionMatching(pos, matches, c.Overlays().Top(), c.Content())
+	if o == nil {
+		return
+	}
+
+	e := &fyne.ScrollEvent{DeltaX: deltaX, DeltaY: deltaY}
+	o.(fyne.Scrollable).Scrolled(e)
+}
+
+// Tap simulates a left mouse click on the specified object.
+func Tap(obj fyne.Tappable) {
+	TapAt(obj, fyne.NewPos(1, 1))
+}
+
+// TapAt simulates a left mouse click on the passed object at a specified place within it.
+func TapAt(obj fyne.Tappable, pos fyne.Position) {
+	ev, c := prepareTap(obj, pos)
+	tap(c, obj, ev)
+}
+
+// TapCanvas taps at an absolute position on the canvas.
+func TapCanvas(c fyne.Canvas, pos fyne.Position) {
+	if o, p := findTappable(c, pos); o != nil {
+		tap(c, o.(fyne.Tappable), &fyne.PointEvent{AbsolutePosition: pos, Position: p})
+	}
 }
 
 // TapSecondary simulates a right mouse click on the specified object.
-func TapSecondary(obj SecondaryTappableCanvasObject) {
+func TapSecondary(obj fyne.SecondaryTappable) {
 	TapSecondaryAt(obj, fyne.NewPos(1, 1))
 }
 
 // TapSecondaryAt simulates a right mouse click on the passed object at a specified place within it.
-func TapSecondaryAt(obj SecondaryTappableCanvasObject, pos fyne.Position) {
-	c := fyne.CurrentApp().Driver().CanvasForObject(obj)
+func TapSecondaryAt(obj fyne.SecondaryTappable, pos fyne.Position) {
+	ev, c := prepareTap(obj, pos)
 	handleFocusOnTap(c, obj)
-	absPos := fyne.CurrentApp().Driver().AbsolutePositionForObject(obj)
-	ev := &fyne.PointEvent{AbsolutePosition: absPos.Add(pos), Position: pos}
 	obj.TappedSecondary(ev)
 }
 
@@ -122,7 +196,7 @@ func ApplyTheme(t *testing.T, theme fyne.Theme) {
 	require.IsType(t, &testApp{}, fyne.CurrentApp())
 	a := fyne.CurrentApp().(*testApp)
 	a.Settings().SetTheme(theme)
-	for a.appliedTheme != a.Settings().Theme() {
+	for a.lastAppliedTheme() != theme {
 		time.Sleep(1 * time.Millisecond)
 	}
 }
@@ -137,17 +211,42 @@ func WidgetRenderer(wid fyne.Widget) fyne.WidgetRenderer {
 func WithTestTheme(t *testing.T, f func()) {
 	settings := fyne.CurrentApp().Settings()
 	current := settings.Theme()
-	ApplyTheme(t, &testTheme{})
+	ApplyTheme(t, NewTheme())
 	defer ApplyTheme(t, current)
 	f()
 }
 
-func tap(c fyne.Canvas, obj TappableCanvasObject, ev *fyne.PointEvent) {
+func findTappable(c fyne.Canvas, pos fyne.Position) (o fyne.CanvasObject, p fyne.Position) {
+	matches := func(object fyne.CanvasObject) bool {
+		if _, ok := object.(fyne.Tappable); ok {
+			return true
+		}
+		return false
+	}
+	o, p, _ = driver.FindObjectAtPositionMatching(pos, matches, c.Overlays().Top(), c.Content())
+	return
+}
+
+func prepareTap(obj interface{}, pos fyne.Position) (*fyne.PointEvent, fyne.Canvas) {
+	d := fyne.CurrentApp().Driver()
+	ev := &fyne.PointEvent{Position: pos}
+	var c fyne.Canvas
+	if co, ok := obj.(fyne.CanvasObject); ok {
+		c = d.CanvasForObject(co)
+		ev.AbsolutePosition = d.AbsolutePositionForObject(co).Add(pos)
+	}
+	return ev, c
+}
+
+func tap(c fyne.Canvas, obj fyne.Tappable, ev *fyne.PointEvent) {
 	handleFocusOnTap(c, obj)
 	obj.Tapped(ev)
 }
 
-func handleFocusOnTap(c fyne.Canvas, obj fyne.CanvasObject) {
+func handleFocusOnTap(c fyne.Canvas, obj interface{}) {
+	if c == nil {
+		return
+	}
 	unfocus := true
 	if focus, ok := obj.(fyne.Focusable); ok {
 		if dis, ok := obj.(fyne.Disableable); !ok || !dis.Disabled() {
@@ -160,6 +259,20 @@ func handleFocusOnTap(c fyne.Canvas, obj fyne.CanvasObject) {
 	if unfocus {
 		c.Unfocus()
 	}
+}
+
+func pixelsForImage(t *testing.T, img image.Image) []uint8 {
+	var pix []uint8
+	if data, ok := img.(*image.RGBA); ok {
+		pix = data.Pix
+	} else if data, ok := img.(*image.NRGBA); ok {
+		pix = data.Pix
+	}
+	if pix == nil {
+		t.Error("Master image is unsupported type")
+	}
+
+	return pix
 }
 
 func typeChars(chars []rune, keyDown func(rune)) {

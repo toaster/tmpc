@@ -12,7 +12,7 @@ var _ fyne.Widget = (*Shadow)(nil)
 
 // Shadow is a widget that renders a shadow.
 type Shadow struct {
-	base
+	Base
 	level ElevationLevel
 	typ   ShadowType
 }
@@ -25,6 +25,7 @@ type ElevationLevel int
 const (
 	BaseLevel             ElevationLevel = 0
 	ButtonLevel           ElevationLevel = 2
+	MenuLevel             ElevationLevel = 4
 	PopUpLevel            ElevationLevel = 8
 	SubmergedContentLevel ElevationLevel = 8
 )
@@ -46,36 +47,48 @@ func NewShadow(typ ShadowType, level ElevationLevel) *Shadow {
 	return &Shadow{typ: typ, level: level}
 }
 
-// CreateRenderer satisfies the fyne.Widget interface.
+// CreateRenderer returns a new renderer for the shadow.
+// Implements: fyne.Widget
 func (s *Shadow) CreateRenderer() fyne.WidgetRenderer {
 	r := &shadowRenderer{s: s}
 	r.createShadows()
 	return r
 }
 
-// Hide satisfies the fyne.Widget interface.
+// Hide hides the shadow.
+// Implements: fyne.Widget
 func (s *Shadow) Hide() {
-	s.hide(s)
+	HideWidget(&s.Base, s)
 }
 
-// MinSize satisfies the fyne.Widget interface.
+// MinSize returns the minimal size of the shadow.
+// Implements: fyne.Widget
 func (s *Shadow) MinSize() fyne.Size {
-	return s.minSize(s)
+	return MinSizeOf(s)
 }
 
-// Refresh satisfies the fyne.Widget interface.
+// Move sets the position of the widget relative to its parent.
+// Implements: fyne.Widget
+func (s *Shadow) Move(pos fyne.Position) {
+	MoveWidget(&s.Base, s, pos)
+}
+
+// Refresh triggers a redraw of the shadow.
+// Implements: fyne.Widget
 func (s *Shadow) Refresh() {
-	s.refresh(s)
+	RefreshWidget(s)
 }
 
-// Resize satisfies the fyne.Widget interface.
+// Resize changes the size of the shadow.
+// Implements: fyne.Widget
 func (s *Shadow) Resize(size fyne.Size) {
-	s.resize(size, s)
+	ResizeWidget(&s.Base, s, size)
 }
 
-// Show satisfies the fyne.Widget interface.
+// Show makes the shadow visible.
+// Implements: fyne.Widget
 func (s *Shadow) Show() {
-	s.show(s)
+	ShowWidget(&s.Base, s)
 }
 
 type shadowRenderer struct {
@@ -86,12 +99,10 @@ type shadowRenderer struct {
 	s              *Shadow
 }
 
-// BackgroundColor satisfies the fyne.WidgetRenderer interface.
 func (r *shadowRenderer) BackgroundColor() color.Color {
 	return color.Transparent
 }
 
-// Layout satisfies the fyne.WidgetRenderer interface.
 func (r *shadowRenderer) Layout(size fyne.Size) {
 	depth := int(r.s.level)
 	if r.tl != nil {
@@ -128,12 +139,10 @@ func (r *shadowRenderer) Layout(size fyne.Size) {
 	}
 }
 
-// MinSize satisfies the fyne.WidgetRenderer interface.
 func (r *shadowRenderer) MinSize() fyne.Size {
 	return r.minSize
 }
 
-// Refresh satisfies the fyne.WidgetRenderer interface.
 func (r *shadowRenderer) Refresh() {
 	r.refreshShadows()
 	r.Layout(r.s.Size())
