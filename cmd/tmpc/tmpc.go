@@ -77,7 +77,6 @@ func newTMPC() *tmpc {
 	player.win.SetMaster()
 
 	prefsItem := fyne.NewMenuItem("Preferences…", player.showSettings)
-	prefsItem.PlaceInNativeMenu = true
 	prefsItem.Separate = true
 	prefsItem.KeyEquivalent = ","
 	mainMenu := fyne.NewMainMenu(fyne.NewMenu("TMPC", prefsItem))
