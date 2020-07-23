@@ -144,11 +144,7 @@ func (t *tmpc) Update(subsystem string) {
 }
 
 func (t *tmpc) applySettings(connect bool) {
-	if t.fyne.Preferences().String("theme") == "Dark" {
-		t.fyne.Settings().SetTheme(theme.DarkTheme())
-	} else {
-		t.fyne.Settings().SetTheme(theme.LightTheme())
-	}
+	t.applyTheme()
 	if t.mpd != nil && t.mpd.IsConnected() {
 		t.mpd.Disconnect()
 	}
@@ -161,6 +157,14 @@ func (t *tmpc) applySettings(connect bool) {
 	t.shoutcast = shoutcast.NewClient(t.fyne.Preferences().String("shoutcastURL"), t.addError)
 	if connect {
 		t.connectMPD()
+	}
+}
+
+func (t *tmpc) applyTheme() {
+	if t.fyne.Preferences().String("theme") == "Dark" {
+		t.fyne.Settings().SetTheme(theme.DarkTheme())
+	} else {
+		t.fyne.Settings().SetTheme(theme.LightTheme())
 	}
 }
 
@@ -450,6 +454,7 @@ func (t *tmpc) showSettings() {
 	}
 	themeSelector := widget.NewRadio([]string{"Dark", "Light"}, func(s string) {
 		t.fyne.Preferences().SetString("theme", s)
+		t.applyTheme()
 	})
 	themeSelector.SetSelected(t.fyne.Preferences().String("theme"))
 	themeSelector.Required = true
