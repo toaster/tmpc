@@ -17,6 +17,19 @@ A low-level library to play sound. This package offers `io.WriteCloser` to play 
 
 ## Prerequisite
 
+### macOS
+
+Oto requies `AudioToolbox.framework`, but this is automatically linked.
+
+### iOS
+
+Oto requies these frameworks:
+
+* `AVFoundation.framework`
+* `AudioToolbox.framework`
+
+Add them to "Linked Frameworks and Libraries" on your Xcode project.
+
 ### Linux
 
 libasound2-dev is required. On Ubuntu or Debian, run this command:

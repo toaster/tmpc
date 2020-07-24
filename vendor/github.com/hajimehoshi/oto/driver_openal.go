@@ -12,13 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// +build darwin freebsd openbsd
+// +build freebsd openbsd
 // +build !js
 // +build !android
 
 package oto
 
-// #cgo darwin  LDFLAGS: -framework OpenAL
 // #cgo freebsd pkg-config: openal
 // #cgo openbsd pkg-config: openal
 //
@@ -128,8 +127,8 @@ func alFormat(channelNum, bitDepthInBytes int) C.ALenum {
 
 const numBufs = 2
 
-func newDriver(sampleRate, channelNum, bitDepthInBytes, bufferSizeInBytes int) (*driver, error) {
-	name := C.alGetString(C.ALC_DEFAULT_DEVICE_SPECIFIER)
+func newDriver(sampleRate, channelNum, bitDepthInBytes, bufferSizeInBytes int) (tryWriteCloser, error) {
+	name := C.alcGetString(nil, C.ALC_DEFAULT_DEVICE_SPECIFIER)
 	d := alDevice(C._alcOpenDevice((*C.ALCchar)(name)))
 	if d == 0 {
 		return nil, fmt.Errorf("oto: alcOpenDevice must not return null")
