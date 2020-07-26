@@ -79,6 +79,9 @@ func songsFromAttrs(attrs []mpd.Attrs) []*Song {
 		track, _ := strconv.Atoi(sAttrs["Track"])
 		var year int
 		fmt.Sscanf(sAttrs["OriginalDate"], "%d", &year)
+		if year == 0 {
+			fmt.Sscanf(sAttrs["Date"], "%d", &year)
+		}
 		songs[i] = &Song{
 			File:        sAttrs["file"],
 			Album:       sAttrs["Album"],
