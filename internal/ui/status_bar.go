@@ -53,7 +53,7 @@ func (b *StatusBar) CreateRenderer() fyne.WidgetRenderer {
 	r.playbackButtonDisabled.iconSize = fyne.NewSize(20, 20)
 	r.playbackButton.pad = false
 	r.playbackButtonDisabled.pad = false
-	r.Refresh()
+	r.updateIcons()
 	return r
 }
 
@@ -95,6 +95,11 @@ func (r *statusBarRenderer) MinSize() fyne.Size {
 }
 
 func (r *statusBarRenderer) Refresh() {
+	r.updateIcons()
+	canvas.Refresh(r.b)
+}
+
+func (r *statusBarRenderer) updateIcons() {
 	r.box.Children = r.box.Children[0:0]
 	if r.b.playbackEnabled {
 		r.box.Append(r.playbackButton)
@@ -128,5 +133,4 @@ func (r *statusBarRenderer) Refresh() {
 		button.UpdateBadgeCount(r.b.errorCount)
 		r.box.Append(button)
 	}
-	canvas.Refresh(r.b)
 }
