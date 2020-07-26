@@ -78,7 +78,12 @@ func newTMPC() *tmpc {
 
 	prefsItem := fyne.NewMenuItem("Preferences…", player.showSettings)
 	// prefsItem.KeyEquivalent = ","
-	mainMenu := fyne.NewMainMenu(fyne.NewMenu("TMPC", prefsItem))
+	appMenu := fyne.NewMenu("TMPC", prefsItem)
+
+	updateItem := fyne.NewMenuItem("Update", player.updateDB)
+	dbMenu := fyne.NewMenu("Database", updateItem)
+
+	mainMenu := fyne.NewMainMenu(appMenu, dbMenu)
 	player.win.SetMainMenu(mainMenu)
 
 	player.playlistsUpdate = make(chan bool, 100)
@@ -496,6 +501,16 @@ func (t *tmpc) togglePlayback() bool {
 		t.startPlayback()
 	}
 	return t.playbackEnabled
+}
+
+func (t *tmpc) updateDB() {
+	if !t.mpd.IsConnected() {
+		return
+	}
+
+	if err := t.mpd.Update(); err != nil {
+		t.addError(errors.Wrap(err, "failed to update MPD database"))
+	}
 }
 
 func (t *tmpc) updateInfo(song *mpd.Song) {

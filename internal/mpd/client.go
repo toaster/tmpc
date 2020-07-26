@@ -333,3 +333,14 @@ func (c *Client) Stop() error {
 	}
 	return c.retry(func() error { return c.c.Stop() })
 }
+
+// Update triggers an update of the MPD’s database.
+func (c *Client) Update() error {
+	if c.c == nil {
+		return nil
+	}
+	return c.retry(func() error {
+		_, err := c.c.Update("")
+		return err
+	})
+}
