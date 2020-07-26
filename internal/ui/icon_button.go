@@ -33,7 +33,7 @@ type iconButton struct {
 	pad        bool
 }
 
-func NewIconButton(icon fyne.Resource, onTap func()) *iconButton {
+func newIconButton(icon fyne.Resource, onTap func()) *iconButton {
 	button := &iconButton{icon: icon, onTap: onTap, iconSize: fyne.NewSize(48, 48), pad: true}
 	button.ExtendBaseWidget(button)
 	return button
@@ -131,9 +131,8 @@ func newIconButtonRenderer(b *iconButton) *iconButtonRenderer {
 func (r *iconButtonRenderer) BackgroundColor() color.Color {
 	if r.button.hovered {
 		return theme.HoverColor()
-	} else {
-		return r.baseRenderer.BackgroundColor()
 	}
+	return r.baseRenderer.BackgroundColor()
 }
 
 func (r *iconButtonRenderer) Layout(size fyne.Size) {
