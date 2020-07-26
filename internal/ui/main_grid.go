@@ -7,20 +7,6 @@ import (
 	"fyne.io/fyne/widget"
 )
 
-// TODO
-// - scrollable container
-//   - outside scrollbar
-//   - scrollable horizontal
-//   - stylable bar
-//     - round corners
-//     - border/bg
-//   - scrollable by moving the scrollbar
-//   - (jump-)scrollable by clicking the scrollbararea
-//   - minimum size for scrollbar
-// - canvas
-//   - remove dependency from driver to actual implementations (fyne.Container or even worse widget.ScrollContainer)
-//     -> the driver should probably use a fyne-interface
-
 type mainGrid struct {
 	widget.BaseWidget
 	content   fyne.CanvasObject
