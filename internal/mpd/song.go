@@ -62,9 +62,8 @@ type Song struct {
 func (s *Song) DisplayTitle() string {
 	if s.Artist != s.AlbumArtist {
 		return fmt.Sprintf("%s - %s", s.Artist, s.Title)
-	} else {
-		return s.Title
 	}
+	return s.Title
 }
 
 func songsFromAttrs(attrs []mpd.Attrs) []*Song {

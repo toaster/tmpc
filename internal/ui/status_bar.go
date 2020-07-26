@@ -73,7 +73,6 @@ type statusBarRenderer struct {
 	baseRenderer
 	b                      *StatusBar
 	box                    *widget.Box
-	errorIndicator         fyne.CanvasObject
 	playbackButton         *iconButton
 	playbackButtonDisabled *iconButton
 	separator              fyne.CanvasObject

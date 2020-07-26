@@ -97,33 +97,27 @@ func (t *tmpc) Run() {
 	}
 	go func() {
 		for {
-			select {
-			case <-t.stateUpdate:
-				log.Println("UPDATE: state")
-				t.updateState()
-				log.Println("UPDATE done: state")
-			}
+			<-t.stateUpdate
+			log.Println("UPDATE: state")
+			t.updateState()
+			log.Println("UPDATE done: state")
 		}
 	}()
 	go func() {
 		for {
-			select {
-			case <-t.queueUpdate:
-				log.Println("UPDATE: queue")
-				t.updateQueue()
-				log.Println("UPDATE done: queue")
-				t.stateUpdate <- true
-			}
+			<-t.queueUpdate
+			log.Println("UPDATE: queue")
+			t.updateQueue()
+			log.Println("UPDATE done: queue")
+			t.stateUpdate <- true
 		}
 	}()
 	go func() {
 		for {
-			select {
-			case <-t.playlistsUpdate:
-				log.Println("UPDATE: playlistsList")
-				t.updatePlaylists()
-				log.Println("UPDATE: playlistsList")
-			}
+			<-t.playlistsUpdate
+			log.Println("UPDATE: playlistsList")
+			t.updatePlaylists()
+			log.Println("UPDATE: playlistsList")
 		}
 	}()
 	t.win.ShowAndRun()
@@ -292,7 +286,6 @@ func (t *tmpc) handlePlayList(name string) {
 		return
 	}
 	t.playCurrent()
-	return
 }
 
 func (t *tmpc) handlePlaySong(song *mpd.Song) {
@@ -305,7 +298,6 @@ func (t *tmpc) handlePlaySong(song *mpd.Song) {
 		return
 	}
 	t.startPlayback()
-	return
 }
 
 func (t *tmpc) handlePlayTap() bool {
@@ -349,7 +341,6 @@ func (t *tmpc) handleRemoveSongs(songs []*mpd.Song) {
 			t.addError(errors.Wrap(err, "failed to remove song"))
 		}
 	}
-	return
 }
 
 func (t *tmpc) handleReplaceQueue(songs []*mpd.Song, play bool) {

@@ -23,11 +23,10 @@ import (
 
 type mainGrid struct {
 	widget.BaseWidget
-	content         fyne.CanvasObject
-	contentSelector fyne.CanvasObject
-	controls        fyne.CanvasObject
-	status          fyne.CanvasObject
-	statusBar       fyne.CanvasObject
+	content   fyne.CanvasObject
+	controls  fyne.CanvasObject
+	status    fyne.CanvasObject
+	statusBar fyne.CanvasObject
 }
 
 // NewMainGrid returns a new container for the content of the TMPC main window.
