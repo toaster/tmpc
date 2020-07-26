@@ -452,7 +452,7 @@ func (t *tmpc) showSettings() {
 		t.fyne.Preferences().SetString("theme", s)
 	})
 	themeSelector.SetSelected(t.fyne.Preferences().String("theme"))
-	themeSelector.SetMandatory(true)
+	themeSelector.Required = true
 	themeSelector.Horizontal = true
 	settingsContainer := fyne.NewContainerWithLayout(
 		layout.NewFormLayout(),
