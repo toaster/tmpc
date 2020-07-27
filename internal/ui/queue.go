@@ -15,6 +15,7 @@ type Queue struct {
 	currentPlayerState PlayerState
 	currentSongIdx     int
 	onClear            func()
+	onDetails          func(*mpd.Song)
 	onPlay             func(*mpd.Song)
 	onRemove           func([]*mpd.Song)
 	pauseIndicator     fyne.CanvasObject
@@ -23,7 +24,7 @@ type Queue struct {
 }
 
 // NewQueue returns a new queue.
-func NewQueue(move func(*mpd.Song, int), onClear func(), onPlay func(*mpd.Song), onRemove func([]*mpd.Song)) *Queue {
+func NewQueue(move func(*mpd.Song, int), onClear func(), onDetails, onPlay func(*mpd.Song), onRemove func([]*mpd.Song)) *Queue {
 	playIndicator := canvas.NewImageFromResource(rscPlayIndicator)
 	playIndicator.Resize(fyne.NewSize(18, 18))
 	pauseIndicator := canvas.NewImageFromResource(rscPauseIndicator)
@@ -37,6 +38,7 @@ func NewQueue(move func(*mpd.Song, int), onClear func(), onPlay func(*mpd.Song),
 			supportsDrag: true,
 		},
 		onClear:        onClear,
+		onDetails:      onDetails,
 		onPlay:         onPlay,
 		onRemove:       onRemove,
 		pauseIndicator: pauseIndicator,
@@ -97,6 +99,8 @@ func (q *Queue) buildSongContextMenu() *fyne.Menu {
 			q.removeAfter(songs[len(songs)-1])
 		}),
 		fyne.NewMenuItem("Clear", q.onClear),
+		fyne.NewMenuItemSeparator(),
+		fyne.NewMenuItem("Details…", func() { q.onDetails(q.SelectedSongs()[0]) }),
 	}
 	return fyne.NewMenu("", items...)
 }

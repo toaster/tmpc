@@ -58,8 +58,8 @@ func newTMPC() *tmpc {
 	player.info = ui.NewSongInfo()
 	infoCont := widget.NewScrollContainer(player.info)
 	player.playlistsList = ui.NewPlaylistList(player.handlePlayList, player.handleDeletePlaylist)
-	player.queue = ui.NewQueue(player.moveSongInQueue, player.handleClearQueue, player.handlePlaySong, player.handleRemoveSongs)
-	player.search = ui.NewSearch(player.handleSearch, player.handleAddToQueue, player.handleInsertIntoQueue, player.handleReplaceQueue, player.handleAddToPlaylist)
+	player.queue = ui.NewQueue(player.moveSongInQueue, player.handleClearQueue, player.handleSongDetails, player.handlePlaySong, player.handleRemoveSongs)
+	player.search = ui.NewSearch(player.handleSearch, player.handleAddToQueue, player.handleInsertIntoQueue, player.handleReplaceQueue, player.handleAddToPlaylist, player.handleSongDetails)
 
 	mainContent := widget.NewTabContainer(
 		widget.NewTabItemWithIcon("Queue", ui.QueueIcon, widget.NewScrollContainer(player.queue)),
@@ -371,6 +371,34 @@ func (t *tmpc) handleSeek(time int) {
 	if err := t.mpd.Seek(time); err != nil {
 		t.addError(errors.Wrap(err, "failed to seek in title"))
 	}
+}
+
+func (t *tmpc) handleSongDetails(song *mpd.Song) {
+	details := widget.NewVBox(
+		widget.NewHBox(
+			widget.NewLabelWithStyle("Artist:", fyne.TextAlignLeading, fyne.TextStyle{Bold: true}),
+			widget.NewLabel(song.Artist),
+		),
+		widget.NewHBox(
+			widget.NewLabelWithStyle("Title:", fyne.TextAlignLeading, fyne.TextStyle{Bold: true}),
+			widget.NewLabel(song.Title),
+		),
+		widget.NewHBox(
+			widget.NewLabelWithStyle("Album:", fyne.TextAlignLeading, fyne.TextStyle{Bold: true}),
+			widget.NewLabel(song.Album),
+		),
+		widget.NewHBox(
+			widget.NewLabelWithStyle("Album Artist:", fyne.TextAlignLeading, fyne.TextStyle{Bold: true}),
+			widget.NewLabel(song.AlbumArtist),
+		),
+		widget.NewHBox(
+			widget.NewLabelWithStyle("File:", fyne.TextAlignLeading, fyne.TextStyle{Bold: true}),
+			widget.NewLabel(song.File),
+		),
+	)
+	d := dialog.NewCustom("Song Details", "Close", details, t.win)
+	d.Show()
+	d.Show()
 }
 
 func (t *tmpc) handleStopTap() bool {

@@ -30,7 +30,7 @@ type Search struct {
 var _ fyne.Widget = (*Search)(nil)
 
 // NewSearch creates a new search page.
-func NewSearch(doSearch SearchFn, addToQueue, insertIntoQueue, replaceQueue, addToPlaylist SongFn) *Search {
+func NewSearch(doSearch SearchFn, addToQueue, insertIntoQueue, replaceQueue, addToPlaylist SongFn, showDetails func(*mpd.Song)) *Search {
 	s := &Search{
 		doSearch: doSearch,
 		results:  NewSongList(),
@@ -61,7 +61,7 @@ func NewSearch(doSearch SearchFn, addToQueue, insertIntoQueue, replaceQueue, add
 	top := fyne.NewContainerWithLayout(topLayout, s.category, s.input)
 	mainLayout := layout.NewBorderLayout(top, nil, nil, nil)
 	s.box = fyne.NewContainerWithLayout(mainLayout, top, widget.NewScrollContainer(s.results))
-	s.contextMenu = s.buildContextMenu(addToQueue, insertIntoQueue, replaceQueue, addToPlaylist)
+	s.contextMenu = s.buildContextMenu(addToQueue, insertIntoQueue, replaceQueue, addToPlaylist, showDetails)
 
 	s.ExtendBaseWidget(s)
 	return s
@@ -72,7 +72,7 @@ func (s *Search) CreateRenderer() fyne.WidgetRenderer {
 	return &searchRenderer{c: s.box}
 }
 
-func (s *Search) buildContextMenu(addToQueue, insertIntoQueue, replaceQueue, addToPlaylist SongFn) *fyne.Menu {
+func (s *Search) buildContextMenu(addToQueue, insertIntoQueue, replaceQueue, addToPlaylist SongFn, showDetails func(*mpd.Song)) *fyne.Menu {
 	items := []*fyne.MenuItem{
 		fyne.NewMenuItem("Append to Queue", func() { addToQueue(s.results.SelectedSongs(), false) }),
 		fyne.NewMenuItem("Append to Queue and Play", func() {
@@ -87,6 +87,8 @@ func (s *Search) buildContextMenu(addToQueue, insertIntoQueue, replaceQueue, add
 			replaceQueue(s.results.SelectedSongs(), true)
 		}),
 		fyne.NewMenuItem("Add To Playlist…", func() { addToPlaylist(s.results.SelectedSongs(), false) }),
+		fyne.NewMenuItemSeparator(),
+		fyne.NewMenuItem("Details…", func() { showDetails(s.results.SelectedSongs()[0]) }),
 	}
 	return fyne.NewMenu("", items...)
 }
