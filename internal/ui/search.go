@@ -1,9 +1,11 @@
 package ui
 
 import (
+	"fmt"
 	"image/color"
 
 	"fyne.io/fyne"
+	"fyne.io/fyne/container"
 	"fyne.io/fyne/layout"
 	"fyne.io/fyne/widget"
 
@@ -44,7 +46,7 @@ func NewSearch(doSearch SearchFn, addToQueue, insertIntoQueue, replaceQueue, add
 			"Genre",
 			"Song",
 		},
-		PlaceHolder: "-",
+		PlaceHolder: "Album",
 		Selected:    "Song",
 	}
 	s.input = NewSubmitEntry(s.search)
@@ -60,7 +62,7 @@ func NewSearch(doSearch SearchFn, addToQueue, insertIntoQueue, replaceQueue, add
 	topLayout := layout.NewBorderLayout(nil, nil, s.category, nil)
 	top := fyne.NewContainerWithLayout(topLayout, s.category, s.input)
 	mainLayout := layout.NewBorderLayout(top, nil, nil, nil)
-	s.box = fyne.NewContainerWithLayout(mainLayout, top, widget.NewScrollContainer(s.results))
+	s.box = fyne.NewContainerWithLayout(mainLayout, top, container.NewScroll(s.results))
 	s.contextMenu = s.buildContextMenu(addToQueue, insertIntoQueue, replaceQueue, addToPlaylist, showDetails)
 
 	s.ExtendBaseWidget(s)
