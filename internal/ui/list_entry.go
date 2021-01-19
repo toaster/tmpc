@@ -18,11 +18,8 @@ type listEntry struct {
 }
 
 func (e *listEntry) createRenderer() listEntryRenderer {
-	// TODO lines sind nicht horizontal (size x, 0)
-	// sep := canvas.NewLine(theme.IconColor()
-	// sep.StrokeWidth = 1
-	sep := canvas.NewRectangle(theme.ButtonColor())
-	insertMarker := canvas.NewRectangle(theme.IconColor())
+	sep := canvas.NewRectangle(theme.HoverColor())
+	insertMarker := canvas.NewRectangle(theme.TextColor())
 	insertMarker.Hide()
 	return listEntryRenderer{
 		baseRenderer: baseRenderer{objects: []fyne.CanvasObject{sep, insertMarker}},

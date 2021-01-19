@@ -33,20 +33,24 @@ func NewMainGrid(
 }
 
 func (g *mainGrid) CreateRenderer() fyne.WidgetRenderer {
+	separator := canvas.NewRectangle(theme.PlaceHolderColor())
 	return &mainGridRenderer{
 		baseRenderer: baseRenderer{objects: []fyne.CanvasObject{
 			g.content,
 			g.controls,
+			separator,
 			g.status,
 			g.statusBar,
 		}},
-		grid: g,
+		grid:      g,
+		separator: separator,
 	}
 }
 
 type mainGridRenderer struct {
 	baseRenderer
-	grid *mainGrid
+	grid      *mainGrid
+	separator fyne.CanvasObject
 }
 
 func (r *mainGridRenderer) Layout(size fyne.Size) {
@@ -62,9 +66,12 @@ func (r *mainGridRenderer) Layout(size fyne.Size) {
 	r.grid.statusBar.Move(fyne.NewPos(0, size.Height-sbHeight))
 	r.grid.statusBar.Resize(fyne.NewSize(size.Width, sbHeight))
 
-	headerHeight := fyne.Max(ctrlSize.Height, stHeight)
-	r.grid.content.Move(fyne.NewPos(0, headerHeight+theme.Padding()))
-	r.grid.content.Resize(fyne.NewSize(size.Width, size.Height-headerHeight-sbHeight-theme.Padding()))
+	headerContentHeight := fyne.Max(ctrlSize.Height, stHeight) + theme.Padding()
+	r.separator.Resize(fyne.NewSize(size.Width, 1))
+	r.separator.Move(fyne.NewPos(0, headerContentHeight))
+	headerHeight := headerContentHeight + r.separator.Size().Height
+	r.grid.content.Move(fyne.NewPos(0, headerHeight))
+	r.grid.content.Resize(fyne.NewSize(size.Width, size.Height-headerHeight-sbHeight))
 }
 
 func (r *mainGridRenderer) MinSize() fyne.Size {
