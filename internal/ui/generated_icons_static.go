@@ -2,7 +2,7 @@
 
 package ui
 
-import "fyne.io/fyne"
+import "fyne.io/fyne/v2"
 
 var rscAlbum = &fyne.StaticResource{
 	StaticName: "album.svg",

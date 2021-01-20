@@ -1,13 +1,12 @@
 package ui
 
 import (
-	"fmt"
 	"image/color"
 
-	"fyne.io/fyne"
-	"fyne.io/fyne/container"
-	"fyne.io/fyne/layout"
-	"fyne.io/fyne/widget"
+	"fyne.io/fyne/v2"
+	"fyne.io/fyne/v2/container"
+	"fyne.io/fyne/v2/layout"
+	"fyne.io/fyne/v2/widget"
 
 	"github.com/toaster/tmpc/internal/mpd"
 )
@@ -60,9 +59,9 @@ func NewSearch(doSearch SearchFn, addToQueue, insertIntoQueue, replaceQueue, add
 	// 		timer.Reset(500 * time.Millisecond)
 	// 	}
 	topLayout := layout.NewBorderLayout(nil, nil, s.category, nil)
-	top := fyne.NewContainerWithLayout(topLayout, s.category, s.input)
+	top := container.New(topLayout, s.category, s.input)
 	mainLayout := layout.NewBorderLayout(top, nil, nil, nil)
-	s.box = fyne.NewContainerWithLayout(mainLayout, top, container.NewScroll(s.results))
+	s.box = container.New(mainLayout, top, container.NewScroll(s.results))
 	s.contextMenu = s.buildContextMenu(addToQueue, insertIntoQueue, replaceQueue, addToPlaylist, showDetails)
 
 	s.ExtendBaseWidget(s)

@@ -1,10 +1,10 @@
 package ui
 
 import (
-	"fyne.io/fyne"
-	"fyne.io/fyne/canvas"
-	"fyne.io/fyne/driver/desktop"
-	"fyne.io/fyne/widget"
+	"fyne.io/fyne/v2"
+	"fyne.io/fyne/v2/container"
+	"fyne.io/fyne/v2/driver/desktop"
+	"fyne.io/fyne/v2/widget"
 
 	"github.com/toaster/tmpc/internal/mpd"
 	"github.com/toaster/tmpc/internal/repo"
@@ -15,7 +15,7 @@ type SongList struct {
 	widget.BaseWidget
 	addedByLastMarkSlice map[*songListAlbumSong]bool
 	albums               []*songListAlbum
-	box                  *widget.Box
+	box                  *fyne.Container
 	coverRepo            *repo.CoverRepository
 	dragBefore           *mpd.Song
 	dragAfter            *mpd.Song
@@ -30,7 +30,7 @@ type SongList struct {
 // NewSongList creates a new empty SongList.
 func NewSongList() *SongList {
 	l := &SongList{
-		box:  widget.NewVBox(),
+		box:  container.NewVBox(),
 		move: func(*mpd.Song, int) {},
 	}
 	l.ExtendBaseWidget(l)
@@ -39,7 +39,7 @@ func NewSongList() *SongList {
 
 // CreateRenderer is an internal method
 func (l *SongList) CreateRenderer() fyne.WidgetRenderer {
-	return l.box.CreateRenderer()
+	return &containerRenderer{l.box}
 }
 
 // IsEmpty returns whether this song list is empty or not.
@@ -77,7 +77,7 @@ func (l *SongList) SelectedSongs() []*mpd.Song {
 func (l *SongList) Update(songs []*mpd.Song, onSongClick func(*mpd.Song), contextMenu *fyne.Menu) {
 	oldAlbums := l.albums
 	l.songs = songs
-	l.box.Children = make([]fyne.CanvasObject, 0, len(l.songs))
+	l.box.Objects = make([]fyne.CanvasObject, 0, len(l.songs))
 	l.albums = make([]*songListAlbum, 0, len(l.songs))
 	defer l.Refresh()
 
@@ -103,6 +103,7 @@ func (l *SongList) Update(songs []*mpd.Song, onSongClick func(*mpd.Song), contex
 			if qs.selected {
 				if song := songListSongs[qs.song.ID]; song != nil {
 					song.selected = true
+					song.Refresh()
 				}
 			}
 			if l.markAnchor == qs {
@@ -126,7 +127,7 @@ func (l *SongList) appendAlbum(songs []*mpd.Song, songListSongs map[int]*songLis
 		onSongClick,
 		contextMenu,
 	)
-	l.box.Children = append(l.box.Children, album)
+	l.box.Objects = append(l.box.Objects, album)
 	l.albums = append(l.albums, album)
 	for _, qs := range album.songs {
 		songListSongs[qs.song.ID] = qs
@@ -203,11 +204,11 @@ func (l *SongList) markSongWithoutAlbumRefresh(m desktop.Modifier, s *songListAl
 				if insideSlice {
 					l.addedByLastMarkSlice[qs] = l.addedByLastMarkSlice[qs] || !qs.selected
 					qs.selected = true
-					canvas.Refresh(qs)
+					qs.Refresh()
 				} else if l.addedByLastMarkSlice[qs] {
 					qs.selected = false
 					l.addedByLastMarkSlice[qs] = false
-					canvas.Refresh(qs)
+					qs.Refresh()
 				}
 				if insideSlice && boundary {
 					insideSlice = false
@@ -222,13 +223,13 @@ func (l *SongList) markSongWithoutAlbumRefresh(m desktop.Modifier, s *songListAl
 				for _, qs := range qa.songs {
 					if qs != s && qs.selected {
 						qs.selected = false
-						canvas.Refresh(qs)
+						qs.Refresh()
 					}
 				}
 			}
 		}
 		s.selected = true
-		canvas.Refresh(s)
+		s.Refresh()
 	}
 }
 
@@ -250,7 +251,7 @@ func (l *SongList) moveSelection() {
 		targetIndex++
 	}
 	beforeTargetCount := 0
-	i := 0
+	idx := 0
 	targetFound := false
 	var selection []*mpd.Song
 	for _, qa := range l.albums {
@@ -263,11 +264,11 @@ func (l *SongList) moveSelection() {
 			}
 			if qs.selected {
 				selection = append(selection, qs.song)
-				if i < targetIndex {
+				if idx < targetIndex {
 					beforeTargetCount++
 				}
 			}
-			i++
+			idx++
 		}
 	}
 	for _, song := range selection[:beforeTargetCount] {
@@ -292,8 +293,8 @@ func (l *SongList) recomputeAlbumSelections() {
 		}
 		qa.summary.selected = anySelected
 		qa.header.selected = allSelected
-		canvas.Refresh(qa.summary)
-		canvas.Refresh(qa.header)
+		qa.summary.Refresh()
+		qa.header.Refresh()
 	}
 }
 

@@ -21,7 +21,7 @@ do
       echo
       echo "package $PKG"
       echo
-      echo 'import "fyne.io/fyne/theme"'
+      echo 'import "fyne.io/fyne/v2/theme"'
     } > $THEMED_FILE
   else
     $fyne bundle -package $PKG -name "rsc$name" -append "$file" >> $STATIC_FILE
@@ -32,7 +32,7 @@ do
     echo "var ${name}Icon *theme.ThemedResource"
     echo
     echo "func init() {"
-    printf "\t%sIcon = theme.NewThemedResource(rsc%s, nil)\n" "$name" "$name"
+    printf "\t%sIcon = theme.NewThemedResource(rsc%s)\n" "$name" "$name"
     echo "}"
   } >> $THEMED_FILE
   append="yes"

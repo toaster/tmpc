@@ -4,11 +4,10 @@ import (
 	"fmt"
 	"time"
 
-	"fyne.io/fyne/theme"
-
-	"fyne.io/fyne"
-	"fyne.io/fyne/canvas"
-	"fyne.io/fyne/widget"
+	"fyne.io/fyne/v2"
+	"fyne.io/fyne/v2/canvas"
+	"fyne.io/fyne/v2/theme"
+	"fyne.io/fyne/v2/widget"
 
 	"github.com/toaster/tmpc/internal/mpd"
 )
@@ -33,12 +32,12 @@ func NewPlayerStatus(onSeek func(int)) *PlayerStatus {
 
 // CreateRenderer satisfies the fyne.Widget interface.
 func (s *PlayerStatus) CreateRenderer() fyne.WidgetRenderer {
-	aTitle := canvas.NewText("", theme.TextColor())
+	aTitle := canvas.NewText("", theme.ForegroundColor())
 	aCover := canvas.NewImageFromResource(nil)
-	progress := canvas.NewText("0:00 / 0:00", theme.TextColor())
+	progress := canvas.NewText("0:00 / 0:00", theme.ForegroundColor())
 	progress.TextSize = theme.TextSize() * 8 / 10
 	s.progressBar = newProgressBar(0, 0, s.onSeek)
-	title := canvas.NewText("", theme.TextColor())
+	title := canvas.NewText("", theme.ForegroundColor())
 	title.TextStyle.Bold = true
 	return &playerStatusRenderer{
 		aCover:       aCover,
@@ -122,10 +121,10 @@ func (r *playerStatusRenderer) MinSize() fyne.Size {
 }
 
 func (r *playerStatusRenderer) Refresh() {
-	if r.title.Color != theme.TextColor() {
-		r.aTitle.Color = theme.TextColor()
-		r.progress.Color = theme.TextColor()
-		r.title.Color = theme.TextColor()
+	if r.title.Color != theme.ForegroundColor() {
+		r.aTitle.Color = theme.ForegroundColor()
+		r.progress.Color = theme.ForegroundColor()
+		r.title.Color = theme.ForegroundColor()
 	}
 	if r.s.cover != r.aCover.Resource {
 		r.aCover.Resource = r.s.cover

@@ -1,9 +1,9 @@
 package ui
 
 import (
-	"fyne.io/fyne"
-	"fyne.io/fyne/canvas"
-	"fyne.io/fyne/widget"
+	"fyne.io/fyne/v2"
+	"fyne.io/fyne/v2/canvas"
+	"fyne.io/fyne/v2/widget"
 )
 
 // PlayerState represents the play state of the music player.
@@ -150,7 +150,7 @@ type playerControlsRenderer struct {
 	stopBtn  fyne.CanvasObject
 }
 
-func (p *playerControlsRenderer) Layout(size fyne.Size) {
+func (p *playerControlsRenderer) Layout(_ fyne.Size) {
 	if (p.playBtn.Size() == fyne.Size{}) {
 		p.prevBtn.Resize(p.prevBtn.MinSize())
 		p.playBtn.Resize(p.ppSize)
@@ -168,7 +168,7 @@ func (p *playerControlsRenderer) Layout(size fyne.Size) {
 }
 
 func (p *playerControlsRenderer) MinSize() fyne.Size {
-	p.ppSize = p.playBtn.MinSize().Union(p.pauseBtn.MinSize())
+	p.ppSize = p.playBtn.MinSize().Max(p.pauseBtn.MinSize())
 	ns := p.nextBtn.MinSize()
 	ps := p.prevBtn.MinSize()
 	ss := p.stopBtn.MinSize()

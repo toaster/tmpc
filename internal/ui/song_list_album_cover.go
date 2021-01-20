@@ -1,9 +1,9 @@
 package ui
 
 import (
-	"fyne.io/fyne"
-	"fyne.io/fyne/canvas"
-	"fyne.io/fyne/widget"
+	"fyne.io/fyne/v2"
+	"fyne.io/fyne/v2/canvas"
+	"fyne.io/fyne/v2/widget"
 )
 
 var _ fyne.Tappable = (*songListAlbumCover)(nil)
@@ -32,7 +32,7 @@ func (c *songListAlbumCover) MinSize() fyne.Size {
 	return c.image.MinSize()
 }
 
-func (c *songListAlbumCover) Tapped(e *fyne.PointEvent) {
+func (c *songListAlbumCover) Tapped(_ *fyne.PointEvent) {
 	c.onClick()
 }
 

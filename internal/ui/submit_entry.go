@@ -1,8 +1,8 @@
 package ui
 
 import (
-	"fyne.io/fyne"
-	"fyne.io/fyne/widget"
+	"fyne.io/fyne/v2"
+	"fyne.io/fyne/v2/widget"
 )
 
 // SubmitEntry is an entry that can be submitted by pressing Enter.

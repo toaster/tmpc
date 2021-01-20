@@ -3,10 +3,10 @@ package ui
 import (
 	"image/color"
 
-	"fyne.io/fyne"
-	"fyne.io/fyne/canvas"
-	"fyne.io/fyne/theme"
-	"fyne.io/fyne/widget"
+	"fyne.io/fyne/v2"
+	"fyne.io/fyne/v2/canvas"
+	"fyne.io/fyne/v2/theme"
+	"fyne.io/fyne/v2/widget"
 )
 
 type listEntry struct {
@@ -19,7 +19,7 @@ type listEntry struct {
 
 func (e *listEntry) createRenderer() listEntryRenderer {
 	sep := canvas.NewRectangle(theme.HoverColor())
-	insertMarker := canvas.NewRectangle(theme.TextColor())
+	insertMarker := canvas.NewRectangle(theme.ForegroundColor())
 	insertMarker.Hide()
 	return listEntryRenderer{
 		baseRenderer: baseRenderer{objects: []fyne.CanvasObject{sep, insertMarker}},

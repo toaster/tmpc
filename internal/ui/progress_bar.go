@@ -1,10 +1,10 @@
 package ui
 
 import (
-	"fyne.io/fyne"
-	"fyne.io/fyne/canvas"
-	"fyne.io/fyne/theme"
-	"fyne.io/fyne/widget"
+	"fyne.io/fyne/v2"
+	"fyne.io/fyne/v2/canvas"
+	"fyne.io/fyne/v2/theme"
+	"fyne.io/fyne/v2/widget"
 )
 
 type progressBar struct {
@@ -99,7 +99,7 @@ func (r *progressBarRenderer) Layout(size fyne.Size) {
 	if r.p.max != r.p.min {
 		ratio = float64(r.p.cur-r.p.min) / float64(r.p.max-r.p.min)
 	}
-	r.bar.Resize(fyne.NewSize(int(ratio*float64(width-4)), 6))
+	r.bar.Resize(fyne.NewSize(float32(ratio)*(width-4), 6))
 }
 
 func (r *progressBarRenderer) MinSize() fyne.Size {

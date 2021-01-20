@@ -3,13 +3,12 @@ package ui
 import (
 	"fmt"
 	"image/color"
-	"math"
 
-	"fyne.io/fyne"
-	"fyne.io/fyne/canvas"
-	"fyne.io/fyne/driver/desktop"
-	"fyne.io/fyne/theme"
-	"fyne.io/fyne/widget"
+	"fyne.io/fyne/v2"
+	"fyne.io/fyne/v2/canvas"
+	"fyne.io/fyne/v2/driver/desktop"
+	"fyne.io/fyne/v2/theme"
+	"fyne.io/fyne/v2/widget"
 )
 
 // TODO: checken, ob erben von widget.Button sinnvoll ist
@@ -61,7 +60,7 @@ func (b *iconButton) Enable() {
 	}
 }
 
-func (b *iconButton) MouseIn(e *desktop.MouseEvent) {
+func (b *iconButton) MouseIn(_ *desktop.MouseEvent) {
 	b.hovered = true
 	b.Refresh()
 }
@@ -71,7 +70,7 @@ func (b *iconButton) MouseOut() {
 	b.Refresh()
 }
 
-func (b *iconButton) MouseMoved(e *desktop.MouseEvent) {
+func (b *iconButton) MouseMoved(_ *desktop.MouseEvent) {
 }
 
 func (b *iconButton) Tapped(*fyne.PointEvent) {
@@ -144,11 +143,11 @@ func (r *iconButtonRenderer) Layout(size fyne.Size) {
 	r.icon.Resize(size)
 	r.disabledIcon.Resize(size)
 
-	r.badgeText.TextSize = int(math.Round(float64(r.icon.Size().Height) * 0.4))
+	r.badgeText.TextSize = r.icon.Size().Height * 0.4
 	r.badgeText.Resize(r.badgeText.MinSize())
 	badgeHeight := r.badgeText.MinSize().Height
 	badgeWidth := r.badgeText.MinSize().Width + 6
-	textOffset := 3
+	var textOffset float32 = 3
 	if badgeWidth < badgeHeight {
 		textOffset += badgeHeight - badgeWidth
 		badgeWidth = badgeHeight

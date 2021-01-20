@@ -1,20 +1,20 @@
 package ui
 
 import (
-	"fyne.io/fyne"
-	"fyne.io/fyne/canvas"
-	"fyne.io/fyne/theme"
+	"fyne.io/fyne/v2"
+	"fyne.io/fyne/v2/canvas"
+	"fyne.io/fyne/v2/theme"
 )
 
 type songListAlbumLine struct {
 	listEntry
 	bold          bool
 	lastTextRight bool
-	pad           int
+	pad           float32
 	texts         []string
 }
 
-func newAlbumEntryLine(pad int, texts []string) *songListAlbumLine {
+func newAlbumEntryLine(pad float32, texts []string) *songListAlbumLine {
 	l := &songListAlbumLine{
 		listEntry: listEntry{insertMarkerBottom: true},
 		pad:       pad,
@@ -24,7 +24,7 @@ func newAlbumEntryLine(pad int, texts []string) *songListAlbumLine {
 	return l
 }
 
-func newAlbumHeadLine(pad int, texts []string) *songListAlbumLine {
+func newAlbumHeadLine(pad float32, texts []string) *songListAlbumLine {
 	l := newAlbumEntryLine(pad, texts)
 	l.bold = true
 	l.lastTextRight = true
@@ -34,7 +34,7 @@ func newAlbumHeadLine(pad int, texts []string) *songListAlbumLine {
 func (l *songListAlbumLine) CreateRenderer() fyne.WidgetRenderer {
 	texts := make([]fyne.CanvasObject, 0, len(l.texts))
 	for _, t := range l.texts {
-		text := canvas.NewText(t, theme.TextColor())
+		text := canvas.NewText(t, theme.ForegroundColor())
 		if l.bold {
 			text.TextStyle.Bold = true
 		}
@@ -56,8 +56,8 @@ type songListAlbumLineRenderer struct {
 	l             *songListAlbumLine
 	lastTextRight bool
 	minSize       fyne.Size
-	pad           int
-	textHeight    int
+	pad           float32
+	textHeight    float32
 	texts         []fyne.CanvasObject
 }
 
@@ -76,7 +76,7 @@ func (r *songListAlbumLineRenderer) Layout(size fyne.Size) {
 
 func (r *songListAlbumLineRenderer) MinSize() fyne.Size {
 	if (r.minSize == fyne.Size{}) {
-		minWidth := r.pad + len(r.texts)*theme.Padding()
+		minWidth := r.pad + float32(len(r.texts))*theme.Padding()
 		for _, t := range r.texts {
 			minWidth += t.MinSize().Width
 			r.textHeight = fyne.Max(r.textHeight, t.MinSize().Height)

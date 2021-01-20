@@ -1,7 +1,7 @@
 package ui
 
 import (
-	"fyne.io/fyne"
+	"fyne.io/fyne/v2"
 )
 
 func eventIsOn(e *fyne.PointEvent, o fyne.CanvasObject) bool {

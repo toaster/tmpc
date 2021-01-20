@@ -3,10 +3,9 @@ package ui
 import (
 	"fmt"
 
-	"fyne.io/fyne"
-	"fyne.io/fyne/canvas"
-	"fyne.io/fyne/driver/desktop"
-	"fyne.io/fyne/widget"
+	"fyne.io/fyne/v2"
+	"fyne.io/fyne/v2/driver/desktop"
+	"fyne.io/fyne/v2/widget"
 
 	"github.com/toaster/tmpc/internal/mpd"
 )
@@ -30,7 +29,7 @@ type songListAlbumSong struct {
 	song              *mpd.Song
 }
 
-func newSongListAlbumSong(contextMenu *fyne.Menu, song *mpd.Song, insertSelection func(), selectionIsDragged func() bool, markSong func(desktop.Modifier, *songListAlbumSong), onSongClick func(*mpd.Song), coverSize int, setDragMarkAfter func(*mpd.Song, bool), setDragMarkBefore func(*mpd.Song, bool), dragSelection func()) *songListAlbumSong {
+func newSongListAlbumSong(contextMenu *fyne.Menu, song *mpd.Song, insertSelection func(), selectionIsDragged func() bool, markSong func(desktop.Modifier, *songListAlbumSong), onSongClick func(*mpd.Song), coverSize float32, setDragMarkAfter func(*mpd.Song, bool), setDragMarkBefore func(*mpd.Song, bool), dragSelection func()) *songListAlbumSong {
 	s := &songListAlbumSong{
 		contextMenu: contextMenu,
 		endDrag:     insertSelection,
