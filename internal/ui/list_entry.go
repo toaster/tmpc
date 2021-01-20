@@ -18,35 +18,35 @@ type listEntry struct {
 }
 
 func (e *listEntry) createRenderer() listEntryRenderer {
+	bg := canvas.NewRectangle(color.Transparent)
 	sep := canvas.NewRectangle(theme.HoverColor())
 	insertMarker := canvas.NewRectangle(theme.ForegroundColor())
 	insertMarker.Hide()
 	return listEntryRenderer{
-		baseRenderer: baseRenderer{objects: []fyne.CanvasObject{sep, insertMarker}},
+		baseRenderer: baseRenderer{objects: []fyne.CanvasObject{bg, sep, insertMarker}},
+		background:   bg,
 		e:            e,
 		insertMarker: insertMarker,
 		sep:          sep,
 	}
 }
 
+func (e *listEntry) Refresh() {
+	// TODO: widget extension + WidgetRenderer + refreshing is still error-prone
+	e.BaseWidget.Refresh()
+	canvas.Refresh(e)
+}
+
 type listEntryRenderer struct {
 	baseRenderer
+	background   *canvas.Rectangle
 	e            *listEntry
 	insertMarker fyne.CanvasObject
 	sep          fyne.CanvasObject
 }
 
-func (r *listEntryRenderer) BackgroundColor() color.Color {
-	if r.e.selected {
-		return theme.PrimaryColor()
-	}
-	if r.e.hovered {
-		return theme.HoverColor()
-	}
-	return color.Transparent
-}
-
 func (r *listEntryRenderer) Layout(size fyne.Size) {
+	r.background.Resize(size)
 	r.sep.Move(fyne.NewPos(0, size.Height-1))
 	r.sep.Resize(fyne.NewSize(size.Width, 1))
 	r.insertMarker.Resize(fyne.NewSize(size.Width, 1))
@@ -57,6 +57,14 @@ func (r *listEntryRenderer) MinSize() fyne.Size {
 }
 
 func (r *listEntryRenderer) Refresh() {
+	if r.e.selected {
+		r.background.FillColor = theme.PrimaryColor()
+	} else if r.e.hovered {
+		r.background.FillColor = theme.HoverColor()
+	} else {
+		r.background.FillColor = color.Transparent
+	}
+
 	if r.e.showInsertMarker {
 		if r.e.insertMarkerBottom {
 			r.insertMarker.Move(fyne.NewPos(0, r.e.Size().Height-1))

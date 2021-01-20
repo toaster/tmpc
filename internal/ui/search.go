@@ -1,8 +1,6 @@
 package ui
 
 import (
-	"image/color"
-
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/container"
 	"fyne.io/fyne/v2/layout"
@@ -114,10 +112,6 @@ type searchRenderer struct {
 }
 
 var _ fyne.WidgetRenderer = (*searchRenderer)(nil)
-
-func (r *searchRenderer) BackgroundColor() color.Color {
-	return color.Transparent
-}
 
 func (r *searchRenderer) Destroy() {
 }

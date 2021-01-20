@@ -94,6 +94,7 @@ type iconButtonRenderer struct {
 	badgeBackgroundMiddle *canvas.Rectangle
 	badgeBackgroundRight  *canvas.Circle
 	badgeText             *canvas.Text
+	background            *canvas.Rectangle
 	button                *iconButton
 	disabledIcon          *canvas.Image
 	icon                  *canvas.Image
@@ -101,7 +102,6 @@ type iconButtonRenderer struct {
 
 func newIconButtonRenderer(b *iconButton) *iconButtonRenderer {
 	var icon *canvas.Image
-	var objects []fyne.CanvasObject
 	icon = canvas.NewImageFromResource(b.icon)
 	badgeBGColor := &color.RGBA{R: 200, A: 255}
 	badgeBGL := canvas.NewCircle(badgeBGColor)
@@ -113,12 +113,14 @@ func newIconButtonRenderer(b *iconButton) *iconButtonRenderer {
 	badgeText := canvas.NewText("0", color.White)
 	badgeText.TextStyle.Bold = true
 	badgeText.Hide()
-	objects = append(objects, icon, badgeBGL, badgeBGM, badgeBGR, badgeText)
+	bg := &canvas.Rectangle{FillColor: color.Transparent}
+	objects := []fyne.CanvasObject{bg, icon, badgeBGL, badgeBGM, badgeBGR, badgeText}
 	return &iconButtonRenderer{
 		badgeBackgroundLeft:   badgeBGL,
 		badgeBackgroundMiddle: badgeBGM,
 		badgeBackgroundRight:  badgeBGR,
 		badgeText:             badgeText,
+		background:            bg,
 		baseRenderer:          baseRenderer{objects: objects},
 		button:                b,
 		disabledIcon:          canvas.NewImageFromResource(theme.NewDisabledResource(b.icon)),
@@ -127,14 +129,9 @@ func newIconButtonRenderer(b *iconButton) *iconButtonRenderer {
 
 }
 
-func (r *iconButtonRenderer) BackgroundColor() color.Color {
-	if r.button.hovered {
-		return theme.HoverColor()
-	}
-	return r.baseRenderer.BackgroundColor()
-}
-
 func (r *iconButtonRenderer) Layout(size fyne.Size) {
+	r.background.Resize(size)
+
 	if r.button.pad {
 		size = size.Subtract(fyne.NewSize(theme.Padding()*2, theme.Padding()*2))
 		r.icon.Move(fyne.NewPos(theme.Padding(), theme.Padding()))
@@ -180,10 +177,15 @@ func (r *iconButtonRenderer) MinSize() fyne.Size {
 }
 
 func (r *iconButtonRenderer) Refresh() {
-	if r.button.Disabled() {
-		r.objects[0] = r.disabledIcon
+	if r.button.hovered {
+		r.background.FillColor = theme.HoverColor()
 	} else {
-		r.objects[0] = r.icon
+		r.background.FillColor = color.Transparent
+	}
+	if r.button.Disabled() {
+		r.objects[1] = r.disabledIcon
+	} else {
+		r.objects[1] = r.icon
 	}
 	if r.button.badgeCount > 0 {
 		if r.button.badgeCount > 9500 {

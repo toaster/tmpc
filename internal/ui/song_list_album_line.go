@@ -41,7 +41,7 @@ func (l *songListAlbumLine) CreateRenderer() fyne.WidgetRenderer {
 		texts = append(texts, text)
 	}
 	ler := l.listEntry.createRenderer()
-	ler.objects = append(texts, ler.objects...)
+	ler.objects = append(ler.objects, texts...)
 	return &songListAlbumLineRenderer{
 		listEntryRenderer: ler,
 		l:                 l,
@@ -49,6 +49,12 @@ func (l *songListAlbumLine) CreateRenderer() fyne.WidgetRenderer {
 		pad:               l.pad,
 		texts:             texts,
 	}
+}
+
+func (l *songListAlbumLine) Refresh() {
+	// TODO: widget extension + WidgetRenderer + refreshing is still error-prone
+	l.listEntry.Refresh()
+	canvas.Refresh(l)
 }
 
 type songListAlbumLineRenderer struct {

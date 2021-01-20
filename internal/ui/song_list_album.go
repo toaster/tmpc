@@ -125,16 +125,16 @@ func (a *songListAlbum) MouseIn(e *desktop.MouseEvent) {
 		a.setDragMark(&e.PointEvent, true)
 	}
 
-	canvas.Refresh(a.header)
-	canvas.Refresh(a.summary)
+	a.header.Refresh()
+	a.summary.Refresh()
 }
 
 func (a *songListAlbum) MouseMoved(e *desktop.MouseEvent) {
 	if a.isDragging() {
 		a.setDragMark(&e.PointEvent, false)
 	}
-	canvas.Refresh(a.header)
-	canvas.Refresh(a.summary)
+	a.header.Refresh()
+	a.summary.Refresh()
 }
 
 func (a *songListAlbum) MouseOut() {
@@ -142,11 +142,8 @@ func (a *songListAlbum) MouseOut() {
 	a.header.showInsertMarker = false
 	a.summary.hovered = false
 	a.summary.showInsertMarker = false
-	// TODO s. song_list_album_song
 	a.header.Refresh()
 	a.summary.Refresh()
-	canvas.Refresh(a.header)
-	canvas.Refresh(a.summary)
 }
 
 func (a *songListAlbum) MouseUp(*desktop.MouseEvent) {
@@ -179,7 +176,6 @@ func (a *songListAlbum) setDragMark(e *fyne.PointEvent, force bool) {
 			a.summary.showInsertMarker = false
 			s := a.songs[0]
 			a.setDragMarkBefore(s.song, s.selected)
-			// TODO s. song_list_album_song
 			a.header.Refresh()
 			a.summary.Refresh()
 		}
@@ -189,7 +185,6 @@ func (a *songListAlbum) setDragMark(e *fyne.PointEvent, force bool) {
 			a.summary.showInsertMarker = true
 			s := a.songs[len(a.songs)-1]
 			a.setDragMarkAfter(s.song, s.selected)
-			// TODO s. song_list_album_song
 			a.header.Refresh()
 			a.summary.Refresh()
 		}

@@ -2,6 +2,7 @@ package ui
 
 import (
 	"fyne.io/fyne/v2"
+	"fyne.io/fyne/v2/canvas"
 	"fyne.io/fyne/v2/driver/desktop"
 	"fyne.io/fyne/v2/widget"
 )
@@ -38,8 +39,7 @@ func (e *playlistListEntry) CreateRenderer() fyne.WidgetRenderer {
 
 func (e *playlistListEntry) MouseIn(_ *desktop.MouseEvent) {
 	e.hovered = true
-	// TODO e.Refresh()
-	canvas.Refresh(e)
+	e.Refresh()
 }
 
 func (e *playlistListEntry) MouseMoved(_ *desktop.MouseEvent) {
@@ -47,7 +47,12 @@ func (e *playlistListEntry) MouseMoved(_ *desktop.MouseEvent) {
 
 func (e *playlistListEntry) MouseOut() {
 	e.hovered = false
-	// TODO e.Refresh()
+	e.Refresh()
+}
+
+func (e *playlistListEntry) Refresh() {
+	// TODO: widget extension + WidgetRenderer + refreshing is still error-prone
+	e.listEntry.Refresh()
 	canvas.Refresh(e)
 }
 
