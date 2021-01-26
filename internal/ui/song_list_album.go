@@ -154,8 +154,7 @@ func (a *songListAlbum) Tapped(_ *fyne.PointEvent) {
 
 func (a *songListAlbum) TappedSecondary(e *fyne.PointEvent) {
 	c := fyne.CurrentApp().Driver().CanvasForObject(a)
-	popUp := widget.NewPopUpMenu(a.contextMenu, c)
-	popUp.Move(e.AbsolutePosition)
+	widget.ShowPopUpMenuAtPosition(a.contextMenu, c, e.AbsolutePosition)
 }
 
 // UpdateCover changes the cover.

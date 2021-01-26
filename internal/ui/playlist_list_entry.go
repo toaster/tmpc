@@ -61,8 +61,7 @@ func (e *playlistListEntry) Tapped(_ *fyne.PointEvent) {
 
 func (e *playlistListEntry) TappedSecondary(pe *fyne.PointEvent) {
 	c := fyne.CurrentApp().Driver().CanvasForObject(e)
-	popUp := widget.NewPopUpMenu(e.contextMenu, c)
-	popUp.Move(pe.AbsolutePosition)
+	widget.ShowPopUpMenuAtPosition(e.contextMenu, c, pe.AbsolutePosition)
 }
 
 type playlistListEntryRenderer struct {

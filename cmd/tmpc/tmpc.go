@@ -443,13 +443,13 @@ func (t *tmpc) showErrors() {
 	bg := canvas.NewRectangle(theme.BackgroundColor())
 	ts := txt.MinSize()
 	bg.SetMinSize(ts)
-	c := container.NewWithoutLayout(bg, txt)
-	errorInfo := widget.NewPopUp(c, t.win.Canvas())
-	ws := t.win.Canvas().Size()
-	errorInfo.Move(fyne.NewPos(
+	c := t.win.Canvas()
+	ws := c.Size()
+	pos := fyne.NewPos(
 		ws.Width-ts.Width-theme.Padding()*4,
 		ws.Height-ts.Height-t.statusBar.Size().Height-theme.Padding()*3,
-	))
+	)
+	widget.ShowPopUpAtPosition(container.NewWithoutLayout(bg, txt), c, pos)
 	t.errors = t.errors[0:0]
 	t.statusBar.SetErrorCount(0)
 }
