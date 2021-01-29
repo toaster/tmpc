@@ -38,7 +38,7 @@ type FileDialog struct {
 	save             bool
 	callback         interface{}
 	onClosedCallback func(bool)
-	filter           FileFilter
+	filter           storage.FileFilter
 	parent           fyne.Window
 	dialog           *fileDialog
 	dismissText      string
@@ -46,49 +46,6 @@ type FileDialog struct {
 
 // Declare conformity to Dialog interface
 var _ Dialog = (*FileDialog)(nil)
-
-// FileFilter is an interface that can be implemented to provide a filter to a file dialog.
-type FileFilter interface {
-	Matches(fyne.URI) bool
-}
-
-type extensionFileFilter struct {
-	extensions []string
-}
-
-type mimeTypeFileFilter struct {
-	mimeTypes []string
-}
-
-// Matches returns true if a file URI has one of the filtered extensions.
-func (e *extensionFileFilter) Matches(uri fyne.URI) bool {
-	extension := uri.Extension()
-	for _, ext := range e.extensions {
-		if extension == ext {
-			return true
-		}
-	}
-	return false
-}
-
-// Matches returns true if a file URI has one of the filtered mimetypes.
-func (mt *mimeTypeFileFilter) Matches(uri fyne.URI) bool {
-	mimeType, mimeSubType := splitMimeType(uri)
-	for _, mimeTypeFull := range mt.mimeTypes {
-		mimeTypeSplit := strings.Split(mimeTypeFull, "/")
-		if len(mimeTypeSplit) <= 1 {
-			continue
-		}
-		mType := mimeTypeSplit[0]
-		mSubType := strings.Split(mimeTypeSplit[1], ";")[0]
-		if mType == mimeType {
-			if mSubType == mimeSubType || mSubType == "*" {
-				return true
-			}
-		}
-	}
-	return false
-}
 
 func (f *fileDialog) makeUI() fyne.CanvasObject {
 	if f.file.save {
@@ -119,7 +76,7 @@ func (f *fileDialog) makeUI() fyne.CanvasObject {
 		}
 
 		if f.file.save {
-			callback := f.file.callback.(func(fyne.FileWriteCloser, error))
+			callback := f.file.callback.(func(fyne.URIWriteCloser, error))
 			name := f.fileName.(*widget.Entry).Text
 			path := filepath.Join(f.dir, name)
 
@@ -139,19 +96,19 @@ func (f *fileDialog) makeUI() fyne.CanvasObject {
 
 			ShowConfirm("Overwrite?", "Are you sure you want to overwrite the file\n"+name+"?",
 				func(ok bool) {
+					f.win.Hide()
 					if !ok {
 						callback(nil, nil)
 						return
 					}
 
 					callback(storage.SaveFileToURI(storage.NewURI("file://" + path)))
-					f.win.Hide()
 					if f.file.onClosedCallback != nil {
 						f.file.onClosedCallback(true)
 					}
 				}, f.file.parent)
 		} else if f.selected != nil {
-			callback := f.file.callback.(func(fyne.FileReadCloser, error))
+			callback := f.file.callback.(func(fyne.URIReadCloser, error))
 			f.win.Hide()
 			if f.file.onClosedCallback != nil {
 				f.file.onClosedCallback(true)
@@ -172,9 +129,9 @@ func (f *fileDialog) makeUI() fyne.CanvasObject {
 		}
 		if f.file.callback != nil {
 			if f.file.save {
-				f.file.callback.(func(fyne.FileWriteCloser, error))(nil, nil)
+				f.file.callback.(func(fyne.URIWriteCloser, error))(nil, nil)
 			} else {
-				f.file.callback.(func(fyne.FileReadCloser, error))(nil, nil)
+				f.file.callback.(func(fyne.URIReadCloser, error))(nil, nil)
 			}
 		}
 	})
@@ -195,21 +152,21 @@ func (f *fileDialog) makeUI() fyne.CanvasObject {
 	body := fyne.NewContainerWithLayout(layout.NewBorderLayout(scrollBread, nil, nil, nil),
 		scrollBread, f.fileScroll)
 	header := widget.NewLabelWithStyle(label+" File", fyne.TextAlignLeading, fyne.TextStyle{Bold: true})
-	favourites := widget.NewGroup("Favourites", f.loadFavourites()...)
-	return fyne.NewContainerWithLayout(layout.NewBorderLayout(header, footer, favourites, nil),
-		favourites, header, footer, body)
+	favorites := widget.NewGroup("Favorites", f.loadFavorites()...)
+	return fyne.NewContainerWithLayout(layout.NewBorderLayout(header, footer, favorites, nil),
+		favorites, header, footer, body)
 }
 
-func (f *fileDialog) loadFavourites() []fyne.CanvasObject {
+func (f *fileDialog) loadFavorites() []fyne.CanvasObject {
 	home, _ := os.UserHomeDir()
 	places := []fyne.CanvasObject{
-		widget.NewButton("Home", func() {
+		makeFavoriteButton("Home", theme.HomeIcon(), func() {
 			f.setDirectory(home)
 		}),
-		widget.NewButton("Documents", func() {
+		makeFavoriteButton("Documents", theme.DocumentIcon(), func() {
 			f.setDirectory(filepath.Join(home, "Documents"))
 		}),
-		widget.NewButton("Downloads", func() {
+		makeFavoriteButton("Downloads", theme.DownloadIcon(), func() {
 			f.setDirectory(filepath.Join(home, "Downloads"))
 		}),
 	}
@@ -305,15 +262,31 @@ func (f *fileDialog) setSelected(file *fileDialogItem) {
 	}
 }
 
+// effectiveStartingDir calculates the directory at which the file dialog
+// should open, based on the values of  CWD, home, and any error conditions
+// which occur.
+//
+// Order of precedence is:
+//
+// * os.UserHomeDir()
+// * "/" (should be filesystem root on all supported platforms)
+func (f *FileDialog) effectiveStartingDir() string {
+
+	// Try home dir
+	dir, err := os.UserHomeDir()
+	if err == nil {
+		return dir
+	}
+	fyne.LogError("Could not load user home dir", err)
+
+	return "/"
+}
+
 func showFile(file *FileDialog) *fileDialog {
 	d := &fileDialog{file: file}
 	ui := d.makeUI()
-	dir, err := os.UserHomeDir()
-	if err != nil {
-		fyne.LogError("Could not load user home dir", err)
-		dir, _ = os.Getwd() //fallback
-	}
-	d.setDirectory(dir)
+
+	d.setDirectory(file.effectiveStartingDir())
 
 	size := ui.MinSize().Add(fyne.NewSize(fileIconCellWidth*2+theme.Padding()*4,
 		(fileIconSize+fileTextSize)+theme.Padding()*4))
@@ -328,11 +301,11 @@ func showFile(file *FileDialog) *fileDialog {
 // Show shows the file dialog.
 func (f *FileDialog) Show() {
 	if f.save {
-		if fileSaveOSOverride(f.callback.(func(fyne.FileWriteCloser, error)), f.parent) {
+		if fileSaveOSOverride(f) {
 			return
 		}
 	} else {
-		if fileOpenOSOverride(f.callback.(func(fyne.FileReadCloser, error)), f.parent) {
+		if fileOpenOSOverride(f) {
 			return
 		}
 	}
@@ -381,28 +354,16 @@ func (f *FileDialog) SetOnClosed(closed func()) {
 }
 
 // SetFilter sets a filter for limiting files that can be chosen in the file dialog.
-func (f *FileDialog) SetFilter(filter FileFilter) {
+func (f *FileDialog) SetFilter(filter storage.FileFilter) {
 	f.filter = filter
 	if f.dialog != nil {
 		f.dialog.refreshDir(f.dialog.dir)
 	}
 }
 
-// NewExtensionFileFilter takes a string slice of extensions with a leading . and creates a filter for the file dialog.
-// Example: .jpg, .mp3, .txt, .sh
-func NewExtensionFileFilter(extensions []string) FileFilter {
-	return &extensionFileFilter{extensions: extensions}
-}
-
-// NewMimeTypeFileFilter takes a string slice of mimetypes, including globs, and creates a filter for the file dialog.
-// Example: image/*, audio/mp3, text/plain, application/*
-func NewMimeTypeFileFilter(mimeTypes []string) FileFilter {
-	return &mimeTypeFileFilter{mimeTypes: mimeTypes}
-}
-
 // NewFileOpen creates a file dialog allowing the user to choose a file to open.
 // The dialog will appear over the window specified when Show() is called.
-func NewFileOpen(callback func(fyne.FileReadCloser, error), parent fyne.Window) *FileDialog {
+func NewFileOpen(callback func(fyne.URIReadCloser, error), parent fyne.Window) *FileDialog {
 	dialog := &FileDialog{callback: callback, parent: parent}
 	return dialog
 }
@@ -410,16 +371,16 @@ func NewFileOpen(callback func(fyne.FileReadCloser, error), parent fyne.Window) 
 // NewFileSave creates a file dialog allowing the user to choose a file to save to (new or overwrite).
 // If the user chooses an existing file they will be asked if they are sure.
 // The dialog will appear over the window specified when Show() is called.
-func NewFileSave(callback func(fyne.FileWriteCloser, error), parent fyne.Window) *FileDialog {
+func NewFileSave(callback func(fyne.URIWriteCloser, error), parent fyne.Window) *FileDialog {
 	dialog := &FileDialog{callback: callback, parent: parent, save: true}
 	return dialog
 }
 
 // ShowFileOpen creates and shows a file dialog allowing the user to choose a file to open.
 // The dialog will appear over the window specified.
-func ShowFileOpen(callback func(fyne.FileReadCloser, error), parent fyne.Window) {
+func ShowFileOpen(callback func(fyne.URIReadCloser, error), parent fyne.Window) {
 	dialog := NewFileOpen(callback, parent)
-	if fileOpenOSOverride(callback, parent) {
+	if fileOpenOSOverride(dialog) {
 		return
 	}
 	dialog.Show()
@@ -428,10 +389,17 @@ func ShowFileOpen(callback func(fyne.FileReadCloser, error), parent fyne.Window)
 // ShowFileSave creates and shows a file dialog allowing the user to choose a file to save to (new or overwrite).
 // If the user chooses an existing file they will be asked if they are sure.
 // The dialog will appear over the window specified.
-func ShowFileSave(callback func(fyne.FileWriteCloser, error), parent fyne.Window) {
+func ShowFileSave(callback func(fyne.URIWriteCloser, error), parent fyne.Window) {
 	dialog := NewFileSave(callback, parent)
-	if fileSaveOSOverride(callback, parent) {
+	if fileSaveOSOverride(dialog) {
 		return
 	}
 	dialog.Show()
+}
+
+func makeFavoriteButton(title string, icon fyne.Resource, f func()) *widget.Button {
+	b := widget.NewButtonWithIcon(title, icon, f)
+
+	b.Alignment = widget.ButtonAlignLeading
+	return b
 }
