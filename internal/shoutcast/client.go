@@ -8,6 +8,7 @@ import (
 	"github.com/romantomjak/shoutcast"
 )
 
+// Client is a ShoutCast client.
 type Client struct {
 	context *oto.Context
 	decoder *mp3.Decoder
@@ -18,14 +19,18 @@ type Client struct {
 	url     string
 }
 
+// NewClient creates a new Client for an URL.
+// `onError` is a function which receives all occurring errors.
 func NewClient(url string, onError func(error)) *Client {
 	return &Client{onError: onError, url: url}
 }
 
+// IsPlaying returns `true` iff the client is currently playing.
 func (c *Client) IsPlaying() bool {
 	return c.playing
 }
 
+// Play starts to playback the ShoutCast stream at the client’s URL.
 func (c *Client) Play() error {
 	if c.playing {
 		return nil
@@ -67,6 +72,7 @@ func (c *Client) Play() error {
 	return nil
 }
 
+// Stop stops the playback.
 func (c *Client) Stop() {
 	if !c.playing {
 		return

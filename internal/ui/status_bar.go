@@ -7,6 +7,7 @@ import (
 	"fyne.io/fyne/widget"
 )
 
+// StatusBar is the status bar to be displayed at the bottom of TMPC’s main window.
 type StatusBar struct {
 	widget.BaseWidget
 	connected              bool
@@ -19,6 +20,7 @@ type StatusBar struct {
 	playbackEnabled        bool
 }
 
+// NewStatusBar creates a new status bar.
 func NewStatusBar(playbackEnabled bool, onConnectClick, onErrorsClick func(), onPlaybackClick func() bool, onPlaybackConnectClick func()) *StatusBar {
 	b := &StatusBar{
 		onConnectClick:         onConnectClick,
@@ -31,6 +33,7 @@ func NewStatusBar(playbackEnabled bool, onConnectClick, onErrorsClick func(), on
 	return b
 }
 
+// CreateRenderer is an internal function.
 func (b *StatusBar) CreateRenderer() fyne.WidgetRenderer {
 	separator := canvas.NewRectangle(theme.PlaceHolderColor())
 	box := widget.NewHBox()
@@ -44,26 +47,29 @@ func (b *StatusBar) CreateRenderer() fyne.WidgetRenderer {
 		r.b.playbackEnabled = r.b.onPlaybackClick()
 		r.Refresh()
 	}
-	r.playbackButton = NewIconButton(HeadphonesIcon, callback)
-	r.playbackButtonDisabled = NewIconButton(theme.NewDisabledResource(HeadphonesIcon), callback)
+	r.playbackButton = newIconButton(HeadphonesIcon, callback)
+	r.playbackButtonDisabled = newIconButton(theme.NewDisabledResource(HeadphonesIcon), callback)
 	r.playbackButton.iconSize = fyne.NewSize(20, 20)
 	r.playbackButtonDisabled.iconSize = fyne.NewSize(20, 20)
 	r.playbackButton.pad = false
 	r.playbackButtonDisabled.pad = false
-	r.Refresh()
+	r.updateIcons()
 	return r
 }
 
+// SetErrorCount sets the error count that is then displayed in the status bar.
 func (b *StatusBar) SetErrorCount(c int) {
 	b.errorCount = c
 	b.Refresh()
 }
 
+// SetIsConnected sets the MPD connection state which is then displayed in the status bar.
 func (b *StatusBar) SetIsConnected(c bool) {
 	b.connected = c
 	b.Refresh()
 }
 
+// SetIsPlaying sets the ShoutCast playback state which is then displayed in the status bar.
 func (b *StatusBar) SetIsPlaying(p bool) {
 	b.playing = p
 	b.Refresh()
@@ -73,7 +79,6 @@ type statusBarRenderer struct {
 	baseRenderer
 	b                      *StatusBar
 	box                    *widget.Box
-	errorIndicator         fyne.CanvasObject
 	playbackButton         *iconButton
 	playbackButtonDisabled *iconButton
 	separator              fyne.CanvasObject
@@ -90,6 +95,11 @@ func (r *statusBarRenderer) MinSize() fyne.Size {
 }
 
 func (r *statusBarRenderer) Refresh() {
+	r.updateIcons()
+	canvas.Refresh(r.b)
+}
+
+func (r *statusBarRenderer) updateIcons() {
 	r.box.Children = r.box.Children[0:0]
 	if r.b.playbackEnabled {
 		r.box.Append(r.playbackButton)
@@ -101,7 +111,7 @@ func (r *statusBarRenderer) Refresh() {
 		icon.SetMinSize(fyne.NewSize(20, 20))
 		r.box.Append(icon)
 	} else {
-		button := NewIconButton(NoMusicIcon, r.b.onPlaybackConnectClick)
+		button := newIconButton(NoMusicIcon, r.b.onPlaybackConnectClick)
 		button.iconSize = fyne.NewSize(20, 20)
 		button.pad = false
 		r.box.Append(button)
@@ -111,17 +121,16 @@ func (r *statusBarRenderer) Refresh() {
 		icon.SetMinSize(fyne.NewSize(20, 20))
 		r.box.Append(icon)
 	} else {
-		button := NewIconButton(UnpluggedIcon, r.b.onConnectClick)
+		button := newIconButton(UnpluggedIcon, r.b.onConnectClick)
 		button.iconSize = fyne.NewSize(20, 20)
 		button.pad = false
 		r.box.Append(button)
 	}
 	if r.b.errorCount > 0 {
-		button := NewIconButton(ErrorIcon, r.b.onErrorsClick)
+		button := newIconButton(ErrorIcon, r.b.onErrorsClick)
 		button.iconSize = fyne.NewSize(20, 20)
 		button.pad = false
 		button.UpdateBadgeCount(r.b.errorCount)
 		r.box.Append(button)
 	}
-	canvas.Refresh(r.b)
 }

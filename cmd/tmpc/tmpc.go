@@ -97,33 +97,27 @@ func (t *tmpc) Run() {
 	}
 	go func() {
 		for {
-			select {
-			case <-t.stateUpdate:
-				log.Println("UPDATE: state")
-				t.updateState()
-				log.Println("UPDATE done: state")
-			}
+			<-t.stateUpdate
+			log.Println("UPDATE: state")
+			t.updateState()
+			log.Println("UPDATE done: state")
 		}
 	}()
 	go func() {
 		for {
-			select {
-			case <-t.queueUpdate:
-				log.Println("UPDATE: queue")
-				t.updateQueue()
-				log.Println("UPDATE done: queue")
-				t.stateUpdate <- true
-			}
+			<-t.queueUpdate
+			log.Println("UPDATE: queue")
+			t.updateQueue()
+			log.Println("UPDATE done: queue")
+			t.stateUpdate <- true
 		}
 	}()
 	go func() {
 		for {
-			select {
-			case <-t.playlistsUpdate:
-				log.Println("UPDATE: playlistsList")
-				t.updatePlaylists()
-				log.Println("UPDATE: playlistsList")
-			}
+			<-t.playlistsUpdate
+			log.Println("UPDATE: playlistsList")
+			t.updatePlaylists()
+			log.Println("UPDATE: playlistsList")
 		}
 	}()
 	t.win.ShowAndRun()
@@ -144,11 +138,7 @@ func (t *tmpc) Update(subsystem string) {
 }
 
 func (t *tmpc) applySettings(connect bool) {
-	if t.fyne.Preferences().String("theme") == "Dark" {
-		t.fyne.Settings().SetTheme(theme.DarkTheme())
-	} else {
-		t.fyne.Settings().SetTheme(theme.LightTheme())
-	}
+	t.applyTheme()
 	if t.mpd != nil && t.mpd.IsConnected() {
 		t.mpd.Disconnect()
 	}
@@ -161,6 +151,14 @@ func (t *tmpc) applySettings(connect bool) {
 	t.shoutcast = shoutcast.NewClient(t.fyne.Preferences().String("shoutcastURL"), t.addError)
 	if connect {
 		t.connectMPD()
+	}
+}
+
+func (t *tmpc) applyTheme() {
+	if t.fyne.Preferences().String("theme") == "Dark" {
+		t.fyne.Settings().SetTheme(theme.DarkTheme())
+	} else {
+		t.fyne.Settings().SetTheme(theme.LightTheme())
 	}
 }
 
@@ -288,7 +286,6 @@ func (t *tmpc) handlePlayList(name string) {
 		return
 	}
 	t.playCurrent()
-	return
 }
 
 func (t *tmpc) handlePlaySong(song *mpd.Song) {
@@ -301,7 +298,6 @@ func (t *tmpc) handlePlaySong(song *mpd.Song) {
 		return
 	}
 	t.startPlayback()
-	return
 }
 
 func (t *tmpc) handlePlayTap() bool {
@@ -345,7 +341,6 @@ func (t *tmpc) handleRemoveSongs(songs []*mpd.Song) {
 			t.addError(errors.Wrap(err, "failed to remove song"))
 		}
 	}
-	return
 }
 
 func (t *tmpc) handleReplaceQueue(songs []*mpd.Song, play bool) {
@@ -450,6 +445,7 @@ func (t *tmpc) showSettings() {
 	}
 	themeSelector := widget.NewRadio([]string{"Dark", "Light"}, func(s string) {
 		t.fyne.Preferences().SetString("theme", s)
+		t.applyTheme()
 	})
 	themeSelector.SetSelected(t.fyne.Preferences().String("theme"))
 	themeSelector.Required = true

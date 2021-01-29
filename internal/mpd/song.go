@@ -59,12 +59,13 @@ type Song struct {
 	Year        int
 }
 
+// DisplayTitle returns the display title of the song.
+// It contains the artist iff it differs from the album artist.
 func (s *Song) DisplayTitle() string {
 	if s.Artist != s.AlbumArtist {
 		return fmt.Sprintf("%s - %s", s.Artist, s.Title)
-	} else {
-		return s.Title
 	}
+	return s.Title
 }
 
 func songsFromAttrs(attrs []mpd.Attrs) []*Song {

@@ -174,7 +174,7 @@ func (a *songListAlbum) setSongIndicator(idx int, indicator fyne.CanvasObject) {
 
 func (a *songListAlbum) setDragMark(e *fyne.PointEvent, force bool) {
 	if eventIsOn(e, a.header) {
-		if a.header.showInsertMarker == false || force {
+		if !a.header.showInsertMarker || force {
 			a.header.showInsertMarker = true
 			a.summary.showInsertMarker = false
 			s := a.songs[0]
@@ -184,7 +184,7 @@ func (a *songListAlbum) setDragMark(e *fyne.PointEvent, force bool) {
 			a.summary.Refresh()
 		}
 	} else {
-		if a.summary.showInsertMarker == false || force {
+		if !a.summary.showInsertMarker || force {
 			a.header.showInsertMarker = false
 			a.summary.showInsertMarker = true
 			s := a.songs[len(a.songs)-1]

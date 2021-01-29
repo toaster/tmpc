@@ -41,11 +41,11 @@ func NewPlayerControls(onNext, onPlay, onPause, onPrev, onStop func() bool) *Pla
 		onPrev:  onPrev,
 		onStop:  onStop,
 	}
-	p.nextBtn = NewIconButton(NextIcon, p.handleNext)
-	p.pauseBtn = NewIconButton(PauseIcon, p.handlePause)
-	p.playBtn = NewIconButton(PlayIcon, p.handlePlay)
-	p.prevBtn = NewIconButton(PrevIcon, p.handlePrev)
-	p.stopBtn = NewIconButton(StopIcon, p.handleStop)
+	p.nextBtn = newIconButton(NextIcon, p.handleNext)
+	p.pauseBtn = newIconButton(PauseIcon, p.handlePause)
+	p.playBtn = newIconButton(PlayIcon, p.handlePlay)
+	p.prevBtn = newIconButton(PrevIcon, p.handlePrev)
+	p.stopBtn = newIconButton(StopIcon, p.handleStop)
 	p.ExtendBaseWidget(p)
 	return p
 }

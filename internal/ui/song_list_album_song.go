@@ -119,8 +119,7 @@ func (s *songListAlbumSong) Tapped(_ *fyne.PointEvent) {
 
 func (s *songListAlbumSong) TappedSecondary(e *fyne.PointEvent) {
 	c := fyne.CurrentApp().Driver().CanvasForObject(s)
-	popUp := widget.NewPopUpMenu(s.contextMenu, c)
-	popUp.Move(e.AbsolutePosition)
+	widget.ShowPopUpMenuAtPosition(s.contextMenu, c, e.AbsolutePosition)
 }
 
 func (s *songListAlbumSong) setDragMark(p fyne.Position, force bool) bool {

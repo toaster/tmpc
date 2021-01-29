@@ -8,18 +8,21 @@ import (
 	"fyne.io/fyne/widget"
 )
 
+// SongInfo is the content shown in the Info tab for a song.
 type SongInfo struct {
 	widget.BaseWidget
 	title  string
 	lyrics []string
 }
 
+// NewSongInfo creates a new empty SongInfo.
 func NewSongInfo() *SongInfo {
 	i := &SongInfo{}
 	i.ExtendBaseWidget(i)
 	return i
 }
 
+// CreateRenderer is an internal method.
 func (i *SongInfo) CreateRenderer() fyne.WidgetRenderer {
 	title := widget.NewLabel(i.title)
 	title.Alignment = fyne.TextAlignCenter
@@ -34,6 +37,7 @@ func (i *SongInfo) CreateRenderer() fyne.WidgetRenderer {
 	}
 }
 
+// Update sets the content to the new title and lyrics.
 func (i *SongInfo) Update(title string, lyrics []string) {
 	i.title = title
 	i.lyrics = lyrics

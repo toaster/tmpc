@@ -7,27 +7,12 @@ import (
 	"fyne.io/fyne/widget"
 )
 
-// TODO
-// - scrollable container
-//   - outside scrollbar
-//   - scrollable horizontal
-//   - stylable bar
-//     - round corners
-//     - border/bg
-//   - scrollable by moving the scrollbar
-//   - (jump-)scrollable by clicking the scrollbararea
-//   - minimum size for scrollbar
-// - canvas
-//   - remove dependency from driver to actual implementations (fyne.Container or even worse widget.ScrollContainer)
-//     -> the driver should probably use a fyne-interface
-
 type mainGrid struct {
 	widget.BaseWidget
-	content         fyne.CanvasObject
-	contentSelector fyne.CanvasObject
-	controls        fyne.CanvasObject
-	status          fyne.CanvasObject
-	statusBar       fyne.CanvasObject
+	content   fyne.CanvasObject
+	controls  fyne.CanvasObject
+	status    fyne.CanvasObject
+	statusBar fyne.CanvasObject
 }
 
 // NewMainGrid returns a new container for the content of the TMPC main window.
