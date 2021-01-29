@@ -45,7 +45,7 @@ type tmpc struct {
 
 func newTMPC() *tmpc {
 	a := app.NewWithID("net.pruetz.tmpc")
-	player := &tmpc{fyne: a}
+	player := &tmpc{fyne: a, win: a.NewWindow("Tilos Music Player Client")}
 	player.applySettings(false)
 
 	player.ctrls = ui.NewPlayerControls(
@@ -58,7 +58,7 @@ func newTMPC() *tmpc {
 	player.status = ui.NewPlayerStatus(player.handleSeek)
 	player.info = ui.NewSongInfo()
 	infoCont := container.NewScroll(player.info)
-	player.playlistsList = ui.NewPlaylistList(player.handlePlayList, player.handleDeletePlaylist)
+	player.playlistsList = ui.NewPlaylistList(player.handlePlayList, player.handleDeletePlaylist, player.win)
 	player.queue = ui.NewQueue(player.moveSongInQueue, player.handleClearQueue, player.handleSongDetails, player.handlePlaySong, player.handleRemoveSongs)
 	player.search = ui.NewSearch(player.handleSearch, player.handleAddToQueue, player.handleInsertIntoQueue, player.handleReplaceQueue, player.handleAddToPlaylist, player.handleSongDetails)
 
@@ -73,7 +73,6 @@ func newTMPC() *tmpc {
 	player.statusBar = ui.NewStatusBar(player.playbackEnabled, player.connectMPD, player.showErrors, player.togglePlayback, player.startPlayback)
 
 	mainGrid := ui.NewMainGrid(mainContent, player.ctrls, player.status, player.statusBar)
-	player.win = player.fyne.NewWindow("Tilos Music Player Client")
 	player.win.SetContent(mainGrid)
 	player.win.SetMaster()
 

@@ -16,14 +16,16 @@ type PlaylistList struct {
 	box     *fyne.Container
 	delete  func(string)
 	playNow func(string)
+	window  fyne.Window
 }
 
 // NewPlaylistList returns a new playlist container.
-func NewPlaylistList(playNow, delete func(string)) *PlaylistList {
+func NewPlaylistList(playNow, delete func(string), w fyne.Window) *PlaylistList {
 	l := &PlaylistList{
 		box:     container.NewVBox(),
 		delete:  delete,
 		playNow: playNow,
+		window:  w,
 	}
 	l.ExtendBaseWidget(l)
 	return l
@@ -38,7 +40,7 @@ func (p *PlaylistList) CreateRenderer() fyne.WidgetRenderer {
 func (p *PlaylistList) Update(pls []mpd.Playlist) {
 	p.box.Objects = make([]fyne.CanvasObject, 0, len(pls))
 	for _, pl := range pls {
-		p.box.Objects = append(p.box.Objects, newPlaylistListEntry(pl.Name(), p.playNow, p.delete))
+		p.box.Objects = append(p.box.Objects, newPlaylistListEntry(pl.Name(), p.playNow, p.delete, p.window))
 	}
 	p.Refresh()
 }
