@@ -26,7 +26,7 @@ type tmpc struct {
 	errors          []string
 	fyne            fyne.App
 	info            *ui.SongInfo
-	lyricsRepo      *metadata.LyricsRepository
+	lyricsRepo      metadata.LyricsFetcher
 	mpd             *mpd.Client
 	playbackEnabled bool
 	playlists       []mpd.Playlist
@@ -45,7 +45,11 @@ type tmpc struct {
 
 func newTMPC() *tmpc {
 	a := app.NewWithID("net.pruetz.tmpc")
-	player := &tmpc{fyne: a, win: a.NewWindow("Tilos Music Player Client")}
+	player := &tmpc{
+		fyne:       a,
+		lyricsRepo: &metadata.LyricsRepository{},
+		win:        a.NewWindow("Tilos Music Player Client"),
+	}
 	player.applySettings(false)
 
 	player.ctrls = ui.NewPlayerControls(
