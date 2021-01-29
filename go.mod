@@ -2,14 +2,14 @@ module github.com/toaster/tmpc
 
 go 1.12
 
-replace fyne.io/fyne => ../fyne
+replace fyne.io/fyne/v2 => ../fyne
 
 replace github.com/fhs/gompd => ../gompd
 
 replace github.com/romantomjak/shoutcast => ../shoutcast
 
 require (
-	fyne.io/fyne v1.0.1
+	fyne.io/fyne/v2 v2.0.0-rc5
 	github.com/fhs/gompd v2.0.0+incompatible
 	github.com/fhs/gompd/v2 v2.0.3 // indirect
 	github.com/hajimehoshi/go-mp3 v0.3.0

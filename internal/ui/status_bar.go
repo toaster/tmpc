@@ -1,10 +1,11 @@
 package ui
 
 import (
-	"fyne.io/fyne"
-	"fyne.io/fyne/canvas"
-	"fyne.io/fyne/theme"
-	"fyne.io/fyne/widget"
+	"fyne.io/fyne/v2"
+	"fyne.io/fyne/v2/canvas"
+	"fyne.io/fyne/v2/container"
+	"fyne.io/fyne/v2/theme"
+	"fyne.io/fyne/v2/widget"
 )
 
 // StatusBar is the status bar to be displayed at the bottom of TMPC’s main window.
@@ -36,7 +37,7 @@ func NewStatusBar(playbackEnabled bool, onConnectClick, onErrorsClick func(), on
 // CreateRenderer is an internal function.
 func (b *StatusBar) CreateRenderer() fyne.WidgetRenderer {
 	separator := canvas.NewRectangle(theme.PlaceHolderColor())
-	box := widget.NewHBox()
+	box := container.NewHBox()
 	r := &statusBarRenderer{
 		baseRenderer: baseRenderer{objects: []fyne.CanvasObject{box, separator}},
 		b:            b,
@@ -78,7 +79,7 @@ func (b *StatusBar) SetIsPlaying(p bool) {
 type statusBarRenderer struct {
 	baseRenderer
 	b                      *StatusBar
-	box                    *widget.Box
+	box                    *fyne.Container
 	playbackButton         *iconButton
 	playbackButtonDisabled *iconButton
 	separator              fyne.CanvasObject
@@ -91,7 +92,7 @@ func (r *statusBarRenderer) Layout(size fyne.Size) {
 }
 
 func (r *statusBarRenderer) MinSize() fyne.Size {
-	return r.box.MinSize().Add(fyne.NewSize(theme.Padding()*2, 0)).Union(fyne.NewSize(0, 21+theme.Padding()))
+	return r.box.MinSize().Add(fyne.NewSize(theme.Padding()*2, 0)).Max(fyne.NewSize(0, 21+theme.Padding()))
 }
 
 func (r *statusBarRenderer) Refresh() {
@@ -100,37 +101,37 @@ func (r *statusBarRenderer) Refresh() {
 }
 
 func (r *statusBarRenderer) updateIcons() {
-	r.box.Children = r.box.Children[0:0]
+	r.box.Objects = r.box.Objects[0:0]
 	if r.b.playbackEnabled {
-		r.box.Append(r.playbackButton)
+		r.box.Add(r.playbackButton)
 	} else {
-		r.box.Append(r.playbackButtonDisabled)
+		r.box.Add(r.playbackButtonDisabled)
 	}
 	if r.b.playing {
 		icon := canvas.NewImageFromResource(MusicIcon)
 		icon.SetMinSize(fyne.NewSize(20, 20))
-		r.box.Append(icon)
+		r.box.Add(icon)
 	} else {
 		button := newIconButton(NoMusicIcon, r.b.onPlaybackConnectClick)
 		button.iconSize = fyne.NewSize(20, 20)
 		button.pad = false
-		r.box.Append(button)
+		r.box.Add(button)
 	}
 	if r.b.connected {
 		icon := canvas.NewImageFromResource(PluggedIcon)
 		icon.SetMinSize(fyne.NewSize(20, 20))
-		r.box.Append(icon)
+		r.box.Add(icon)
 	} else {
 		button := newIconButton(UnpluggedIcon, r.b.onConnectClick)
 		button.iconSize = fyne.NewSize(20, 20)
 		button.pad = false
-		r.box.Append(button)
+		r.box.Add(button)
 	}
 	if r.b.errorCount > 0 {
 		button := newIconButton(ErrorIcon, r.b.onErrorsClick)
 		button.iconSize = fyne.NewSize(20, 20)
 		button.pad = false
 		button.UpdateBadgeCount(r.b.errorCount)
-		r.box.Append(button)
+		r.box.Add(button)
 	}
 }

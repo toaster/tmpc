@@ -1,8 +1,9 @@
 package ui
 
 import (
-	"fyne.io/fyne"
-	"fyne.io/fyne/widget"
+	"fyne.io/fyne/v2"
+	"fyne.io/fyne/v2/container"
+	"fyne.io/fyne/v2/widget"
 
 	"github.com/toaster/tmpc/internal/mpd"
 )
@@ -12,7 +13,7 @@ var _ fyne.Widget = (*PlaylistList)(nil)
 // PlaylistList is a container showing MPD playlists.
 type PlaylistList struct {
 	widget.BaseWidget
-	box     *widget.Box
+	box     *fyne.Container
 	delete  func(string)
 	playNow func(string)
 }
@@ -20,7 +21,7 @@ type PlaylistList struct {
 // NewPlaylistList returns a new playlist container.
 func NewPlaylistList(playNow, delete func(string)) *PlaylistList {
 	l := &PlaylistList{
-		box:     widget.NewVBox(),
+		box:     container.NewVBox(),
 		delete:  delete,
 		playNow: playNow,
 	}
@@ -30,14 +31,14 @@ func NewPlaylistList(playNow, delete func(string)) *PlaylistList {
 
 // CreateRenderer is an internal method
 func (p *PlaylistList) CreateRenderer() fyne.WidgetRenderer {
-	return p.box.CreateRenderer()
+	return &containerRenderer{p.box}
 }
 
 // Update replaces the lists contents with new ones.
 func (p *PlaylistList) Update(pls []mpd.Playlist) {
-	p.box.Children = make([]fyne.CanvasObject, 0, len(pls))
+	p.box.Objects = make([]fyne.CanvasObject, 0, len(pls))
 	for _, pl := range pls {
-		p.box.Children = append(p.box.Children, newPlaylistListEntry(pl.Name(), p.playNow, p.delete))
+		p.box.Objects = append(p.box.Objects, newPlaylistListEntry(pl.Name(), p.playNow, p.delete))
 	}
 	p.Refresh()
 }

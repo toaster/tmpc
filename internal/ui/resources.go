@@ -1,6 +1,6 @@
 package ui
 
-import "fyne.io/fyne"
+import "fyne.io/fyne/v2"
 
 var rscPauseIndicator = &fyne.StaticResource{
 	StaticName: "pause_indicator.svg",

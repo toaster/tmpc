@@ -3,10 +3,10 @@ package ui
 import (
 	"fmt"
 
-	"fyne.io/fyne"
-	"fyne.io/fyne/canvas"
-	"fyne.io/fyne/driver/desktop"
-	"fyne.io/fyne/widget"
+	"fyne.io/fyne/v2"
+	"fyne.io/fyne/v2/canvas"
+	"fyne.io/fyne/v2/driver/desktop"
+	"fyne.io/fyne/v2/widget"
 
 	"github.com/toaster/tmpc/internal/mpd"
 )
@@ -30,7 +30,7 @@ type songListAlbumSong struct {
 	song              *mpd.Song
 }
 
-func newSongListAlbumSong(contextMenu *fyne.Menu, song *mpd.Song, insertSelection func(), selectionIsDragged func() bool, markSong func(desktop.Modifier, *songListAlbumSong), onSongClick func(*mpd.Song), coverSize int, setDragMarkAfter func(*mpd.Song, bool), setDragMarkBefore func(*mpd.Song, bool), dragSelection func()) *songListAlbumSong {
+func newSongListAlbumSong(contextMenu *fyne.Menu, song *mpd.Song, insertSelection func(), selectionIsDragged func() bool, markSong func(desktop.Modifier, *songListAlbumSong), onSongClick func(*mpd.Song), coverSize float32, setDragMarkAfter func(*mpd.Song, bool), setDragMarkBefore func(*mpd.Song, bool), dragSelection func()) *songListAlbumSong {
 	s := &songListAlbumSong{
 		contextMenu: contextMenu,
 		endDrag:     insertSelection,
@@ -83,22 +83,13 @@ func (s *songListAlbumSong) MouseIn(e *desktop.MouseEvent) {
 		s.showInsertMarker = true
 		s.setDragMark(e.Position, true)
 	}
-	// TODO: dieses ganze refresh-Geraffel ist hochgradig undurchsichtig
-	// - normalerweise reicht canvas.Refresh(w) aber das triggert keinen <widget>.Refresh
-	// - <widget>.Refresh soll wahrscheinlich aktualisieren (show/hide o.ä.) ohne layout/minsize-Änderung.
-	// - <widget>.Refresh muss aber explizit gerufen werden und hängt damit von widget.Renderer() ab,
-	//   was ja nun ganz und gar nicht geht.
-	// - ausserdem is offenbar ein canvas.Refresh(renderer.widget) im Renderer gefährlich, wenn dessen widget embedded ist
 	s.Refresh()
-	canvas.Refresh(s)
 }
 
 func (s *songListAlbumSong) MouseMoved(e *desktop.MouseEvent) {
 	if s.isDragging() {
 		if s.setDragMark(e.Position, false) {
-			// TODO: s.o.
 			s.Refresh()
-			canvas.Refresh(s)
 		}
 	}
 }
@@ -106,12 +97,16 @@ func (s *songListAlbumSong) MouseMoved(e *desktop.MouseEvent) {
 func (s *songListAlbumSong) MouseOut() {
 	s.showInsertMarker = false
 	s.hovered = false
-	// TODO s.o.
 	s.Refresh()
-	canvas.Refresh(s)
 }
 
 func (s *songListAlbumSong) MouseUp(*desktop.MouseEvent) {
+}
+
+func (s *songListAlbumSong) Refresh() {
+	// TODO: widget extension + WidgetRenderer + refreshing is still error-prone
+	s.songListAlbumLine.Refresh()
+	canvas.Refresh(s)
 }
 
 func (s *songListAlbumSong) Tapped(_ *fyne.PointEvent) {

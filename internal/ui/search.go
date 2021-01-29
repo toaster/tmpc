@@ -1,11 +1,10 @@
 package ui
 
 import (
-	"image/color"
-
-	"fyne.io/fyne"
-	"fyne.io/fyne/layout"
-	"fyne.io/fyne/widget"
+	"fyne.io/fyne/v2"
+	"fyne.io/fyne/v2/container"
+	"fyne.io/fyne/v2/layout"
+	"fyne.io/fyne/v2/widget"
 
 	"github.com/toaster/tmpc/internal/mpd"
 )
@@ -44,7 +43,7 @@ func NewSearch(doSearch SearchFn, addToQueue, insertIntoQueue, replaceQueue, add
 			"Genre",
 			"Song",
 		},
-		PlaceHolder: "-",
+		PlaceHolder: "Album",
 		Selected:    "Song",
 	}
 	s.input = NewSubmitEntry(s.search)
@@ -58,9 +57,9 @@ func NewSearch(doSearch SearchFn, addToQueue, insertIntoQueue, replaceQueue, add
 	// 		timer.Reset(500 * time.Millisecond)
 	// 	}
 	topLayout := layout.NewBorderLayout(nil, nil, s.category, nil)
-	top := fyne.NewContainerWithLayout(topLayout, s.category, s.input)
+	top := container.New(topLayout, s.category, s.input)
 	mainLayout := layout.NewBorderLayout(top, nil, nil, nil)
-	s.box = fyne.NewContainerWithLayout(mainLayout, top, widget.NewScrollContainer(s.results))
+	s.box = container.New(mainLayout, top, container.NewScroll(s.results))
 	s.contextMenu = s.buildContextMenu(addToQueue, insertIntoQueue, replaceQueue, addToPlaylist, showDetails)
 
 	s.ExtendBaseWidget(s)
@@ -113,10 +112,6 @@ type searchRenderer struct {
 }
 
 var _ fyne.WidgetRenderer = (*searchRenderer)(nil)
-
-func (r *searchRenderer) BackgroundColor() color.Color {
-	return color.Transparent
-}
 
 func (r *searchRenderer) Destroy() {
 }

@@ -12,7 +12,8 @@ import (
 	"path/filepath"
 	"strings"
 
-	"fyne.io/fyne"
+	"fyne.io/fyne/v2"
+
 	"github.com/toaster/tmpc/internal/mpd"
 	"github.com/toaster/tmpc/internal/util"
 )

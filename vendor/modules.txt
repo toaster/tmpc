@@ -1,33 +1,40 @@
-# fyne.io/fyne v1.0.1 => ../fyne
-fyne.io/fyne
-fyne.io/fyne/app
-fyne.io/fyne/canvas
-fyne.io/fyne/dialog
-fyne.io/fyne/driver/desktop
-fyne.io/fyne/driver/mobile
-fyne.io/fyne/internal
-fyne.io/fyne/internal/app
-fyne.io/fyne/internal/cache
-fyne.io/fyne/internal/driver
-fyne.io/fyne/internal/driver/glfw
-fyne.io/fyne/internal/driver/gomobile
-fyne.io/fyne/internal/painter
-fyne.io/fyne/internal/painter/gl
-fyne.io/fyne/internal/painter/software
-fyne.io/fyne/internal/test
-fyne.io/fyne/internal/widget
-fyne.io/fyne/layout
-fyne.io/fyne/storage
-fyne.io/fyne/test
-fyne.io/fyne/theme
-fyne.io/fyne/widget
+# fyne.io/fyne/v2 v2.0.0-rc5 => ../fyne
+fyne.io/fyne/v2
+fyne.io/fyne/v2/app
+fyne.io/fyne/v2/canvas
+fyne.io/fyne/v2/container
+fyne.io/fyne/v2/data/binding
+fyne.io/fyne/v2/dialog
+fyne.io/fyne/v2/driver/desktop
+fyne.io/fyne/v2/driver/mobile
+fyne.io/fyne/v2/internal
+fyne.io/fyne/v2/internal/animation
+fyne.io/fyne/v2/internal/app
+fyne.io/fyne/v2/internal/cache
+fyne.io/fyne/v2/internal/driver
+fyne.io/fyne/v2/internal/driver/glfw
+fyne.io/fyne/v2/internal/driver/gomobile
+fyne.io/fyne/v2/internal/painter
+fyne.io/fyne/v2/internal/painter/gl
+fyne.io/fyne/v2/internal/painter/software
+fyne.io/fyne/v2/internal/repository
+fyne.io/fyne/v2/internal/test
+fyne.io/fyne/v2/internal/widget
+fyne.io/fyne/v2/layout
+fyne.io/fyne/v2/storage
+fyne.io/fyne/v2/storage/repository
+fyne.io/fyne/v2/test
+fyne.io/fyne/v2/theme
+fyne.io/fyne/v2/widget
 # github.com/davecgh/go-spew v1.1.1
 github.com/davecgh/go-spew/spew
 # github.com/fhs/gompd v2.0.0+incompatible => ../gompd
 github.com/fhs/gompd/mpd
+# github.com/fredbi/uri v0.0.0-20181227131451-3dcfdacbaaf3
+github.com/fredbi/uri
 # github.com/fsnotify/fsnotify v1.4.9
 github.com/fsnotify/fsnotify
-# github.com/fyne-io/mobile v0.0.2
+# github.com/fyne-io/mobile v0.1.2
 github.com/fyne-io/mobile/app
 github.com/fyne-io/mobile/app/internal/callfn
 github.com/fyne-io/mobile/event/key
@@ -114,9 +121,11 @@ golang.org/x/mobile/internal/mobileinit
 golang.org/x/net/html
 golang.org/x/net/html/atom
 golang.org/x/net/html/charset
-# golang.org/x/sys v0.0.0-20200327173247-9dae0f8f5775
+# golang.org/x/sys v0.0.0-20200720211630-cb9d2d5c5666
+golang.org/x/sys/internal/unsafeheader
 golang.org/x/sys/unix
 golang.org/x/sys/windows
+golang.org/x/sys/windows/registry
 # golang.org/x/text v0.3.2
 golang.org/x/text/encoding
 golang.org/x/text/encoding/charmap

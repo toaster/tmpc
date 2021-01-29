@@ -3,13 +3,12 @@ package ui
 import (
 	"fmt"
 	"image/color"
-	"math"
 
-	"fyne.io/fyne"
-	"fyne.io/fyne/canvas"
-	"fyne.io/fyne/driver/desktop"
-	"fyne.io/fyne/theme"
-	"fyne.io/fyne/widget"
+	"fyne.io/fyne/v2"
+	"fyne.io/fyne/v2/canvas"
+	"fyne.io/fyne/v2/driver/desktop"
+	"fyne.io/fyne/v2/theme"
+	"fyne.io/fyne/v2/widget"
 )
 
 // TODO: checken, ob erben von widget.Button sinnvoll ist
@@ -61,7 +60,7 @@ func (b *iconButton) Enable() {
 	}
 }
 
-func (b *iconButton) MouseIn(e *desktop.MouseEvent) {
+func (b *iconButton) MouseIn(_ *desktop.MouseEvent) {
 	b.hovered = true
 	b.Refresh()
 }
@@ -71,7 +70,7 @@ func (b *iconButton) MouseOut() {
 	b.Refresh()
 }
 
-func (b *iconButton) MouseMoved(e *desktop.MouseEvent) {
+func (b *iconButton) MouseMoved(_ *desktop.MouseEvent) {
 }
 
 func (b *iconButton) Tapped(*fyne.PointEvent) {
@@ -95,6 +94,7 @@ type iconButtonRenderer struct {
 	badgeBackgroundMiddle *canvas.Rectangle
 	badgeBackgroundRight  *canvas.Circle
 	badgeText             *canvas.Text
+	background            *canvas.Rectangle
 	button                *iconButton
 	disabledIcon          *canvas.Image
 	icon                  *canvas.Image
@@ -102,7 +102,6 @@ type iconButtonRenderer struct {
 
 func newIconButtonRenderer(b *iconButton) *iconButtonRenderer {
 	var icon *canvas.Image
-	var objects []fyne.CanvasObject
 	icon = canvas.NewImageFromResource(b.icon)
 	badgeBGColor := &color.RGBA{R: 200, A: 255}
 	badgeBGL := canvas.NewCircle(badgeBGColor)
@@ -114,12 +113,14 @@ func newIconButtonRenderer(b *iconButton) *iconButtonRenderer {
 	badgeText := canvas.NewText("0", color.White)
 	badgeText.TextStyle.Bold = true
 	badgeText.Hide()
-	objects = append(objects, icon, badgeBGL, badgeBGM, badgeBGR, badgeText)
+	bg := &canvas.Rectangle{FillColor: color.Transparent}
+	objects := []fyne.CanvasObject{bg, icon, badgeBGL, badgeBGM, badgeBGR, badgeText}
 	return &iconButtonRenderer{
 		badgeBackgroundLeft:   badgeBGL,
 		badgeBackgroundMiddle: badgeBGM,
 		badgeBackgroundRight:  badgeBGR,
 		badgeText:             badgeText,
+		background:            bg,
 		baseRenderer:          baseRenderer{objects: objects},
 		button:                b,
 		disabledIcon:          canvas.NewImageFromResource(theme.NewDisabledResource(b.icon)),
@@ -128,14 +129,9 @@ func newIconButtonRenderer(b *iconButton) *iconButtonRenderer {
 
 }
 
-func (r *iconButtonRenderer) BackgroundColor() color.Color {
-	if r.button.hovered {
-		return theme.HoverColor()
-	}
-	return r.baseRenderer.BackgroundColor()
-}
-
 func (r *iconButtonRenderer) Layout(size fyne.Size) {
+	r.background.Resize(size)
+
 	if r.button.pad {
 		size = size.Subtract(fyne.NewSize(theme.Padding()*2, theme.Padding()*2))
 		r.icon.Move(fyne.NewPos(theme.Padding(), theme.Padding()))
@@ -144,11 +140,11 @@ func (r *iconButtonRenderer) Layout(size fyne.Size) {
 	r.icon.Resize(size)
 	r.disabledIcon.Resize(size)
 
-	r.badgeText.TextSize = int(math.Round(float64(r.icon.Size().Height) * 0.4))
+	r.badgeText.TextSize = r.icon.Size().Height * 0.4
 	r.badgeText.Resize(r.badgeText.MinSize())
 	badgeHeight := r.badgeText.MinSize().Height
 	badgeWidth := r.badgeText.MinSize().Width + 6
-	textOffset := 3
+	var textOffset float32 = 3
 	if badgeWidth < badgeHeight {
 		textOffset += badgeHeight - badgeWidth
 		badgeWidth = badgeHeight
@@ -181,10 +177,15 @@ func (r *iconButtonRenderer) MinSize() fyne.Size {
 }
 
 func (r *iconButtonRenderer) Refresh() {
-	if r.button.Disabled() {
-		r.objects[0] = r.disabledIcon
+	if r.button.hovered {
+		r.background.FillColor = theme.HoverColor()
 	} else {
-		r.objects[0] = r.icon
+		r.background.FillColor = color.Transparent
+	}
+	if r.button.Disabled() {
+		r.objects[1] = r.disabledIcon
+	} else {
+		r.objects[1] = r.icon
 	}
 	if r.button.badgeCount > 0 {
 		if r.button.badgeCount > 9500 {

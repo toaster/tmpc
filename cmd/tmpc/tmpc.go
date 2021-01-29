@@ -9,13 +9,14 @@ import (
 	"github.com/toaster/tmpc/internal/shoutcast"
 	"github.com/toaster/tmpc/internal/ui"
 
-	"fyne.io/fyne"
-	"fyne.io/fyne/app"
-	"fyne.io/fyne/canvas"
-	"fyne.io/fyne/dialog"
-	"fyne.io/fyne/layout"
-	"fyne.io/fyne/theme"
-	"fyne.io/fyne/widget"
+	"fyne.io/fyne/v2"
+	"fyne.io/fyne/v2/app"
+	"fyne.io/fyne/v2/canvas"
+	"fyne.io/fyne/v2/container"
+	"fyne.io/fyne/v2/dialog"
+	"fyne.io/fyne/v2/layout"
+	"fyne.io/fyne/v2/theme"
+	"fyne.io/fyne/v2/widget"
 	"github.com/pkg/errors"
 )
 
@@ -56,18 +57,18 @@ func newTMPC() *tmpc {
 	)
 	player.status = ui.NewPlayerStatus(player.handleSeek)
 	player.info = ui.NewSongInfo()
-	infoCont := widget.NewScrollContainer(player.info)
+	infoCont := container.NewScroll(player.info)
 	player.playlistsList = ui.NewPlaylistList(player.handlePlayList, player.handleDeletePlaylist)
 	player.queue = ui.NewQueue(player.moveSongInQueue, player.handleClearQueue, player.handleSongDetails, player.handlePlaySong, player.handleRemoveSongs)
 	player.search = ui.NewSearch(player.handleSearch, player.handleAddToQueue, player.handleInsertIntoQueue, player.handleReplaceQueue, player.handleAddToPlaylist, player.handleSongDetails)
 
-	mainContent := widget.NewTabContainer(
-		widget.NewTabItemWithIcon("Queue", ui.QueueIcon, widget.NewScrollContainer(player.queue)),
-		widget.NewTabItemWithIcon("Playlists", ui.ListIcon, widget.NewScrollContainer(player.playlistsList)),
-		widget.NewTabItemWithIcon("Search", theme.SearchIcon(), player.search),
-		widget.NewTabItemWithIcon("Information", theme.InfoIcon(), infoCont),
+	mainContent := container.NewAppTabs(
+		container.NewTabItemWithIcon("Queue", ui.QueueIcon, container.NewScroll(player.queue)),
+		container.NewTabItemWithIcon("Playlists", ui.ListIcon, container.NewScroll(player.playlistsList)),
+		container.NewTabItemWithIcon("Search", theme.SearchIcon(), player.search),
+		container.NewTabItemWithIcon("Information", theme.InfoIcon(), infoCont),
 	)
-	mainContent.SetTabLocation(widget.TabLocationLeading)
+	mainContent.SetTabLocation(container.TabLocationLeading)
 
 	player.statusBar = ui.NewStatusBar(player.playbackEnabled, player.connectMPD, player.showErrors, player.togglePlayback, player.startPlayback)
 
@@ -374,24 +375,24 @@ func (t *tmpc) handleSeek(time int) {
 }
 
 func (t *tmpc) handleSongDetails(song *mpd.Song) {
-	details := widget.NewVBox(
-		widget.NewHBox(
+	details := container.NewVBox(
+		container.NewHBox(
 			widget.NewLabelWithStyle("Artist:", fyne.TextAlignLeading, fyne.TextStyle{Bold: true}),
 			widget.NewLabel(song.Artist),
 		),
-		widget.NewHBox(
+		container.NewHBox(
 			widget.NewLabelWithStyle("Title:", fyne.TextAlignLeading, fyne.TextStyle{Bold: true}),
 			widget.NewLabel(song.Title),
 		),
-		widget.NewHBox(
+		container.NewHBox(
 			widget.NewLabelWithStyle("Album:", fyne.TextAlignLeading, fyne.TextStyle{Bold: true}),
 			widget.NewLabel(song.Album),
 		),
-		widget.NewHBox(
+		container.NewHBox(
 			widget.NewLabelWithStyle("Album Artist:", fyne.TextAlignLeading, fyne.TextStyle{Bold: true}),
 			widget.NewLabel(song.AlbumArtist),
 		),
-		widget.NewHBox(
+		container.NewHBox(
 			widget.NewLabelWithStyle("File:", fyne.TextAlignLeading, fyne.TextStyle{Bold: true}),
 			widget.NewLabel(song.File),
 		),
@@ -442,13 +443,13 @@ func (t *tmpc) showErrors() {
 	bg := canvas.NewRectangle(theme.BackgroundColor())
 	ts := txt.MinSize()
 	bg.SetMinSize(ts)
-	c := fyne.NewContainer(bg, txt)
-	errorInfo := widget.NewPopUp(c, t.win.Canvas())
-	ws := t.win.Canvas().Size()
-	errorInfo.Move(fyne.NewPos(
+	c := t.win.Canvas()
+	ws := c.Size()
+	pos := fyne.NewPos(
 		ws.Width-ts.Width-theme.Padding()*4,
 		ws.Height-ts.Height-t.statusBar.Size().Height-theme.Padding()*3,
-	))
+	)
+	widget.ShowPopUpAtPosition(container.NewWithoutLayout(bg, txt), c, pos)
 	t.errors = t.errors[0:0]
 	t.statusBar.SetErrorCount(0)
 }
@@ -476,14 +477,14 @@ func (t *tmpc) showSettings() {
 	shoutcastURLEntry.OnChanged = func(s string) {
 		t.fyne.Preferences().SetString("shoutcastURL", s)
 	}
-	themeSelector := widget.NewRadio([]string{"Dark", "Light"}, func(s string) {
+	themeSelector := widget.NewRadioGroup([]string{"Dark", "Light"}, func(s string) {
 		t.fyne.Preferences().SetString("theme", s)
 		t.applyTheme()
 	})
 	themeSelector.SetSelected(t.fyne.Preferences().String("theme"))
 	themeSelector.Required = true
 	themeSelector.Horizontal = true
-	settingsContainer := fyne.NewContainerWithLayout(
+	settingsContainer := container.New(
 		layout.NewFormLayout(),
 		widget.NewLabelWithStyle("MPD Server URL", fyne.TextAlignTrailing, fyne.TextStyle{Bold: true}),
 		urlEntry,

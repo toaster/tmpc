@@ -1,19 +1,11 @@
 package ui
 
 import (
-	"image/color"
-
-	"fyne.io/fyne"
-	"fyne.io/fyne/theme"
+	"fyne.io/fyne/v2"
 )
 
 type baseRenderer struct {
 	objects []fyne.CanvasObject
-}
-
-func (b *baseRenderer) BackgroundColor() color.Color {
-	// log.Println("BackgroundColor:", theme.BackgroundColor())
-	return theme.BackgroundColor()
 }
 
 func (b *baseRenderer) Destroy() {

@@ -1,10 +1,10 @@
 package ui
 
 import (
-	"fyne.io/fyne"
-	"fyne.io/fyne/canvas"
-	"fyne.io/fyne/driver/desktop"
-	"fyne.io/fyne/widget"
+	"fyne.io/fyne/v2"
+	"fyne.io/fyne/v2/canvas"
+	"fyne.io/fyne/v2/driver/desktop"
+	"fyne.io/fyne/v2/widget"
 )
 
 var _ desktop.Hoverable = (*playlistListEntry)(nil)
@@ -39,8 +39,7 @@ func (e *playlistListEntry) CreateRenderer() fyne.WidgetRenderer {
 
 func (e *playlistListEntry) MouseIn(_ *desktop.MouseEvent) {
 	e.hovered = true
-	// TODO e.Refresh()
-	canvas.Refresh(e)
+	e.Refresh()
 }
 
 func (e *playlistListEntry) MouseMoved(_ *desktop.MouseEvent) {
@@ -48,7 +47,12 @@ func (e *playlistListEntry) MouseMoved(_ *desktop.MouseEvent) {
 
 func (e *playlistListEntry) MouseOut() {
 	e.hovered = false
-	// TODO e.Refresh()
+	e.Refresh()
+}
+
+func (e *playlistListEntry) Refresh() {
+	// TODO: widget extension + WidgetRenderer + refreshing is still error-prone
+	e.listEntry.Refresh()
 	canvas.Refresh(e)
 }
 
@@ -57,8 +61,7 @@ func (e *playlistListEntry) Tapped(_ *fyne.PointEvent) {
 
 func (e *playlistListEntry) TappedSecondary(pe *fyne.PointEvent) {
 	c := fyne.CurrentApp().Driver().CanvasForObject(e)
-	popUp := widget.NewPopUpMenu(e.contextMenu, c)
-	popUp.Move(pe.AbsolutePosition)
+	widget.ShowPopUpMenuAtPosition(e.contextMenu, c, pe.AbsolutePosition)
 }
 
 type playlistListEntryRenderer struct {

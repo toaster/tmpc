@@ -1,9 +1,9 @@
 package ui
 
 import (
-	"fyne.io/fyne"
-	"fyne.io/fyne/canvas"
-	"fyne.io/fyne/widget"
+	"fyne.io/fyne/v2"
+	"fyne.io/fyne/v2/canvas"
+	"fyne.io/fyne/v2/container"
 
 	"github.com/toaster/tmpc/internal/mpd"
 )
@@ -33,7 +33,7 @@ func NewQueue(move func(*mpd.Song, int), onClear func(), onDetails, onPlay func(
 	stopIndicator.Resize(fyne.NewSize(18, 18))
 	q := &Queue{
 		SongList: SongList{
-			box:          widget.NewVBox(),
+			box:          container.NewVBox(),
 			move:         move,
 			supportsDrag: true,
 		},
@@ -62,7 +62,7 @@ func (q *Queue) SetCurrentSong(idx int, ps PlayerState) {
 	q.currentPlayerState = ps
 
 	offset := 0
-	for _, a := range q.box.Children {
+	for _, a := range q.box.Objects {
 		album := a.(*songListAlbum)
 		l := len(album.songs)
 		album.removeSongIndicator()
