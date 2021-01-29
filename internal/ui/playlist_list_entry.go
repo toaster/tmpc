@@ -1,8 +1,11 @@
 package ui
 
 import (
+	"fmt"
+
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/canvas"
+	"fyne.io/fyne/v2/dialog"
 	"fyne.io/fyne/v2/driver/desktop"
 	"fyne.io/fyne/v2/widget"
 )
@@ -16,9 +19,22 @@ type playlistListEntry struct {
 	name        string
 }
 
-func newPlaylistListEntry(name string, playNow, delete func(string)) *playlistListEntry {
+func newPlaylistListEntry(name string, playNow, deletePL func(string), w fyne.Window) *playlistListEntry {
+	delete := func() {
+		callback := func(confirmed bool) {
+			if confirmed {
+				deletePL(name)
+			}
+		}
+		dialog.ShowConfirm(
+			"Delete Playlist",
+			fmt.Sprintf("Do you really want to remove the playlist “%s”?\nThis cannot be undone.", name),
+			callback,
+			w,
+		)
+	}
 	items := []*fyne.MenuItem{
-		fyne.NewMenuItem("Delete", func() { delete(name) }),
+		fyne.NewMenuItem("Delete", delete),
 		fyne.NewMenuItem("Play Now And Replace Queue", func() { playNow(name) }),
 	}
 	e := &playlistListEntry{contextMenu: fyne.NewMenu("", items...), name: name}
@@ -77,4 +93,8 @@ func (r *playlistListEntryRenderer) Layout(size fyne.Size) {
 
 func (r *playlistListEntryRenderer) MinSize() fyne.Size {
 	return r.text.MinSize().Add(r.listEntryRenderer.MinSize())
+}
+
+func confirmedDeletePlaylist(name string, callback func(bool), w fyne.Window) {
+
 }
