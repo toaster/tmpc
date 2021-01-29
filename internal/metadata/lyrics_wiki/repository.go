@@ -37,7 +37,7 @@ func (r *Repository) FetchLyrics(song *mpd.Song) ([]string, error) {
 		return nil, err
 	}
 
-	lines := []string{}
+	var lines []string
 	var brDetected bool
 	for c := lyrics.FirstChild; c != nil; c = c.NextSibling {
 		switch c.Type {
@@ -65,18 +65,19 @@ func (r *Repository) findLyrics(artist, title string) (*html.Node, error) {
 		return nil, err
 	}
 	lyrics := r.findLyricsInHTML(doc)
+	if lyrics != nil {
+		return lyrics, nil
+	}
+
+	if altURL := r.findAltURLInHTML(doc); altURL != "" {
+		doc, err = util.HTTPGetHTML(fmt.Sprintf("https://lyrics.fandom.com%s", altURL))
+		if err != nil {
+			return nil, err
+		}
+		lyrics = r.findLyricsInHTML(doc)
+	}
 	if lyrics == nil {
-		altURL := r.findAltURLInHTML(doc)
-		if altURL != "" {
-			doc, err := util.HTTPGetHTML(fmt.Sprintf("https://lyrics.fandom.com%s", altURL))
-			if err != nil {
-				return nil, err
-			}
-			lyrics = r.findLyricsInHTML(doc)
-		}
-		if lyrics == nil {
-			return nil, fmt.Errorf("could not find lyricbox in response from: %s", url)
-		}
+		return nil, fmt.Errorf("could not find lyricbox in response from: %s", url)
 	}
 	return lyrics, nil
 }
