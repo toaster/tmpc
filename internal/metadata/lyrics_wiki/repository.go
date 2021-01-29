@@ -6,15 +6,20 @@ import (
 
 	"golang.org/x/net/html"
 
+	"github.com/toaster/tmpc/internal/metadata"
 	"github.com/toaster/tmpc/internal/mpd"
 	"github.com/toaster/tmpc/internal/util"
 )
 
-// LyricsRepository is a repository that delivers the lyrics of a song.
-type LyricsRepository struct{}
+// Repository is a LyricsFetcher that delivers the lyrics of a song.
+//
+// @implements metadata.LyricsFetcher
+type Repository struct{}
+
+var _ metadata.LyricsFetcher = (*Repository)(nil)
 
 // FetchLyrics returns the lyrics of a given song.
-func (r *LyricsRepository) FetchLyrics(song *mpd.Song) ([]string, error) {
+func (r *Repository) FetchLyrics(song *mpd.Song) ([]string, error) {
 	if song == nil {
 		return []string{}, nil
 	}
@@ -53,7 +58,7 @@ func (r *LyricsRepository) FetchLyrics(song *mpd.Song) ([]string, error) {
 	return lines, nil
 }
 
-func (r *LyricsRepository) findLyrics(artist, title string) (*html.Node, error) {
+func (r *Repository) findLyrics(artist, title string) (*html.Node, error) {
 	url := fmt.Sprintf("https://lyrics.fandom.com/wiki/%s:%s", r.lyricsArg(artist), r.lyricsArg(title))
 	doc, err := util.HTTPGetHTML(url)
 	if err != nil {
@@ -76,7 +81,7 @@ func (r *LyricsRepository) findLyrics(artist, title string) (*html.Node, error) 
 	return lyrics, nil
 }
 
-func (r *LyricsRepository) findAltURLInHTML(n *html.Node) string {
+func (r *Repository) findAltURLInHTML(n *html.Node) string {
 	if n.Type == html.ElementNode && n.Data == "span" {
 		for _, a := range n.Attr {
 			if a.Key == "class" && a.Val == "alternative-suggestion" {
@@ -102,7 +107,7 @@ func (r *LyricsRepository) findAltURLInHTML(n *html.Node) string {
 	return ""
 }
 
-func (r *LyricsRepository) findLyricsInHTML(n *html.Node) *html.Node {
+func (r *Repository) findLyricsInHTML(n *html.Node) *html.Node {
 	if n.Type == html.ElementNode && n.Data == "div" {
 		for _, a := range n.Attr {
 			if a.Key == "class" && a.Val == "lyricbox" {
@@ -119,6 +124,6 @@ func (r *LyricsRepository) findLyricsInHTML(n *html.Node) *html.Node {
 	return nil
 }
 
-func (r *LyricsRepository) lyricsArg(s string) string {
+func (r *Repository) lyricsArg(s string) string {
 	return strings.ReplaceAll(strings.Title(s), " ", "_")
 }

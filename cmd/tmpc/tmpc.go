@@ -48,7 +48,7 @@ func newTMPC() *tmpc {
 	a := app.NewWithID("net.pruetz.tmpc")
 	player := &tmpc{
 		fyne:       a,
-		lyricsRepo: &lyrics_wiki.LyricsRepository{},
+		lyricsRepo: &lyrics_wiki.Repository{},
 		win:        a.NewWindow("Tilos Music Player Client"),
 	}
 	player.applySettings(false)
