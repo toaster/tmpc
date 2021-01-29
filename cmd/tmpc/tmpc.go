@@ -5,8 +5,8 @@ import (
 	"log"
 	"strings"
 
+	"github.com/toaster/tmpc/internal/metadata"
 	"github.com/toaster/tmpc/internal/mpd"
-	"github.com/toaster/tmpc/internal/repo"
 	"github.com/toaster/tmpc/internal/shoutcast"
 	"github.com/toaster/tmpc/internal/ui"
 
@@ -21,12 +21,12 @@ import (
 )
 
 type tmpc struct {
-	coverRepo       *repo.CoverRepository
+	coverRepo       *metadata.CoverRepository
 	ctrls           *ui.PlayerControls
 	errors          []string
 	fyne            fyne.App
 	info            *ui.SongInfo
-	lyricsRepo      *repo.LyricsRepository
+	lyricsRepo      *metadata.LyricsRepository
 	mpd             *mpd.Client
 	playbackEnabled bool
 	playlists       []mpd.Playlist
