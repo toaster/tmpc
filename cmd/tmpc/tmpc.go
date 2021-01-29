@@ -6,6 +6,7 @@ import (
 	"strings"
 
 	"github.com/toaster/tmpc/internal/metadata"
+	"github.com/toaster/tmpc/internal/metadata/lyrics_wiki"
 	"github.com/toaster/tmpc/internal/mpd"
 	"github.com/toaster/tmpc/internal/shoutcast"
 	"github.com/toaster/tmpc/internal/ui"
@@ -47,7 +48,7 @@ func newTMPC() *tmpc {
 	a := app.NewWithID("net.pruetz.tmpc")
 	player := &tmpc{
 		fyne:       a,
-		lyricsRepo: &metadata.LyricsRepository{},
+		lyricsRepo: &lyrics_wiki.LyricsRepository{},
 		win:        a.NewWindow("Tilos Music Player Client"),
 	}
 	player.applySettings(false)

@@ -1,12 +1,13 @@
-package metadata
+package lyrics_wiki
 
 import (
 	"fmt"
 	"strings"
 
+	"golang.org/x/net/html"
+
 	"github.com/toaster/tmpc/internal/mpd"
 	"github.com/toaster/tmpc/internal/util"
-	"golang.org/x/net/html"
 )
 
 // LyricsRepository is a repository that delivers the lyrics of a song.
