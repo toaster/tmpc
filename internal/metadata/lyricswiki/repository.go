@@ -1,4 +1,4 @@
-package lyrics_wiki
+package lyricswiki
 
 import (
 	"fmt"
@@ -19,6 +19,8 @@ type Repository struct{}
 var _ metadata.LyricsFetcher = (*Repository)(nil)
 
 // FetchLyrics returns the lyrics of a given song.
+//
+// @implements metadata.LyricsFetcher
 func (r *Repository) FetchLyrics(song *mpd.Song) ([]string, error) {
 	if song == nil {
 		return []string{}, nil
