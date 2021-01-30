@@ -6,7 +6,6 @@ import (
 	"fyne.io/fyne/v2/driver/desktop"
 	"fyne.io/fyne/v2/widget"
 
-	"github.com/toaster/tmpc/internal/metadata"
 	"github.com/toaster/tmpc/internal/mpd"
 )
 
@@ -16,7 +15,7 @@ type SongList struct {
 	addedByLastMarkSlice map[*songListAlbumSong]bool
 	albums               []*songListAlbum
 	box                  *fyne.Container
-	coverRepo            *metadata.CoverRepository
+	coverLoader          func(*mpd.Song, fyne.Resource, func(fyne.Resource))
 	dragBefore           *mpd.Song
 	dragAfter            *mpd.Song
 	dragTargetIsSelected bool
@@ -28,10 +27,11 @@ type SongList struct {
 }
 
 // NewSongList creates a new empty SongList.
-func NewSongList() *SongList {
+func NewSongList(coverLoader func(*mpd.Song, fyne.Resource, func(fyne.Resource))) *SongList {
 	l := &SongList{
-		box:  container.NewVBox(),
-		move: func(*mpd.Song, int) {},
+		box:         container.NewVBox(),
+		coverLoader: coverLoader,
+		move:        func(*mpd.Song, int) {},
 	}
 	l.ExtendBaseWidget(l)
 	return l
@@ -132,7 +132,7 @@ func (l *SongList) appendAlbum(songs []*mpd.Song, songListSongs map[int]*songLis
 	for _, qs := range album.songs {
 		songListSongs[qs.song.ID] = qs
 	}
-	l.coverRepo.LoadCover(songs[0], AlbumIcon, album.UpdateCover)
+	l.coverLoader(songs[0], AlbumIcon, album.UpdateCover)
 }
 
 func (l *SongList) dragSelection() {

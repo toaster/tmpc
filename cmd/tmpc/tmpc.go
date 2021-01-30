@@ -22,7 +22,7 @@ import (
 )
 
 type tmpc struct {
-	coverRepo       *metadata.CoverRepository
+	coverRepo       metadata.CoverFetcher
 	ctrls           *ui.PlayerControls
 	errors          []string
 	fyne            fyne.App
@@ -47,8 +47,9 @@ type tmpc struct {
 func newTMPC() *tmpc {
 	a := app.NewWithID("net.pruetz.tmpc")
 	player := &tmpc{
-		fyne: a,
-		win:  a.NewWindow("Tilos Music Player Client"),
+		coverRepo: &metadata.CoverRepository{},
+		fyne:      a,
+		win:       a.NewWindow("Tilos Music Player Client"),
 	}
 	player.applySettings(false)
 
@@ -63,8 +64,8 @@ func newTMPC() *tmpc {
 	player.info = ui.NewSongInfo()
 	infoCont := container.NewScroll(player.info)
 	player.playlistsList = ui.NewPlaylistList(player.handlePlayList, player.handleDeletePlaylist, player.win)
-	player.queue = ui.NewQueue(player.moveSongInQueue, player.handleClearQueue, player.handleSongDetails, player.handlePlaySong, player.handleRemoveSongs)
-	player.search = ui.NewSearch(player.handleSearch, player.handleAddToQueue, player.handleInsertIntoQueue, player.handleReplaceQueue, player.handleAddToPlaylist, player.handleSongDetails)
+	player.queue = ui.NewQueue(player.moveSongInQueue, player.handleClearQueue, player.handleSongDetails, player.handlePlaySong, player.handleRemoveSongs, player.loadCover)
+	player.search = ui.NewSearch(player.handleSearch, player.handleAddToQueue, player.handleInsertIntoQueue, player.handleReplaceQueue, player.handleAddToPlaylist, player.handleSongDetails, player.loadCover)
 
 	mainContent := container.NewAppTabs(
 		container.NewTabItemWithIcon("Queue", ui.QueueIcon, container.NewScroll(player.queue)),
@@ -419,6 +420,21 @@ func (t *tmpc) handleStopTap() bool {
 	return true
 }
 
+func (t *tmpc) loadCover(song *mpd.Song, coverDefault fyne.Resource, callback func(fyne.Resource)) {
+	callback(coverDefault)
+	if song == nil {
+		return
+	}
+	go func() {
+		cover, err := t.coverRepo.LoadCover(song)
+		if err != nil {
+			log.Println("failed loading cover:", err)
+			return
+		}
+		callback(cover)
+	}()
+}
+
 func (t *tmpc) moveSongInQueue(song *mpd.Song, index int) {
 	if !t.mpd.IsConnected() {
 		return
@@ -523,7 +539,7 @@ func (t *tmpc) startPlayback() {
 		return
 	}
 	if err := t.shoutcast.Play(); err != nil {
-		t.addError(fmt.Errorf("Failed to start ShoutCast player: %w", err))
+		t.addError(fmt.Errorf("failed to start ShoutCast player: %w", err))
 	}
 	t.statusBar.SetIsPlaying(t.shoutcast.IsPlaying())
 }
@@ -629,6 +645,6 @@ func (t *tmpc) updateState() {
 		song = songs[s.SongIdx]
 	}
 	t.status.UpdateSong(song, s.Elapsed, s.State == mpd.StatePlay)
-	t.coverRepo.LoadCover(song, ui.AlbumIcon, t.status.UpdateCover)
+	t.loadCover(song, ui.AlbumIcon, t.status.UpdateCover)
 	t.updateInfo(song)
 }

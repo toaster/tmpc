@@ -29,10 +29,10 @@ type Search struct {
 var _ fyne.Widget = (*Search)(nil)
 
 // NewSearch creates a new search page.
-func NewSearch(doSearch SearchFn, addToQueue, insertIntoQueue, replaceQueue, addToPlaylist SongFn, showDetails func(*mpd.Song)) *Search {
+func NewSearch(doSearch SearchFn, addToQueue, insertIntoQueue, replaceQueue, addToPlaylist SongFn, showDetails func(*mpd.Song), coverLoader func(*mpd.Song, fyne.Resource, func(fyne.Resource))) *Search {
 	s := &Search{
 		doSearch: doSearch,
-		results:  NewSongList(),
+		results:  NewSongList(coverLoader),
 	}
 
 	// TODO: localization
