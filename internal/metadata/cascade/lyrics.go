@@ -24,11 +24,11 @@ func NewLyrics(fetchers []metadata.LyricsFetcher) *Lyrics {
 func (l *Lyrics) FetchLyrics(song *mpd.Song) ([]string, error) {
 	var lastErr error
 	for _, fetcher := range l.fetchers {
-		if lyrics, err := fetcher.FetchLyrics(song); err == nil {
+		lyrics, err := fetcher.FetchLyrics(song)
+		if err == nil {
 			return lyrics, nil
-		} else {
-			lastErr = err
 		}
+		lastErr = err
 	}
 	return nil, lastErr
 }
