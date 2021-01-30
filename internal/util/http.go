@@ -1,6 +1,7 @@
 package util
 
 import (
+	"encoding/json"
 	"fmt"
 	"net/http"
 
@@ -29,4 +30,22 @@ func HTTPGetHTML(url string) (*html.Node, error) {
 		return nil, fmt.Errorf("failed to parse HTML answer from %s: %w", url, err)
 	}
 	return doc, nil
+}
+
+// HTTPGetJSON performs an HTTP GET with the TMPC user agent
+// and tries to unmarshal the response as JSON into the provided structure.
+func HTTPGetJSON(url string, data interface{}) error {
+	res, err := HTTPGet(url)
+	if err != nil {
+		return fmt.Errorf("HTTP GET failed from %s: %w", url, err)
+	}
+	defer res.Body.Close()
+
+	d := json.NewDecoder(res.Body)
+	err = d.Decode(data)
+	if err != nil {
+		return fmt.Errorf("JSON decode failed for %s: %w", url, err)
+	}
+
+	return nil
 }
