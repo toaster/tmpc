@@ -6,7 +6,6 @@ import (
 	"time"
 
 	"github.com/fhs/gompd/mpd"
-	"github.com/pkg/errors"
 )
 
 // TODO: AlbumYear im Song
@@ -79,7 +78,7 @@ func (c *Client) ClearQueue() error {
 // Connect tries to connect to the MPD server.
 func (c *Client) Connect() error {
 	if c.invalidPerms {
-		return errors.New("Insufficient MPD credentials: invalid permissions")
+		return fmt.Errorf("Insufficient MPD credentials: invalid permissions")
 	}
 	if c.c == nil {
 		m, err := mpd.DialAuthenticated("tcp", c.url, c.pass)
@@ -104,16 +103,16 @@ func (c *Client) Connect() error {
 			for err2 := range w.Error {
 				if e, ok := err2.(mpd.Error); ok && e.Code == mpd.ErrorPermission {
 					if werr := c.w.Close(); werr != nil {
-						c.onError(errors.Wrap(werr, "MPD watcher error"))
+						c.onError(fmt.Errorf("MPD watcher error: %w", werr))
 					}
 					if cerr := c.c.Close(); cerr != nil {
-						c.onError(errors.Wrap(cerr, "MPD client error"))
+						c.onError(fmt.Errorf("MPD client error: %w", cerr))
 					}
 					c.c = nil
 					c.w = nil
 					c.invalidPerms = true
 				}
-				c.onError(errors.Wrap(err2, "MPD watcher error"))
+				c.onError(fmt.Errorf("MPD watcher error: %w", err2))
 			}
 		}()
 	}

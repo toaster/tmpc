@@ -6,7 +6,6 @@ package mpd
 
 import (
 	"container/list"
-	"errors"
 	"fmt"
 	"strconv"
 )
@@ -50,7 +49,7 @@ type PromisedID int
 // has been computed, returning the Attrs.
 func (pa *PromisedAttrs) Value() (Attrs, error) {
 	if !pa.computed {
-		return nil, errors.New("value has not been computed yet")
+		return nil, fmt.Errorf("value has not been computed yet")
 	}
 	return pa.attrs, nil
 }
@@ -59,7 +58,7 @@ func (pa *PromisedAttrs) Value() (Attrs, error) {
 // has been computed, returning the ID.
 func (pi *PromisedID) Value() (int, error) {
 	if *pi == -1 {
-		return -1, errors.New("value has not been computed yet")
+		return -1, fmt.Errorf("value has not been computed yet")
 	}
 	return (int)(*pi), nil
 }
@@ -198,7 +197,7 @@ func (cl *CommandList) Consume(consume bool) {
 // If end is negative, it updates the song at position start.
 func (cl *CommandList) SetPriority(priority, start, end int) error {
 	if start < 0 {
-		return errors.New("negative start index")
+		return fmt.Errorf("negative start index")
 	}
 	if end < 0 {
 		cl.cmdQ.PushBack(&command{fmt.Sprintf("prio %d %d", priority, start), nil, cmdNoReturn})
@@ -218,7 +217,7 @@ func (cl *CommandList) SetPriorityID(priority, id int) {
 // it deletes the song at position start.
 func (cl *CommandList) Delete(start, end int) error {
 	if start < 0 {
-		return errors.New("negative start index")
+		return fmt.Errorf("negative start index")
 	}
 	if end < 0 {
 		cl.cmdQ.PushBack(&command{fmt.Sprintf("delete %d", start), nil, cmdNoReturn})
@@ -237,7 +236,7 @@ func (cl *CommandList) DeleteID(id int) {
 // position. If end is negative, only the song at position start is moved.
 func (cl *CommandList) Move(start, end, position int) error {
 	if start < 0 {
-		return errors.New("negative start index")
+		return fmt.Errorf("negative start index")
 	}
 	if end < 0 {
 		cl.cmdQ.PushBack(&command{fmt.Sprintf("move %d %d", start, position), nil, cmdNoReturn})

@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"strings"
 
@@ -17,7 +18,6 @@ import (
 	"fyne.io/fyne/v2/layout"
 	"fyne.io/fyne/v2/theme"
 	"fyne.io/fyne/v2/widget"
-	"github.com/pkg/errors"
 )
 
 type tmpc struct {
@@ -185,7 +185,7 @@ func (t *tmpc) addSongsToQueue(songs []*mpd.Song, pos int, play bool) {
 			pos++
 		}
 		if err != nil {
-			t.addError(errors.Wrap(err, "failed to add song to queue"))
+			t.addError(fmt.Errorf("failed to add song to queue: %w", err))
 		}
 		if i == 0 {
 			firstID = id
@@ -193,14 +193,14 @@ func (t *tmpc) addSongsToQueue(songs []*mpd.Song, pos int, play bool) {
 	}
 	if play {
 		if err := t.mpd.PlayID(firstID); err != nil {
-			t.addError(errors.Wrap(err, "failed to play added song"))
+			t.addError(fmt.Errorf("failed to play added song: %w", err))
 		}
 	}
 }
 
 func (t *tmpc) connectMPD() {
 	if err := t.mpd.Connect(); err != nil {
-		t.addError(errors.Wrap(err, "failed to connect MPD client"))
+		t.addError(fmt.Errorf("failed to connect MPD client: %w", err))
 	}
 	t.statusBar.SetIsConnected(t.mpd.IsConnected())
 	if t.mpd.IsConnected() {
@@ -231,7 +231,7 @@ func (t *tmpc) handleAddToPlaylist(songs []*mpd.Song, _ bool) {
 		}
 		for _, song := range songs {
 			if err := t.mpd.AddToPlaylist(song, content.Text); err != nil {
-				t.addError(errors.Wrap(err, "failed to add song to playlist"))
+				t.addError(fmt.Errorf("failed to add song to playlist: %w", err))
 			}
 		}
 	}, t.win)
@@ -246,7 +246,7 @@ func (t *tmpc) handleClearQueue() {
 		return
 	}
 	if err := t.mpd.ClearQueue(); err != nil {
-		t.addError(errors.Wrap(err, "failed to clear queue"))
+		t.addError(fmt.Errorf("failed to clear queue: %w", err))
 		return
 	}
 }
@@ -271,7 +271,7 @@ func (t *tmpc) handleNextTap() bool {
 	}
 
 	if err := t.mpd.Next(); err != nil {
-		t.addError(errors.Wrap(err, "failed to play next title"))
+		t.addError(fmt.Errorf("failed to play next title: %w", err))
 		return false
 	}
 	return true
@@ -283,11 +283,11 @@ func (t *tmpc) handlePlayList(name string) {
 	}
 
 	if err := t.mpd.ClearQueue(); err != nil {
-		t.addError(errors.Wrap(err, "failed to play playlist"))
+		t.addError(fmt.Errorf("failed to play playlist: %w", err))
 		return
 	}
 	if err := t.mpd.PlaylistLoad(name); err != nil {
-		t.addError(errors.Wrap(err, "failed to play playlist"))
+		t.addError(fmt.Errorf("failed to play playlist: %w", err))
 		return
 	}
 	t.playCurrent()
@@ -299,7 +299,7 @@ func (t *tmpc) handlePlaySong(song *mpd.Song) {
 	}
 
 	if err := t.mpd.Play(song); err != nil {
-		t.addError(errors.Wrap(err, "failed to play song"))
+		t.addError(fmt.Errorf("failed to play song: %w", err))
 		return
 	}
 	t.startPlayback()
@@ -318,7 +318,7 @@ func (t *tmpc) handlePauseTap() bool {
 	}
 
 	if err := t.mpd.Pause(true); err != nil {
-		t.addError(errors.Wrap(err, "failed to pause title"))
+		t.addError(fmt.Errorf("failed to pause title: %w", err))
 		return false
 	}
 	return true
@@ -330,7 +330,7 @@ func (t *tmpc) handlePrevTap() bool {
 	}
 
 	if err := t.mpd.Prev(); err != nil {
-		t.addError(errors.Wrap(err, "failed to play previous title"))
+		t.addError(fmt.Errorf("failed to play previous title: %w", err))
 		return false
 	}
 	return false
@@ -343,7 +343,7 @@ func (t *tmpc) handleRemoveSongs(songs []*mpd.Song) {
 
 	for _, song := range songs {
 		if err := t.mpd.RemoveFromQueue(song); err != nil {
-			t.addError(errors.Wrap(err, "failed to remove song"))
+			t.addError(fmt.Errorf("failed to remove song: %w", err))
 		}
 	}
 }
@@ -369,7 +369,7 @@ func (t *tmpc) handleSeek(time int) {
 	}
 
 	if err := t.mpd.Seek(time); err != nil {
-		t.addError(errors.Wrap(err, "failed to seek in title"))
+		t.addError(fmt.Errorf("failed to seek in title: %w", err))
 	}
 }
 
@@ -407,7 +407,7 @@ func (t *tmpc) handleStopTap() bool {
 	}
 
 	if err := t.mpd.Stop(); err != nil {
-		t.addError(errors.Wrap(err, "failed to stop title"))
+		t.addError(fmt.Errorf("failed to stop title: %w", err))
 		return false
 	}
 	t.stopPlayback()
@@ -420,7 +420,7 @@ func (t *tmpc) moveSongInQueue(song *mpd.Song, index int) {
 	}
 
 	if err := t.mpd.Move(song, index); err != nil {
-		t.addError(errors.Wrap(err, "failed to move song in queue"))
+		t.addError(fmt.Errorf("failed to move song in queue: %w", err))
 	}
 }
 
@@ -430,7 +430,7 @@ func (t *tmpc) playCurrent() bool {
 	}
 
 	if err := t.mpd.PlayCurrent(); err != nil {
-		t.addError(errors.Wrap(err, "failed to play current song"))
+		t.addError(fmt.Errorf("failed to play current song: %w", err))
 		return false
 	}
 	t.startPlayback()
@@ -510,7 +510,7 @@ func (t *tmpc) startPlayback() {
 		return
 	}
 	if err := t.shoutcast.Play(); err != nil {
-		t.addError(errors.Wrap(err, "Failed to start ShoutCast player"))
+		t.addError(fmt.Errorf("Failed to start ShoutCast player: %w", err))
 	}
 	t.statusBar.SetIsPlaying(t.shoutcast.IsPlaying())
 }
@@ -537,7 +537,7 @@ func (t *tmpc) updateDB() {
 	}
 
 	if err := t.mpd.Update(); err != nil {
-		t.addError(errors.Wrap(err, "failed to update MPD database"))
+		t.addError(fmt.Errorf("failed to update MPD database: %w", err))
 	}
 }
 
