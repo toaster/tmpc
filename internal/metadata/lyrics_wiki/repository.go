@@ -1,19 +1,25 @@
-package repo
+package lyrics_wiki
 
 import (
 	"fmt"
 	"strings"
 
+	"golang.org/x/net/html"
+
+	"github.com/toaster/tmpc/internal/metadata"
 	"github.com/toaster/tmpc/internal/mpd"
 	"github.com/toaster/tmpc/internal/util"
-	"golang.org/x/net/html"
 )
 
-// LyricsRepository is a repository that delivers the lyrics of a song.
-type LyricsRepository struct{}
+// Repository is a LyricsFetcher that delivers the lyrics of a song.
+//
+// @implements metadata.LyricsFetcher
+type Repository struct{}
+
+var _ metadata.LyricsFetcher = (*Repository)(nil)
 
 // FetchLyrics returns the lyrics of a given song.
-func (r *LyricsRepository) FetchLyrics(song *mpd.Song) ([]string, error) {
+func (r *Repository) FetchLyrics(song *mpd.Song) ([]string, error) {
 	if song == nil {
 		return []string{}, nil
 	}
@@ -31,7 +37,7 @@ func (r *LyricsRepository) FetchLyrics(song *mpd.Song) ([]string, error) {
 		return nil, err
 	}
 
-	lines := []string{}
+	var lines []string
 	var brDetected bool
 	for c := lyrics.FirstChild; c != nil; c = c.NextSibling {
 		switch c.Type {
@@ -52,30 +58,31 @@ func (r *LyricsRepository) FetchLyrics(song *mpd.Song) ([]string, error) {
 	return lines, nil
 }
 
-func (r *LyricsRepository) findLyrics(artist, title string) (*html.Node, error) {
+func (r *Repository) findLyrics(artist, title string) (*html.Node, error) {
 	url := fmt.Sprintf("https://lyrics.fandom.com/wiki/%s:%s", r.lyricsArg(artist), r.lyricsArg(title))
 	doc, err := util.HTTPGetHTML(url)
 	if err != nil {
 		return nil, err
 	}
 	lyrics := r.findLyricsInHTML(doc)
+	if lyrics != nil {
+		return lyrics, nil
+	}
+
+	if altURL := r.findAltURLInHTML(doc); altURL != "" {
+		doc, err = util.HTTPGetHTML(fmt.Sprintf("https://lyrics.fandom.com%s", altURL))
+		if err != nil {
+			return nil, err
+		}
+		lyrics = r.findLyricsInHTML(doc)
+	}
 	if lyrics == nil {
-		altURL := r.findAltURLInHTML(doc)
-		if altURL != "" {
-			doc, err := util.HTTPGetHTML(fmt.Sprintf("https://lyrics.fandom.com%s", altURL))
-			if err != nil {
-				return nil, err
-			}
-			lyrics = r.findLyricsInHTML(doc)
-		}
-		if lyrics == nil {
-			return nil, fmt.Errorf("could not find lyricbox in response from: %s", url)
-		}
+		return nil, fmt.Errorf("could not find lyricbox in response from: %s", url)
 	}
 	return lyrics, nil
 }
 
-func (r *LyricsRepository) findAltURLInHTML(n *html.Node) string {
+func (r *Repository) findAltURLInHTML(n *html.Node) string {
 	if n.Type == html.ElementNode && n.Data == "span" {
 		for _, a := range n.Attr {
 			if a.Key == "class" && a.Val == "alternative-suggestion" {
@@ -101,7 +108,7 @@ func (r *LyricsRepository) findAltURLInHTML(n *html.Node) string {
 	return ""
 }
 
-func (r *LyricsRepository) findLyricsInHTML(n *html.Node) *html.Node {
+func (r *Repository) findLyricsInHTML(n *html.Node) *html.Node {
 	if n.Type == html.ElementNode && n.Data == "div" {
 		for _, a := range n.Attr {
 			if a.Key == "class" && a.Val == "lyricbox" {
@@ -118,6 +125,6 @@ func (r *LyricsRepository) findLyricsInHTML(n *html.Node) *html.Node {
 	return nil
 }
 
-func (r *LyricsRepository) lyricsArg(s string) string {
+func (r *Repository) lyricsArg(s string) string {
 	return strings.ReplaceAll(strings.Title(s), " ", "_")
 }

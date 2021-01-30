@@ -6,8 +6,8 @@ import (
 	"fyne.io/fyne/v2/driver/desktop"
 	"fyne.io/fyne/v2/widget"
 
+	"github.com/toaster/tmpc/internal/metadata"
 	"github.com/toaster/tmpc/internal/mpd"
-	"github.com/toaster/tmpc/internal/repo"
 )
 
 // SongList displays a list of MPD songs.
@@ -16,7 +16,7 @@ type SongList struct {
 	addedByLastMarkSlice map[*songListAlbumSong]bool
 	albums               []*songListAlbum
 	box                  *fyne.Container
-	coverRepo            *repo.CoverRepository
+	coverRepo            *metadata.CoverRepository
 	dragBefore           *mpd.Song
 	dragAfter            *mpd.Song
 	dragTargetIsSelected bool
