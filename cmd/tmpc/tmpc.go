@@ -6,7 +6,7 @@ import (
 	"strings"
 
 	"github.com/toaster/tmpc/internal/metadata"
-	"github.com/toaster/tmpc/internal/metadata/lyrics_wiki"
+	"github.com/toaster/tmpc/internal/metadata/happydev"
 	"github.com/toaster/tmpc/internal/mpd"
 	"github.com/toaster/tmpc/internal/shoutcast"
 	"github.com/toaster/tmpc/internal/ui"
@@ -47,9 +47,8 @@ type tmpc struct {
 func newTMPC() *tmpc {
 	a := app.NewWithID("net.pruetz.tmpc")
 	player := &tmpc{
-		fyne:       a,
-		lyricsRepo: &lyrics_wiki.Repository{},
-		win:        a.NewWindow("Tilos Music Player Client"),
+		fyne: a,
+		win:  a.NewWindow("Tilos Music Player Client"),
 	}
 	player.applySettings(false)
 
@@ -159,6 +158,7 @@ func (t *tmpc) applySettings(connect bool) {
 		t.addError,
 	)
 	t.shoutcast = shoutcast.NewClient(t.fyne.Preferences().String("shoutcastURL"), t.addError)
+	t.lyricsRepo = happydev.NewRepository(t.fyne.Preferences().String("happyDevAPIKey"))
 	if connect {
 		t.connectMPD()
 	}
@@ -481,6 +481,12 @@ func (t *tmpc) showSettings() {
 	shoutcastURLEntry.OnChanged = func(s string) {
 		t.fyne.Preferences().SetString("shoutcastURL", s)
 	}
+	happydevAPIKeyEntry := widget.NewPasswordEntry()
+	happydevAPIKeyEntry.SetText(t.fyne.Preferences().String("happyDevAPIKey"))
+	happydevAPIKeyEntry.SetPlaceHolder("top secret")
+	happydevAPIKeyEntry.OnChanged = func(s string) {
+		t.fyne.Preferences().SetString("happyDevAPIKey", s)
+	}
 	themeSelector := widget.NewRadioGroup([]string{"Dark", "Light"}, func(s string) {
 		t.fyne.Preferences().SetString("theme", s)
 		t.applyTheme()
@@ -496,6 +502,8 @@ func (t *tmpc) showSettings() {
 		passEntry,
 		widget.NewLabelWithStyle("Shoutcast Server URL", fyne.TextAlignTrailing, fyne.TextStyle{Bold: true}),
 		shoutcastURLEntry,
+		widget.NewLabelWithStyle("happy.dev API key", fyne.TextAlignTrailing, fyne.TextStyle{Bold: true}),
+		happydevAPIKeyEntry,
 		widget.NewLabelWithStyle("Theme", fyne.TextAlignTrailing, fyne.TextStyle{Bold: true}),
 		themeSelector,
 	)
