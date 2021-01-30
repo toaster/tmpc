@@ -61,9 +61,10 @@ func (r *Repository) fetchLyrics(info *songInfo) ([]string, error) {
 		// TODO: error? special value?
 		return nil, nil
 	}
-	// TODO: handle multiple results
+	// TODO: handle multiple results?
+	// Currently there is no array returned for “result” key if length == 1.
 
-	return strings.Split(result.Entries[0].Lyrics, "\n"), nil
+	return strings.Split(result.Record.Lyrics, "\n"), nil
 }
 
 func (r *Repository) findSong(artist, album, title string) (*songInfo, error) {
@@ -97,7 +98,7 @@ type lyricsInfo struct {
 
 type lyricsResult struct {
 	apiResult
-	Entries []lyricsInfo `json:"result"`
+	Record lyricsInfo `json:"result"`
 }
 
 type apiResult struct {
