@@ -76,8 +76,6 @@ github.com/hajimehoshi/go-mp3/internal/sideinfo
 # github.com/hajimehoshi/oto v0.6.1
 github.com/hajimehoshi/oto
 github.com/hajimehoshi/oto/internal/mux
-# github.com/pkg/errors v0.9.1
-github.com/pkg/errors
 # github.com/pmezard/go-difflib v1.0.0
 github.com/pmezard/go-difflib/difflib
 # github.com/romantomjak/shoutcast v1.1.0 => ../shoutcast

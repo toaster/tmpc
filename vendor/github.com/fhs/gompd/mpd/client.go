@@ -7,7 +7,6 @@
 package mpd
 
 import (
-	"errors"
 	"fmt"
 	"net/textproto"
 	"strconv"
@@ -437,7 +436,7 @@ func (c *Client) PlaylistInfo(start, end int) ([]Attrs, error) {
 		// Request the single playlist item at this position.
 		cmd = c.Command("playlistinfo %d", start)
 	case start < 0 && end >= 0:
-		return nil, errors.New("negative start index")
+		return nil, fmt.Errorf("negative start index")
 	default:
 		panic("unreachable")
 	}
@@ -451,7 +450,7 @@ func (c *Client) PlaylistInfo(start, end int) ([]Attrs, error) {
 func (c *Client) SetPriority(priority, start, end int) error {
 	switch {
 	case start < 0 && end < 0:
-		return errors.New("negative start and end index")
+		return fmt.Errorf("negative start and end index")
 	case start >= 0 && end >= 0:
 		// Update the prio for this range of playlist items.
 		return c.Command("prio %d %d:%d", priority, start, end).OK()
@@ -459,7 +458,7 @@ func (c *Client) SetPriority(priority, start, end int) error {
 		// Update the prio for a single playlist item at this position.
 		return c.Command("prio %d %d", priority, start).OK()
 	case start < 0 && end >= 0:
-		return errors.New("negative start index")
+		return fmt.Errorf("negative start index")
 	default:
 		panic("unreachable")
 	}
@@ -475,7 +474,7 @@ func (c *Client) SetPriorityID(priority, id int) error {
 // it deletes the song at position start.
 func (c *Client) Delete(start, end int) error {
 	if start < 0 {
-		return errors.New("negative start index")
+		return fmt.Errorf("negative start index")
 	}
 	if end < 0 {
 		return c.Command("delete %d", start).OK()
@@ -492,7 +491,7 @@ func (c *Client) DeleteID(id int) error {
 // position. If end is negative, only the song at position start is moved.
 func (c *Client) Move(start, end, position int) error {
 	if start < 0 {
-		return errors.New("negative start index")
+		return fmt.Errorf("negative start index")
 	}
 	if end < 0 {
 		return c.Command("move %d %d", start, position).OK()

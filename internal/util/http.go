@@ -1,9 +1,9 @@
 package util
 
 import (
+	"fmt"
 	"net/http"
 
-	"github.com/pkg/errors"
 	"golang.org/x/net/html"
 )
 
@@ -21,12 +21,12 @@ func HTTPGet(url string) (*http.Response, error) {
 func HTTPGetHTML(url string) (*html.Node, error) {
 	res, err := HTTPGet(url)
 	if err != nil {
-		return nil, errors.Wrapf(err, "HTTP GET failed from: %s", url)
+		return nil, fmt.Errorf("HTTP GET failed from %s: %w", url, err)
 	}
 	defer res.Body.Close()
 	doc, err := html.Parse(res.Body)
 	if err != nil {
-		return nil, errors.Wrapf(err, "failed to parse HTML answer from: %s", url)
+		return nil, fmt.Errorf("failed to parse HTML answer from %s: %w", url, err)
 	}
 	return doc, nil
 }
