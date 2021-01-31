@@ -10,47 +10,47 @@ import (
 	"github.com/toaster/tmpc/internal/util"
 )
 
-// Repository is a LyricsFetcher that delivers the lyrics of a song.
+// Lyrics is a LyricsFetcher that delivers the lyrics of a song.
 //
 // @implements metadata.LyricsFetcher
-type Repository struct {
+type Lyrics struct {
 	apiKey string
 }
 
-var _ metadata.LyricsFetcher = (*Repository)(nil)
+var _ metadata.LyricsFetcher = (*Lyrics)(nil)
 
-// NewRepository creates a new happy.dev repository using the given API key.
-func NewRepository(apiKey string) *Repository {
-	return &Repository{apiKey}
+// NewLyrics creates a new happy.dev repository using the given API key.
+func NewLyrics(apiKey string) *Lyrics {
+	return &Lyrics{apiKey}
 }
 
 // FetchLyrics fetches the lyrics for a song.
 //
 // @implements metadata.LyricsFetcher
-func (r *Repository) FetchLyrics(song *mpd.Song) ([]string, error) {
+func (l *Lyrics) FetchLyrics(song *mpd.Song) ([]string, error) {
 	if song == nil {
 		return []string{}, nil
 	}
 
-	info, err := r.findSong(song.Artist, song.Album, song.Title)
+	info, err := l.findSong(song.Artist, song.Album, song.Title)
 	if err != nil {
 		return nil, err
 	}
-	lyrics, err := r.fetchLyrics(info)
+	lyrics, err := l.fetchLyrics(info)
 	if err != nil {
 		return nil, err
 	}
 	return lyrics, nil
 }
 
-func (r *Repository) fetchLyrics(info *songInfo) ([]string, error) {
+func (l *Lyrics) fetchLyrics(info *songInfo) ([]string, error) {
 	if !info.HasLyrics {
 		return nil, fmt.Errorf("no lyrics provided for song “%s” of “%s”", info.Track, info.Artist)
 	}
 
 	result := lyricsResult{}
 	err := util.HTTPGetJSON(
-		r.uri(fmt.Sprintf("/artists/%d/albums/%d/tracks/%d/lyrics", info.ArtistID, info.AlbumID, info.TrackID), ""),
+		l.uri(fmt.Sprintf("/artists/%d/albums/%d/tracks/%d/lyrics", info.ArtistID, info.AlbumID, info.TrackID), ""),
 		&result,
 	)
 	if err != nil {
@@ -65,9 +65,9 @@ func (r *Repository) fetchLyrics(info *songInfo) ([]string, error) {
 	return strings.Split(result.Record.Lyrics, "\n"), nil
 }
 
-func (r *Repository) findSong(artist, album, title string) (*songInfo, error) {
+func (l *Lyrics) findSong(artist, album, title string) (*songInfo, error) {
 	result := searchResult{}
-	err := util.HTTPGetJSON(r.uri("", fmt.Sprintf("q=%s%%20%s", url.QueryEscape(artist), url.QueryEscape(title))), &result)
+	err := util.HTTPGetJSON(l.uri("", fmt.Sprintf("q=%s%%20%s", url.QueryEscape(artist), url.QueryEscape(title))), &result)
 	if err != nil {
 		return nil, err
 	}
@@ -86,8 +86,8 @@ func (r *Repository) findSong(artist, album, title string) (*songInfo, error) {
 	return &result.Hits[0], nil
 }
 
-func (r *Repository) uri(path, query string) string {
-	return fmt.Sprintf("https://api.happi.dev/v1/music%s?%s&apikey=%s", path, query, r.apiKey)
+func (l *Lyrics) uri(path, query string) string {
+	return fmt.Sprintf("https://api.happi.dev/v1/music%s?%s&apikey=%s", path, query, l.apiKey)
 }
 
 type lyricsInfo struct {
