@@ -94,8 +94,8 @@ func (c *Cover) fetchCoverFromDiscogs(artist, album string) (io.ReadCloser, erro
 	if err != nil {
 		return nil, err
 	}
-	defer res.Body.Close()
 	if res.StatusCode != http.StatusOK {
+		defer res.Body.Close()
 		b, _ = ioutil.ReadAll(res.Body)
 		return nil, fmt.Errorf("could not download %s: %s", coverURL, string(b))
 	}
