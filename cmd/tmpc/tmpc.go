@@ -6,6 +6,7 @@ import (
 	"strings"
 
 	"github.com/toaster/tmpc/internal/metadata"
+	"github.com/toaster/tmpc/internal/metadata/cache"
 	"github.com/toaster/tmpc/internal/metadata/happydev"
 	"github.com/toaster/tmpc/internal/mpd"
 	"github.com/toaster/tmpc/internal/shoutcast"
@@ -47,7 +48,7 @@ type tmpc struct {
 func newTMPC() *tmpc {
 	a := app.NewWithID("net.pruetz.tmpc")
 	player := &tmpc{
-		coverRepo: &metadata.CoverRepository{},
+		coverRepo: cache.NewFSCover(&metadata.CoverRepository{}),
 		fyne:      a,
 		win:       a.NewWindow("Tilos Music Player Client"),
 	}

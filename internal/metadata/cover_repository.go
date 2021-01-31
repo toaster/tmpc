@@ -8,8 +8,6 @@ import (
 	"log"
 	"net/http"
 	"net/url"
-	"os"
-	"path/filepath"
 	"strings"
 
 	"fyne.io/fyne/v2"
@@ -37,55 +35,30 @@ func init() {
 
 // LoadCover loads the (album) cover for a given song.
 func (r *CoverRepository) LoadCover(song *mpd.Song) (fyne.Resource, error) {
-	tmpDir := filepath.Join(os.TempDir(), "tmpc")
-	fmt.Println("TMP:", tmpDir)
-	if err := os.MkdirAll(tmpDir, os.ModePerm); err != nil {
-		return nil, fmt.Errorf("could not create tmp dir: %w", err)
-	}
-
 	MBID := song.MBAlbumID
 	if MBID == "" {
 		return nil, fmt.Errorf("cannot load cover for song without MBID")
 	}
 
-	imgPath := filepath.Join(tmpDir, MBID)
-	imgFile, err := os.Open(imgPath)
-	var imgReader io.Reader
-	if err == nil {
-		defer imgFile.Close()
-		imgReader = imgFile
-	} else {
-		coverStream, err := r.fetchCoverFromArchive(MBID)
-		if err != nil {
-			log.Println("failed loading cover from coverarchive:", err)
-			var artist string
-			if song.Artist == song.AlbumArtist {
-				artist = song.AlbumArtist
-			}
-			coverStream, err = r.fetchCoverFromDiscogs(artist, song.Album)
-			if err != nil {
-				coverStream, err = r.fetchCoverFromDiscogs(r.cleanupCoverArg(artist), r.cleanupCoverArg(song.Album))
-			}
-			if err != nil {
-				return nil, fmt.Errorf("failed loading cover from discogs: %w", err)
-			}
+	coverStream, err := r.fetchCoverFromArchive(MBID)
+	if err != nil {
+		log.Println("failed loading cover from coverarchive:", err)
+		var artist string
+		if song.Artist == song.AlbumArtist {
+			artist = song.AlbumArtist
 		}
-
-		defer coverStream.Close()
-		imgReader = coverStream
-
-		imgFile, err = os.Create(imgPath)
+		coverStream, err = r.fetchCoverFromDiscogs(artist, song.Album)
 		if err != nil {
-			log.Printf("could not create %s: %v", imgPath, err)
-		} else {
-			defer imgFile.Close()
-			imgReader = io.TeeReader(imgReader, imgFile)
+			coverStream, err = r.fetchCoverFromDiscogs(r.cleanupCoverArg(artist), r.cleanupCoverArg(song.Album))
+		}
+		if err != nil {
+			return nil, fmt.Errorf("failed loading cover from discogs: %w", err)
 		}
 	}
+	defer coverStream.Close()
 
-	content, err := ioutil.ReadAll(imgReader)
+	content, err := ioutil.ReadAll(coverStream)
 	if err != nil {
-		log.Printf("could not read album cover %s: %v", MBID, err)
 		return nil, fmt.Errorf("could not read album cover %s: %w", MBID, err)
 	}
 	return fyne.NewStaticResource(MBID, content), nil
