@@ -1,6 +1,8 @@
 package cascade
 
 import (
+	"fmt"
+
 	"github.com/toaster/tmpc/internal/metadata"
 	"github.com/toaster/tmpc/internal/mpd"
 )
@@ -22,7 +24,7 @@ func NewLyrics(fetchers []metadata.LyricsFetcher) *Lyrics {
 //
 // @implements metadata.LyricsFetcher
 func (l *Lyrics) FetchLyrics(song *mpd.Song) ([]string, error) {
-	var lastErr error
+	lastErr := fmt.Errorf("could not fetch lyrics for song “%s” of “%s”", song.Title, song.Artist)
 	for _, fetcher := range l.fetchers {
 		lyrics, err := fetcher.FetchLyrics(song)
 		if err == nil {
