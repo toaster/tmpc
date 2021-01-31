@@ -1,10 +1,8 @@
 package cache
 
 import (
-	"fmt"
 	"io/ioutil"
 	"log"
-	"os"
 	"path/filepath"
 
 	"fyne.io/fyne/v2"
@@ -31,13 +29,13 @@ func NewFSCover(fetcher metadata.CoverFetcher) *FSCover {
 //
 // @implements metadata.CoverFetcher
 func (f *FSCover) LoadCover(song *mpd.Song) (fyne.Resource, error) {
-	tmpDir := filepath.Join(os.TempDir(), "tmpc")
-	if err := os.MkdirAll(tmpDir, os.ModePerm); err != nil {
-		return nil, fmt.Errorf("could not create tmp dir: %w", err)
+	dir, err := tmpDir()
+	if err != nil {
+		return nil, err
 	}
 
 	id := metadata.CoverID(song)
-	imgPath := filepath.Join(tmpDir, id)
+	imgPath := filepath.Join(dir, id)
 
 	content, err := ioutil.ReadFile(imgPath)
 	if err == nil {

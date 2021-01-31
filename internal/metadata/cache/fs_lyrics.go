@@ -1,10 +1,8 @@
 package cache
 
 import (
-	"fmt"
 	"io/ioutil"
 	"log"
-	"os"
 	"path/filepath"
 	"strings"
 
@@ -30,12 +28,12 @@ func NewFSLyrics(fetcher metadata.LyricsFetcher) *FSLyrics {
 //
 // @implements metadata.LyricsFetcher
 func (f *FSLyrics) FetchLyrics(song *mpd.Song) ([]string, error) {
-	tmpDir := filepath.Join(os.TempDir(), "tmpc")
-	if err := os.MkdirAll(tmpDir, os.ModePerm); err != nil {
-		return nil, fmt.Errorf("could not create tmp dir: %w", err)
+	dir, err := tmpDir()
+	if err != nil {
+		return nil, err
 	}
 
-	path := filepath.Join(tmpDir, metadata.SongID(song))
+	path := filepath.Join(dir, metadata.SongID(song))
 
 	content, err := ioutil.ReadFile(path)
 	if err == nil {
