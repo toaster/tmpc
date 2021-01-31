@@ -45,8 +45,7 @@ func (r *Repository) FetchLyrics(song *mpd.Song) ([]string, error) {
 
 func (r *Repository) fetchLyrics(info *songInfo) ([]string, error) {
 	if !info.HasLyrics {
-		// TODO: error? special value?
-		return nil, nil
+		return nil, fmt.Errorf("no lyrics provided for song “%s” of “%s”", info.Track, info.Artist)
 	}
 
 	result := lyricsResult{}
@@ -58,12 +57,12 @@ func (r *Repository) fetchLyrics(info *songInfo) ([]string, error) {
 		return nil, err
 	}
 	if result.Length == 0 {
-		// TODO: error? special value?
-		return nil, nil
+		return nil, fmt.Errorf("fetched lyrics result was empty for song “%s” of “%s”", info.Track, info.Artist)
 	}
-	// TODO: handle multiple results
+	// TODO: handle multiple results?
+	// Currently there is no array returned for “result” key if length == 1.
 
-	return strings.Split(result.Entries[0].Lyrics, "\n"), nil
+	return strings.Split(result.Record.Lyrics, "\n"), nil
 }
 
 func (r *Repository) findSong(artist, album, title string) (*songInfo, error) {
@@ -97,7 +96,7 @@ type lyricsInfo struct {
 
 type lyricsResult struct {
 	apiResult
-	Entries []lyricsInfo `json:"result"`
+	Record lyricsInfo `json:"result"`
 }
 
 type apiResult struct {

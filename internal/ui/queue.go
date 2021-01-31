@@ -24,7 +24,7 @@ type Queue struct {
 }
 
 // NewQueue returns a new queue.
-func NewQueue(move func(*mpd.Song, int), onClear func(), onDetails, onPlay func(*mpd.Song), onRemove func([]*mpd.Song)) *Queue {
+func NewQueue(move func(*mpd.Song, int), onClear func(), onDetails, onPlay func(*mpd.Song), onRemove func([]*mpd.Song), coverLoader func(*mpd.Song, fyne.Resource, func(fyne.Resource))) *Queue {
 	playIndicator := canvas.NewImageFromResource(rscPlayIndicator)
 	playIndicator.Resize(fyne.NewSize(18, 18))
 	pauseIndicator := canvas.NewImageFromResource(rscPauseIndicator)
@@ -34,6 +34,7 @@ func NewQueue(move func(*mpd.Song, int), onClear func(), onDetails, onPlay func(
 	q := &Queue{
 		SongList: SongList{
 			box:          container.NewVBox(),
+			coverLoader:  coverLoader,
 			move:         move,
 			supportsDrag: true,
 		},
