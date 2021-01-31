@@ -6,7 +6,10 @@ import (
 	"strings"
 
 	"github.com/toaster/tmpc/internal/metadata"
+	"github.com/toaster/tmpc/internal/metadata/archiveorg"
 	"github.com/toaster/tmpc/internal/metadata/cache"
+	"github.com/toaster/tmpc/internal/metadata/cascade"
+	"github.com/toaster/tmpc/internal/metadata/discogs"
 	"github.com/toaster/tmpc/internal/metadata/happydev"
 	"github.com/toaster/tmpc/internal/mpd"
 	"github.com/toaster/tmpc/internal/shoutcast"
@@ -48,9 +51,8 @@ type tmpc struct {
 func newTMPC() *tmpc {
 	a := app.NewWithID("net.pruetz.tmpc")
 	player := &tmpc{
-		coverRepo: cache.NewFSCover(&metadata.CoverRepository{}),
-		fyne:      a,
-		win:       a.NewWindow("Tilos Music Player Client"),
+		fyne: a,
+		win:  a.NewWindow("Tilos Music Player Client"),
 	}
 	player.applySettings(false)
 
@@ -161,6 +163,15 @@ func (t *tmpc) applySettings(connect bool) {
 	)
 	t.shoutcast = shoutcast.NewClient(t.fyne.Preferences().String("shoutcastURL"), t.addError)
 	t.lyricsRepo = happydev.NewRepository(t.fyne.Preferences().String("happyDevAPIKey"))
+	t.coverRepo = cache.NewFSCover(
+		cascade.NewCover([]metadata.CoverFetcher{
+			archiveorg.NewCover(),
+			discogs.NewCover(
+				t.fyne.Preferences().String("discogsAPIKey"),
+				t.fyne.Preferences().String("discogsAPISecret"),
+			),
+		}),
+	)
 	if connect {
 		t.connectMPD()
 	}
@@ -504,6 +515,18 @@ func (t *tmpc) showSettings() {
 	happydevAPIKeyEntry.OnChanged = func(s string) {
 		t.fyne.Preferences().SetString("happyDevAPIKey", s)
 	}
+	discogsAPIKeyEntry := widget.NewEntry()
+	discogsAPIKeyEntry.SetText(t.fyne.Preferences().String("discogsAPIKey"))
+	discogsAPIKeyEntry.SetPlaceHolder("key")
+	discogsAPIKeyEntry.OnChanged = func(s string) {
+		t.fyne.Preferences().SetString("discogsAPIKey", s)
+	}
+	discogsAPISecretEntry := widget.NewPasswordEntry()
+	discogsAPISecretEntry.SetText(t.fyne.Preferences().String("discogsAPISecret"))
+	discogsAPISecretEntry.SetPlaceHolder("secret")
+	discogsAPISecretEntry.OnChanged = func(s string) {
+		t.fyne.Preferences().SetString("discogsAPISecret", s)
+	}
 	themeSelector := widget.NewRadioGroup([]string{"Dark", "Light"}, func(s string) {
 		t.fyne.Preferences().SetString("theme", s)
 		t.applyTheme()
@@ -521,6 +544,10 @@ func (t *tmpc) showSettings() {
 		shoutcastURLEntry,
 		widget.NewLabelWithStyle("happy.dev API key", fyne.TextAlignTrailing, fyne.TextStyle{Bold: true}),
 		happydevAPIKeyEntry,
+		widget.NewLabelWithStyle("Discogs API key", fyne.TextAlignTrailing, fyne.TextStyle{Bold: true}),
+		discogsAPIKeyEntry,
+		widget.NewLabelWithStyle("Discogs API secret", fyne.TextAlignTrailing, fyne.TextStyle{Bold: true}),
+		discogsAPISecretEntry,
 		widget.NewLabelWithStyle("Theme", fyne.TextAlignTrailing, fyne.TextStyle{Bold: true}),
 		themeSelector,
 	)

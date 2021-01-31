@@ -1,7 +1,6 @@
 package cache
 
 import (
-	"crypto/sha256"
 	"fmt"
 	"io/ioutil"
 	"log"
@@ -37,10 +36,7 @@ func (f *FSCover) LoadCover(song *mpd.Song) (fyne.Resource, error) {
 		return nil, fmt.Errorf("could not create tmp dir: %w", err)
 	}
 
-	id := song.MBAlbumID
-	if id == "" {
-		id = fmt.Sprintf("%x", sha256.Sum256([]byte(song.File)))
-	}
+	id := metadata.CoverID(song)
 	imgPath := filepath.Join(tmpDir, id)
 
 	content, err := ioutil.ReadFile(imgPath)
