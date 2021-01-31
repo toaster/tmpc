@@ -162,7 +162,9 @@ func (t *tmpc) applySettings(connect bool) {
 		t.addError,
 	)
 	t.shoutcast = shoutcast.NewClient(t.fyne.Preferences().String("shoutcastURL"), t.addError)
-	t.lyricsRepo = happydev.NewRepository(t.fyne.Preferences().String("happyDevAPIKey"))
+	t.lyricsRepo = cache.NewFSLyrics(
+		happydev.NewRepository(t.fyne.Preferences().String("happyDevAPIKey")),
+	)
 	t.coverRepo = cache.NewFSCover(
 		cascade.NewCover([]metadata.CoverFetcher{
 			archiveorg.NewCover(),
