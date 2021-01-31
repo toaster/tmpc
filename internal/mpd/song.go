@@ -47,16 +47,19 @@ Ideas:
 
 // Song represents a song on the MPD server
 type Song struct {
-	File        string // mandatory
-	Album       string
-	AlbumArtist string
-	Artist      string
-	ID          int
-	MBAlbumID   string
-	Time        int
-	Title       string
-	Track       int
-	Year        int
+	File            string // mandatory
+	Album           string
+	AlbumArtist     string
+	Artist          string
+	ID              int
+	MBAlbumID       string
+	MBAlbumArtistID string
+	MBArtistID      string
+	MBTrackID       string
+	Time            int
+	Title           string
+	Track           int
+	Year            int
 }
 
 // DisplayTitle returns the display title of the song.
@@ -83,16 +86,19 @@ func songsFromAttrs(attrs []mpd.Attrs) []*Song {
 			fmt.Sscanf(sAttrs["Date"], "%d", &year)
 		}
 		songs[i] = &Song{
-			File:        sAttrs["file"],
-			Album:       sAttrs["Album"],
-			AlbumArtist: sAttrs["AlbumArtist"],
-			Artist:      sAttrs["Artist"],
-			ID:          id,
-			MBAlbumID:   sAttrs["MUSICBRAINZ_ALBUMID"],
-			Time:        time,
-			Title:       sAttrs["Title"],
-			Track:       track,
-			Year:        year,
+			File:            sAttrs["file"],
+			Album:           sAttrs["Album"],
+			AlbumArtist:     sAttrs["AlbumArtist"],
+			Artist:          sAttrs["Artist"],
+			ID:              id,
+			MBAlbumID:       sAttrs["MUSICBRAINZ_ALBUMID"],
+			MBAlbumArtistID: sAttrs["MUSICBRAINZ_ALBUMARTISTID"],
+			MBArtistID:      sAttrs["MUSICBRAINZ_ARTISTID"],
+			MBTrackID:       sAttrs["MUSICBRAINZ_TRACKID"],
+			Time:            time,
+			Title:           sAttrs["Title"],
+			Track:           track,
+			Year:            year,
 		}
 	}
 	return songs
