@@ -114,9 +114,25 @@ func (l *Lyrics) gatherAlbumID(artistID int, album string) (int, error) {
 		return 0, fmt.Errorf("artist has no albums")
 	}
 
+	lowerAlbum := strings.ToLower(album)
 	for _, hit := range result.Info.Albums {
-		if strings.ToLower(hit.Album) == strings.ToLower(album) {
+		if strings.ToLower(hit.Album) == lowerAlbum {
 			return hit.AlbumID, nil
+		}
+	}
+	for _, hit := range result.Info.Albums {
+		lowerHit := strings.ToLower(hit.Album)
+		if strings.Contains(lowerHit, lowerAlbum) || strings.Contains(lowerAlbum, lowerHit) {
+			return hit.AlbumID, nil
+		}
+	}
+	for _, lang := range []string{"en", "de"} {
+		reducedAlbum := metadata.ReducedTitle(lowerAlbum, lang)
+		for _, hit := range result.Info.Albums {
+			reducedHit := metadata.ReducedTitle(strings.ToLower(hit.Album), lang)
+			if strings.Contains(reducedHit, reducedAlbum) || strings.Contains(reducedAlbum, reducedHit) {
+				return hit.AlbumID, nil
+			}
 		}
 	}
 
@@ -183,9 +199,19 @@ func (l *Lyrics) gatherTrackID(artistID, albumID int, track string) (int, error)
 		return 0, fmt.Errorf("album has no tracks")
 	}
 
+	lowerTrack := strings.ToLower(track)
 	for _, hit := range result.Info.Tracks {
-		if strings.ToLower(hit.Track) == strings.ToLower(track) {
+		if strings.ToLower(hit.Track) == lowerTrack {
 			return hit.TrackID, nil
+		}
+	}
+	for _, lang := range []string{"en", "de"} {
+		reducedTrack := metadata.ReducedTitle(lowerTrack, lang)
+		for _, hit := range result.Info.Tracks {
+			reducedHit := metadata.ReducedTitle(strings.ToLower(hit.Track), lang)
+			if strings.Contains(reducedHit, reducedTrack) || strings.Contains(reducedTrack, reducedHit) {
+				return hit.TrackID, nil
+			}
 		}
 	}
 
