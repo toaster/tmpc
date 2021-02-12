@@ -4,6 +4,7 @@ import (
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/container"
 	"fyne.io/fyne/v2/layout"
+	"fyne.io/fyne/v2/theme"
 	"fyne.io/fyne/v2/widget"
 
 	"github.com/toaster/tmpc/internal/mpd"
@@ -46,7 +47,7 @@ func NewSearch(doSearch SearchFn, addToQueue, insertIntoQueue, replaceQueue, add
 		PlaceHolder: "Album",
 		Selected:    "Song",
 	}
-	s.input = NewSubmitEntry(s.search)
+	s.input = NewSubmitEntry(s.search, theme.SearchIcon())
 	// TODO: auto submit?
 	// 	timer := time.AfterFunc(1*time.Second, func() {
 	// 		fmt.Println("search for", input.Text)
