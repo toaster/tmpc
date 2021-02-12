@@ -94,34 +94,11 @@ func (q *Queue) buildSongContextMenu() *fyne.Menu {
 		fyne.NewMenuItem("Play now", func() { q.onPlay(q.SongsSelected()[0]) }),
 		fyne.NewMenuItem("Remove", func() { q.onRemove(q.SongsSelected()) }),
 		fyne.NewMenuItem("Remove Others", func() { q.onRemove(q.SongsNotSelected()) }),
-		fyne.NewMenuItem("Remove Before", func() { q.removeBefore(q.SongsSelected()[0]) }),
-		fyne.NewMenuItem("Remove After", func() {
-			songs := q.SongsSelected()
-			q.removeAfter(songs[len(songs)-1])
-		}),
+		fyne.NewMenuItem("Remove Before", func() { q.onRemove(q.SongsBeforeSelection()) }),
+		fyne.NewMenuItem("Remove After", func() { q.onRemove(q.SongsAfterSelection()) }),
 		fyne.NewMenuItem("Clear", q.onClear),
 		fyne.NewMenuItemSeparator(),
 		fyne.NewMenuItem("Details…", func() { q.onDetails(q.SongsSelected()[0]) }),
 	}
 	return fyne.NewMenu("", items...)
-}
-
-func (q *Queue) removeAfter(s *mpd.Song) {
-	for i, song := range q.songs {
-		if song == s {
-			if i+1 < len(q.songs) {
-				q.onRemove(q.songs[i+1:])
-			}
-			break
-		}
-	}
-}
-
-func (q *Queue) removeBefore(s *mpd.Song) {
-	for i, song := range q.songs {
-		if song == s {
-			q.onRemove(q.songs[0:i])
-			break
-		}
-	}
 }
