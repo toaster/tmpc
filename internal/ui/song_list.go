@@ -47,8 +47,8 @@ func (l *SongList) IsEmpty() bool {
 	return len(l.songs) == 0
 }
 
-// NotSelectedSongs returns the songs that are not selected.
-func (l *SongList) NotSelectedSongs() []*mpd.Song {
+// SongsNotSelected returns the songs that are not selected.
+func (l *SongList) SongsNotSelected() []*mpd.Song {
 	var songs []*mpd.Song
 	for _, qa := range l.albums {
 		for _, qs := range qa.songs {
@@ -60,8 +60,8 @@ func (l *SongList) NotSelectedSongs() []*mpd.Song {
 	return songs
 }
 
-// SelectedSongs returns the selected songs.
-func (l *SongList) SelectedSongs() []*mpd.Song {
+// SongsSelected returns the selected songs.
+func (l *SongList) SongsSelected() []*mpd.Song {
 	var songs []*mpd.Song
 	for _, qa := range l.albums {
 		for _, qs := range qa.songs {

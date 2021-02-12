@@ -91,17 +91,17 @@ func (q *Queue) Update(songs []*mpd.Song) {
 
 func (q *Queue) buildSongContextMenu() *fyne.Menu {
 	items := []*fyne.MenuItem{
-		fyne.NewMenuItem("Play now", func() { q.onPlay(q.SelectedSongs()[0]) }),
-		fyne.NewMenuItem("Remove", func() { q.onRemove(q.SelectedSongs()) }),
-		fyne.NewMenuItem("Remove Others", func() { q.onRemove(q.NotSelectedSongs()) }),
-		fyne.NewMenuItem("Remove Before", func() { q.removeBefore(q.SelectedSongs()[0]) }),
+		fyne.NewMenuItem("Play now", func() { q.onPlay(q.SongsSelected()[0]) }),
+		fyne.NewMenuItem("Remove", func() { q.onRemove(q.SongsSelected()) }),
+		fyne.NewMenuItem("Remove Others", func() { q.onRemove(q.SongsNotSelected()) }),
+		fyne.NewMenuItem("Remove Before", func() { q.removeBefore(q.SongsSelected()[0]) }),
 		fyne.NewMenuItem("Remove After", func() {
-			songs := q.SelectedSongs()
+			songs := q.SongsSelected()
 			q.removeAfter(songs[len(songs)-1])
 		}),
 		fyne.NewMenuItem("Clear", q.onClear),
 		fyne.NewMenuItemSeparator(),
-		fyne.NewMenuItem("Details…", func() { q.onDetails(q.SelectedSongs()[0]) }),
+		fyne.NewMenuItem("Details…", func() { q.onDetails(q.SongsSelected()[0]) }),
 	}
 	return fyne.NewMenu("", items...)
 }
