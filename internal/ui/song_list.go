@@ -47,8 +47,39 @@ func (l *SongList) IsEmpty() bool {
 	return len(l.songs) == 0
 }
 
-// NotSelectedSongs returns the songs that are not selected.
-func (l *SongList) NotSelectedSongs() []*mpd.Song {
+// SongsAfterSelection returns all songs after the current selection.
+func (l *SongList) SongsAfterSelection() []*mpd.Song {
+	selected := l.SongsSelected()
+	if len(selected) == 0 {
+		return nil
+	}
+
+	lastSelected := selected[len(selected)-1]
+	for i, s := range l.songs {
+		if lastSelected == s && i+1 < len(l.songs) {
+			return l.songs[i+1:]
+		}
+	}
+	return nil
+}
+
+// SongsBeforeSelection returns all songs before the current selection.
+func (l *SongList) SongsBeforeSelection() []*mpd.Song {
+	selected := l.SongsSelected()
+	if len(selected) == 0 {
+		return nil
+	}
+
+	for i, s := range l.songs {
+		if selected[0] == s {
+			return l.songs[0:i]
+		}
+	}
+	return nil
+}
+
+// SongsNotSelected returns the songs that are not selected.
+func (l *SongList) SongsNotSelected() []*mpd.Song {
 	var songs []*mpd.Song
 	for _, qa := range l.albums {
 		for _, qs := range qa.songs {
@@ -60,8 +91,8 @@ func (l *SongList) NotSelectedSongs() []*mpd.Song {
 	return songs
 }
 
-// SelectedSongs returns the selected songs.
-func (l *SongList) SelectedSongs() []*mpd.Song {
+// SongsSelected returns the selected songs.
+func (l *SongList) SongsSelected() []*mpd.Song {
 	var songs []*mpd.Song
 	for _, qa := range l.albums {
 		for _, qs := range qa.songs {

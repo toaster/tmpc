@@ -74,21 +74,21 @@ func (s *Search) CreateRenderer() fyne.WidgetRenderer {
 
 func (s *Search) buildContextMenu(addToQueue, insertIntoQueue, replaceQueue, addToPlaylist SongFn, showDetails func(*mpd.Song)) *fyne.Menu {
 	items := []*fyne.MenuItem{
-		fyne.NewMenuItem("Append to Queue", func() { addToQueue(s.results.SelectedSongs(), false) }),
+		fyne.NewMenuItem("Append to Queue", func() { addToQueue(s.results.SongsSelected(), false) }),
 		fyne.NewMenuItem("Append to Queue and Play", func() {
-			addToQueue(s.results.SelectedSongs(), true)
+			addToQueue(s.results.SongsSelected(), true)
 		}),
-		fyne.NewMenuItem("Insert into Queue", func() { insertIntoQueue(s.results.SelectedSongs(), false) }),
+		fyne.NewMenuItem("Insert into Queue", func() { insertIntoQueue(s.results.SongsSelected(), false) }),
 		fyne.NewMenuItem("Insert into Queue and Play", func() {
-			insertIntoQueue(s.results.SelectedSongs(), true)
+			insertIntoQueue(s.results.SongsSelected(), true)
 		}),
-		fyne.NewMenuItem("Replace Queue", func() { replaceQueue(s.results.SelectedSongs(), false) }),
+		fyne.NewMenuItem("Replace Queue", func() { replaceQueue(s.results.SongsSelected(), false) }),
 		fyne.NewMenuItem("Replace Queue and Play", func() {
-			replaceQueue(s.results.SelectedSongs(), true)
+			replaceQueue(s.results.SongsSelected(), true)
 		}),
-		fyne.NewMenuItem("Add To Playlist…", func() { addToPlaylist(s.results.SelectedSongs(), false) }),
+		fyne.NewMenuItem("Add To Playlist…", func() { addToPlaylist(s.results.SongsSelected(), false) }),
 		fyne.NewMenuItemSeparator(),
-		fyne.NewMenuItem("Details…", func() { showDetails(s.results.SelectedSongs()[0]) }),
+		fyne.NewMenuItem("Details…", func() { showDetails(s.results.SongsSelected()[0]) }),
 	}
 	return fyne.NewMenu("", items...)
 }
