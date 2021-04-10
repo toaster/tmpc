@@ -109,6 +109,6 @@ func (r *progressBarRenderer) MinSize() fyne.Size {
 func (r *progressBarRenderer) Refresh() {
 	r.bar.FillColor = theme.PrimaryColor()
 	r.bg.FillColor = theme.BackgroundColor()
-	r.border.FillColor = theme.ButtonColor()
+	r.border.FillColor = theme.HoverColor()
 	r.Layout(r.p.Size())
 }
