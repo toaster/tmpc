@@ -199,7 +199,7 @@ func (a *songListAlbum) removeSongIndicator() {
 type songListAlbumRenderer struct {
 	baseRenderer
 	a                   *songListAlbum
-	gradient            fyne.CanvasObject
+	gradient            *canvas.LinearGradient
 	minSize             fyne.Size
 	objectsButIndicator []fyne.CanvasObject
 }
@@ -245,6 +245,11 @@ func (r *songListAlbumRenderer) MinSize() fyne.Size {
 }
 
 func (r *songListAlbumRenderer) Refresh() {
+	sc := theme.BackgroundColor()
+	if r.gradient.StartColor != sc {
+		r.gradient.StartColor = sc
+		r.Refresh()
+	}
 	if r.a.indicatedSong > -1 {
 		var linePos fyne.Position
 		if r.a.showSongs {
