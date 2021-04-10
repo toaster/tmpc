@@ -32,16 +32,16 @@ func newAlbumHeadLine(pad float32, texts []string) *songListAlbumLine {
 }
 
 func (l *songListAlbumLine) CreateRenderer() fyne.WidgetRenderer {
-	texts := make([]fyne.CanvasObject, 0, len(l.texts))
+	ler := l.listEntry.createRenderer()
+	texts := make([]*canvas.Text, 0, len(l.texts))
 	for _, t := range l.texts {
 		text := canvas.NewText(t, theme.ForegroundColor())
 		if l.bold {
 			text.TextStyle.Bold = true
 		}
 		texts = append(texts, text)
+		ler.objects = append(ler.objects, text)
 	}
-	ler := l.listEntry.createRenderer()
-	ler.objects = append(ler.objects, texts...)
 	return &songListAlbumLineRenderer{
 		listEntryRenderer: ler,
 		l:                 l,
@@ -64,7 +64,7 @@ type songListAlbumLineRenderer struct {
 	minSize       fyne.Size
 	pad           float32
 	textHeight    float32
-	texts         []fyne.CanvasObject
+	texts         []*canvas.Text
 }
 
 func (r *songListAlbumLineRenderer) Layout(size fyne.Size) {
@@ -90,4 +90,12 @@ func (r *songListAlbumLineRenderer) MinSize() fyne.Size {
 		r.minSize = fyne.NewSize(minWidth, r.textHeight).Add(r.listEntryRenderer.MinSize())
 	}
 	return r.minSize
+}
+
+func (r *songListAlbumLineRenderer) Refresh() {
+	for _, t := range r.texts {
+		t.Color = theme.ForegroundColor()
+		t.Refresh()
+	}
+	r.listEntryRenderer.Refresh()
 }

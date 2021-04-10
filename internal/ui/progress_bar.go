@@ -110,5 +110,8 @@ func (r *progressBarRenderer) Refresh() {
 	r.bar.FillColor = theme.PrimaryColor()
 	r.bg.FillColor = theme.BackgroundColor()
 	r.border.FillColor = theme.HoverColor()
+	r.bar.Refresh()
+	r.bg.Refresh()
+	r.border.Refresh()
 	r.Layout(r.p.Size())
 }

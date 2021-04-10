@@ -41,8 +41,8 @@ type listEntryRenderer struct {
 	baseRenderer
 	background   *canvas.Rectangle
 	e            *listEntry
-	insertMarker fyne.CanvasObject
-	sep          fyne.CanvasObject
+	insertMarker *canvas.Rectangle
+	sep          *canvas.Rectangle
 }
 
 func (r *listEntryRenderer) Layout(size fyne.Size) {
@@ -57,6 +57,9 @@ func (r *listEntryRenderer) MinSize() fyne.Size {
 }
 
 func (r *listEntryRenderer) Refresh() {
+	r.sep.FillColor = theme.HoverColor()
+	r.sep.Refresh()
+
 	if r.e.selected {
 		r.background.FillColor = theme.PrimaryColor()
 	} else if r.e.hovered {
@@ -64,7 +67,9 @@ func (r *listEntryRenderer) Refresh() {
 	} else {
 		r.background.FillColor = color.Transparent
 	}
+	r.background.Refresh()
 
+	r.insertMarker.FillColor = theme.ForegroundColor()
 	if r.e.showInsertMarker {
 		if r.e.insertMarkerBottom {
 			r.insertMarker.Move(fyne.NewPos(0, r.e.Size().Height-1))
@@ -75,4 +80,5 @@ func (r *listEntryRenderer) Refresh() {
 	} else {
 		r.insertMarker.Hide()
 	}
+	r.insertMarker.Refresh()
 }
