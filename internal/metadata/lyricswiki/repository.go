@@ -39,25 +39,7 @@ func (r *Repository) FetchLyrics(song *mpd.Song) ([]string, error) {
 		return nil, err
 	}
 
-	var lines []string
-	var brDetected bool
-	for c := lyrics.FirstChild; c != nil; c = c.NextSibling {
-		switch c.Type {
-		case html.TextNode:
-			brDetected = false
-			lines = append(lines, c.Data)
-		case html.ElementNode:
-			if c.Data == "br" {
-				if brDetected {
-					lines = append(lines, "")
-				}
-				brDetected = true
-			}
-		default:
-			brDetected = false
-		}
-	}
-	return lines, nil
+	return metadata.ExtractLyricsFromHTML(lyrics), nil
 }
 
 func (r *Repository) findLyrics(artist, title string) (*html.Node, error) {

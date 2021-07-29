@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	"github.com/toaster/tmpc/internal/mpd"
+	"golang.org/x/net/html"
 )
 
 // CoverID returns a unique ID to identify the cover of a song.
@@ -15,6 +16,29 @@ func CoverID(song *mpd.Song) string {
 		return song.MBAlbumID
 	}
 	return SongID(song)
+}
+
+// ExtractLyricsFromHTML is a helper to extract lyrics from a HTML page.
+func ExtractLyricsFromHTML(lyrics *html.Node) []string {
+	var lines []string
+	var brDetected bool
+	for c := lyrics.FirstChild; c != nil; c = c.NextSibling {
+		switch c.Type {
+		case html.TextNode:
+			brDetected = false
+			lines = append(lines, c.Data)
+		case html.ElementNode:
+			if c.Data == "br" {
+				if brDetected {
+					lines = append(lines, "")
+				}
+				brDetected = true
+			}
+		default:
+			brDetected = false
+		}
+	}
+	return lines
 }
 
 // ReducedTitle tries to convert and shorten a title to a minimal common part.
