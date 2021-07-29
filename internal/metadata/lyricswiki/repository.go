@@ -39,7 +39,7 @@ func (r *Repository) FetchLyrics(song *mpd.Song) ([]string, error) {
 		return nil, err
 	}
 
-	return metadata.ExtractLyricsFromHTML(lyrics), nil
+	return metadata.ExtractLyricsFromHTML([]*html.Node{lyrics}, nil), nil
 }
 
 func (r *Repository) findLyrics(artist, title string) (*html.Node, error) {
