@@ -14,6 +14,7 @@ import (
 //
 // @implements metadata.LyricsFetcher
 type FSLyrics struct {
+	dir     string
 	fetcher metadata.LyricsFetcher
 }
 
@@ -21,19 +22,18 @@ var _ metadata.LyricsFetcher = (*FSLyrics)(nil)
 
 // NewFSLyrics returns a new FSLyrics cover cache.
 func NewFSLyrics(fetcher metadata.LyricsFetcher) *FSLyrics {
-	return &FSLyrics{fetcher}
+	dir, err := tmpDir()
+	if err != nil {
+		log.Fatal("cannot access temp dir:", err)
+	}
+	return &FSLyrics{dir, fetcher}
 }
 
 // FetchLyrics tries to fetch the lyrics from the FSLyrics cache and uses the fetcher if it fails.
 //
 // @implements metadata.LyricsFetcher
 func (f *FSLyrics) FetchLyrics(song *mpd.Song) ([]string, error) {
-	dir, err := tmpDir()
-	if err != nil {
-		return nil, err
-	}
-
-	path := filepath.Join(dir, metadata.SongID(song))
+	path := filepath.Join(f.dir, metadata.SongID(song))
 
 	content, err := ioutil.ReadFile(path)
 	if err == nil {
