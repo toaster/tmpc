@@ -37,6 +37,7 @@ func NewSearch(doSearch SearchFn, addToQueue, insertIntoQueue, replaceQueue, add
 	}
 
 	// TODO: localization
+	// TODO: min width bug -> need large enough placeholder
 	s.category = &widget.Select{
 		Options: []string{
 			"Album",
