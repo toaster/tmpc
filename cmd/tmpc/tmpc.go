@@ -536,8 +536,11 @@ func (t *tmpc) showSettings() {
 	themeSelector.SetSelected(t.fyne.Preferences().String("theme"))
 	themeSelector.Required = true
 	themeSelector.Horizontal = true
+	tmpDir, _ := cache.TmpDir()
 	settingsContainer := container.New(
 		layout.NewFormLayout(),
+		widget.NewLabelWithStyle("Cache Directory", fyne.TextAlignTrailing, fyne.TextStyle{Bold: true}),
+		widget.NewLabel(tmpDir),
 		widget.NewLabelWithStyle("MPD Server URL", fyne.TextAlignTrailing, fyne.TextStyle{Bold: true}),
 		urlEntry,
 		widget.NewLabelWithStyle("MPD Server Password", fyne.TextAlignTrailing, fyne.TextStyle{Bold: true}),

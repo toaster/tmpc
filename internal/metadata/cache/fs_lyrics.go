@@ -22,7 +22,7 @@ var _ metadata.LyricsFetcher = (*FSLyrics)(nil)
 
 // NewFSLyrics returns a new FSLyrics cover cache.
 func NewFSLyrics(fetcher metadata.LyricsFetcher) *FSLyrics {
-	dir, err := tmpDir()
+	dir, err := TmpDir()
 	if err != nil {
 		log.Fatal("cannot access temp dir:", err)
 	}

@@ -29,7 +29,7 @@ func NewFSCover(fetcher metadata.CoverFetcher) *FSCover {
 //
 // @implements metadata.CoverFetcher
 func (f *FSCover) LoadCover(song *mpd.Song) (fyne.Resource, error) {
-	dir, err := tmpDir()
+	dir, err := TmpDir()
 	if err != nil {
 		return nil, err
 	}
