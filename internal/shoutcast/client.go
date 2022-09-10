@@ -1,10 +1,10 @@
 package shoutcast
 
 import (
-	"io"
+	"time"
 
 	"github.com/hajimehoshi/go-mp3"
-	"github.com/hajimehoshi/oto"
+	"github.com/hajimehoshi/oto/v2"
 	"github.com/romantomjak/shoutcast"
 )
 
@@ -13,26 +13,30 @@ type Client struct {
 	context *oto.Context
 	decoder *mp3.Decoder
 	onError func(error)
-	player  *oto.Player
-	playing bool
+	player  oto.Player
+	stop    chan bool
 	stream  *shoutcast.Stream
 	url     string
 }
 
-// NewClient creates a new Client for an URL.
+// NewClient creates a new Client for a URL.
 // `onError` is a function which receives all occurring errors.
 func NewClient(url string, onError func(error)) *Client {
-	return &Client{onError: onError, url: url}
+	return &Client{
+		onError: onError,
+		stop:    make(chan bool),
+		url:     url,
+	}
 }
 
 // IsPlaying returns `true` iff the client is currently playing.
 func (c *Client) IsPlaying() bool {
-	return c.playing
+	return c.player != nil && c.player.IsPlaying()
 }
 
-// Play starts to playback the ShoutCast stream at the client’s URL.
+// Play starts to play back the ShoutCast stream at the client’s URL.
 func (c *Client) Play() error {
-	if c.playing {
+	if c.IsPlaying() {
 		return nil
 	}
 
@@ -44,27 +48,31 @@ func (c *Client) Play() error {
 
 	c.decoder, err = mp3.NewDecoder(c.stream)
 	if err != nil {
-		c.stream.Close()
+		_ = c.stream.Close()
 		return err
 	}
 
-	c.context, err = oto.NewContext(c.decoder.SampleRate(), 2, 2, 8192)
+	var ready chan struct{}
+	c.context, ready, err = oto.NewContext(c.decoder.SampleRate(), 2, 2)
 	if err != nil {
-		c.stream.Close()
+		_ = c.stream.Close()
 		return err
 	}
-	c.player = c.context.NewPlayer()
-
-	c.playing = true
 	go func() {
-		defer c.context.Close()
-		defer c.stream.Close()
-		defer func() { c.playing = false }()
+		<-ready
 
-		if _, err := io.Copy(c.player, c.decoder); err != nil {
-			// ignore errors that occur because Stop() has been called
-			if c.playing {
-				c.onError(err)
+		c.player = c.context.NewPlayer(c.decoder)
+		c.player.Play()
+
+		defer func() { _ = c.player.Close() }()
+		defer func() { _ = c.stream.Close() }()
+
+		var stop bool
+		for c.player.IsPlaying() && !stop {
+			select {
+			case <-c.stop:
+				stop = true
+			case <-time.After(1 * time.Second):
 			}
 		}
 	}()
@@ -74,10 +82,11 @@ func (c *Client) Play() error {
 
 // Stop stops the playback.
 func (c *Client) Stop() {
-	if !c.playing {
+	if !c.IsPlaying() {
 		return
 	}
-	c.playing = false
-	// Don't close the context here, or the copying go routine won't stop.
-	c.stream.Close()
+
+	go func() {
+		c.stop <- true
+	}()
 }
