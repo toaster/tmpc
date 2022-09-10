@@ -163,7 +163,9 @@ func (t *tmpc) applySettings(connect bool) {
 	)
 	t.shoutcast = shoutcast.NewClient(t.fyne.Preferences().String("shoutcastURL"), t.addError)
 	t.lyricsRepo = cache.NewFSLyrics(
-		happidev.NewLyrics(t.fyne.Preferences().String("happiDevAPIKey")),
+		cascade.NewLyrics([]metadata.LyricsFetcher{
+			happidev.NewLyrics(t.fyne.Preferences().String("happiDevAPIKey")),
+		}),
 	)
 	t.coverRepo = cache.NewFSCover(
 		cascade.NewCover([]metadata.CoverFetcher{
