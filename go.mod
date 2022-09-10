@@ -9,7 +9,7 @@ replace github.com/romantomjak/shoutcast => ../shoutcast
 require (
 	fyne.io/fyne/v2 v2.2.3
 	github.com/fhs/gompd v2.0.0+incompatible
-	github.com/hajimehoshi/go-mp3 v0.3.0
+	github.com/hajimehoshi/go-mp3 v0.3.3
 	github.com/hajimehoshi/oto v0.6.1
 	github.com/romantomjak/shoutcast v1.1.0
 	golang.org/x/net v0.0.0-20211118161319-6a13c67c3ce4

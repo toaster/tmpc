@@ -98,7 +98,7 @@ github.com/goki/freetype/truetype
 # github.com/gopherjs/gopherjs v1.17.2
 ## explicit; go 1.17
 github.com/gopherjs/gopherjs/js
-# github.com/hajimehoshi/go-mp3 v0.3.0
+# github.com/hajimehoshi/go-mp3 v0.3.3
 ## explicit; go 1.14
 github.com/hajimehoshi/go-mp3
 github.com/hajimehoshi/go-mp3/internal/bits
