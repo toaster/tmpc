@@ -2,6 +2,7 @@ package dialog
 
 import (
 	"strconv"
+	"sync/atomic"
 
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/canvas"
@@ -124,25 +125,21 @@ func (r *colorChannelRenderer) updateObjects() {
 }
 
 type colorChannelEntry struct {
-	widget.Entry
+	userChangeEntry
 }
 
 func newColorChannelEntry(c *colorChannel) *colorChannelEntry {
-	e := &colorChannelEntry{
-		Entry: widget.Entry{
-			Text: "0",
-			OnChanged: func(text string) {
-				value, err := strconv.Atoi(text)
-				if err != nil {
-					fyne.LogError("Couldn't parse: "+text, err)
-				} else {
-					c.SetValue(value)
-				}
-			},
-			// TODO add number min/max validator
-		},
-	}
+	e := &colorChannelEntry{}
+	e.Text = "0"
 	e.ExtendBaseWidget(e)
+	e.setOnChanged(func(text string) {
+		value, err := strconv.Atoi(text)
+		if err != nil {
+			fyne.LogError("Couldn't parse: "+text, err)
+			return
+		}
+		c.SetValue(value)
+	})
 	return e
 }
 
@@ -151,4 +148,38 @@ func (e *colorChannelEntry) MinSize() fyne.Size {
 	min := fyne.MeasureText("000", theme.TextSize(), fyne.TextStyle{})
 	min = min.Add(fyne.NewSize(theme.Padding()*6, theme.Padding()*4))
 	return min.Max(e.Entry.MinSize())
+}
+
+type userChangeEntry struct {
+	widget.Entry
+	userTyped uint32 // atomic, 0 == false, 1 == true
+}
+
+func newUserChangeEntry(text string) *userChangeEntry {
+	e := &userChangeEntry{}
+	e.Entry.Text = text
+	e.ExtendBaseWidget(e)
+	return e
+}
+
+func (e *userChangeEntry) setOnChanged(onChanged func(s string)) {
+	e.Entry.OnChanged = func(text string) {
+		if !atomic.CompareAndSwapUint32(&e.userTyped, 1, 0) {
+			return
+		}
+		if onChanged != nil {
+			onChanged(text)
+		}
+	}
+	e.ExtendBaseWidget(e)
+}
+
+func (e *userChangeEntry) TypedRune(r rune) {
+	atomic.StoreUint32(&e.userTyped, 1)
+	e.Entry.TypedRune(r)
+}
+
+func (e *userChangeEntry) TypedKey(ev *fyne.KeyEvent) {
+	atomic.StoreUint32(&e.userTyped, 1)
+	e.Entry.TypedKey(ev)
 }

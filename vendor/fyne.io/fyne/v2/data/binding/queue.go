@@ -1,34 +1,30 @@
 package binding
 
-var itemQueue = make(chan itemData, 1024)
+import (
+	"sync"
 
-type itemData struct {
-	fn   func()
-	done chan interface{}
-}
+	"fyne.io/fyne/v2/internal/async"
+)
+
+var (
+	once  sync.Once
+	queue *async.UnboundedFuncChan
+)
 
 func queueItem(f func()) {
-	itemQueue <- itemData{fn: f}
-}
-
-func init() {
-	go processItems()
-}
-
-func processItems() {
-	for {
-		i := <-itemQueue
-		if i.fn != nil {
-			i.fn()
-		}
-		if i.done != nil {
-			i.done <- struct{}{}
-		}
-	}
+	once.Do(func() {
+		queue = async.NewUnboundedFuncChan()
+		go func() {
+			for f := range queue.Out() {
+				f()
+			}
+		}()
+	})
+	queue.In() <- f
 }
 
 func waitForItems() {
-	done := make(chan interface{})
-	itemQueue <- itemData{done: done}
+	done := make(chan struct{})
+	queue.In() <- func() { close(done) }
 	<-done
 }
