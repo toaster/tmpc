@@ -10,6 +10,7 @@ import (
 	"github.com/toaster/tmpc/internal/metadata/cache"
 	"github.com/toaster/tmpc/internal/metadata/cascade"
 	"github.com/toaster/tmpc/internal/metadata/discogs"
+	"github.com/toaster/tmpc/internal/metadata/genius"
 	"github.com/toaster/tmpc/internal/metadata/happidev"
 	"github.com/toaster/tmpc/internal/mpd"
 	"github.com/toaster/tmpc/internal/shoutcast"
@@ -165,6 +166,7 @@ func (t *tmpc) applySettings(connect bool) {
 	t.lyricsRepo = cache.NewFSLyrics(
 		cascade.NewLyrics([]metadata.LyricsFetcher{
 			happidev.NewLyrics(t.fyne.Preferences().String("happiDevAPIKey")),
+			genius.NewLyrics(t.fyne.Preferences().String("geniusAccessToken")),
 		}),
 	)
 	t.coverRepo = cache.NewFSCover(
@@ -513,6 +515,12 @@ func (t *tmpc) showSettings() {
 	shoutcastURLEntry.OnChanged = func(s string) {
 		t.fyne.Preferences().SetString("shoutcastURL", s)
 	}
+	geniusAccessTokenEntry := widget.NewPasswordEntry()
+	geniusAccessTokenEntry.SetText(t.fyne.Preferences().String("geniusAccessToken"))
+	geniusAccessTokenEntry.SetPlaceHolder("top secret")
+	geniusAccessTokenEntry.OnChanged = func(s string) {
+		t.fyne.Preferences().SetString("geniusAccessToken", s)
+	}
 	happidevAPIKeyEntry := widget.NewPasswordEntry()
 	happidevAPIKeyEntry.SetText(t.fyne.Preferences().String("happiDevAPIKey"))
 	happidevAPIKeyEntry.SetPlaceHolder("top secret")
@@ -549,6 +557,8 @@ func (t *tmpc) showSettings() {
 		passEntry,
 		widget.NewLabelWithStyle("Shoutcast Server URL", fyne.TextAlignTrailing, fyne.TextStyle{Bold: true}),
 		shoutcastURLEntry,
+		widget.NewLabelWithStyle("genius access token", fyne.TextAlignTrailing, fyne.TextStyle{Bold: true}),
+		geniusAccessTokenEntry,
 		widget.NewLabelWithStyle("happi.dev API key", fyne.TextAlignTrailing, fyne.TextStyle{Bold: true}),
 		happidevAPIKeyEntry,
 		widget.NewLabelWithStyle("Discogs API key", fyne.TextAlignTrailing, fyne.TextStyle{Bold: true}),
