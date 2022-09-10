@@ -1,4 +1,4 @@
-package happydev
+package happidev
 
 import (
 	"fmt"
@@ -22,7 +22,7 @@ type Lyrics struct {
 
 var _ metadata.LyricsFetcher = (*Lyrics)(nil)
 
-// NewLyrics creates a new happy.dev repository using the given API key.
+// NewLyrics creates a new happi.dev lyrics repository using the given API key.
 func NewLyrics(apiKey string) *Lyrics {
 	return &Lyrics{
 		albumIDsByMBAlbumIDs:   map[string]int{},
