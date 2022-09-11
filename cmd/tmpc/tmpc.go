@@ -10,7 +10,8 @@ import (
 	"github.com/toaster/tmpc/internal/metadata/cache"
 	"github.com/toaster/tmpc/internal/metadata/cascade"
 	"github.com/toaster/tmpc/internal/metadata/discogs"
-	"github.com/toaster/tmpc/internal/metadata/happydev"
+	"github.com/toaster/tmpc/internal/metadata/genius"
+	"github.com/toaster/tmpc/internal/metadata/happidev"
 	"github.com/toaster/tmpc/internal/mpd"
 	"github.com/toaster/tmpc/internal/shoutcast"
 	"github.com/toaster/tmpc/internal/ui"
@@ -163,7 +164,10 @@ func (t *tmpc) applySettings(connect bool) {
 	)
 	t.shoutcast = shoutcast.NewClient(t.fyne.Preferences().String("shoutcastURL"), t.addError)
 	t.lyricsRepo = cache.NewFSLyrics(
-		happydev.NewLyrics(t.fyne.Preferences().String("happyDevAPIKey")),
+		cascade.NewLyrics([]metadata.LyricsFetcher{
+			happidev.NewLyrics(t.fyne.Preferences().String("happiDevAPIKey")),
+			genius.NewLyrics(t.fyne.Preferences().String("geniusAccessToken")),
+		}),
 	)
 	t.coverRepo = cache.NewFSCover(
 		cascade.NewCover([]metadata.CoverFetcher{
@@ -511,11 +515,17 @@ func (t *tmpc) showSettings() {
 	shoutcastURLEntry.OnChanged = func(s string) {
 		t.fyne.Preferences().SetString("shoutcastURL", s)
 	}
-	happydevAPIKeyEntry := widget.NewPasswordEntry()
-	happydevAPIKeyEntry.SetText(t.fyne.Preferences().String("happyDevAPIKey"))
-	happydevAPIKeyEntry.SetPlaceHolder("top secret")
-	happydevAPIKeyEntry.OnChanged = func(s string) {
-		t.fyne.Preferences().SetString("happyDevAPIKey", s)
+	geniusAccessTokenEntry := widget.NewPasswordEntry()
+	geniusAccessTokenEntry.SetText(t.fyne.Preferences().String("geniusAccessToken"))
+	geniusAccessTokenEntry.SetPlaceHolder("top secret")
+	geniusAccessTokenEntry.OnChanged = func(s string) {
+		t.fyne.Preferences().SetString("geniusAccessToken", s)
+	}
+	happidevAPIKeyEntry := widget.NewPasswordEntry()
+	happidevAPIKeyEntry.SetText(t.fyne.Preferences().String("happiDevAPIKey"))
+	happidevAPIKeyEntry.SetPlaceHolder("top secret")
+	happidevAPIKeyEntry.OnChanged = func(s string) {
+		t.fyne.Preferences().SetString("happiDevAPIKey", s)
 	}
 	discogsAPIKeyEntry := widget.NewEntry()
 	discogsAPIKeyEntry.SetText(t.fyne.Preferences().String("discogsAPIKey"))
@@ -536,16 +546,21 @@ func (t *tmpc) showSettings() {
 	themeSelector.SetSelected(t.fyne.Preferences().String("theme"))
 	themeSelector.Required = true
 	themeSelector.Horizontal = true
+	tmpDir, _ := cache.TmpDir()
 	settingsContainer := container.New(
 		layout.NewFormLayout(),
+		widget.NewLabelWithStyle("Cache Directory", fyne.TextAlignTrailing, fyne.TextStyle{Bold: true}),
+		widget.NewLabel(tmpDir),
 		widget.NewLabelWithStyle("MPD Server URL", fyne.TextAlignTrailing, fyne.TextStyle{Bold: true}),
 		urlEntry,
 		widget.NewLabelWithStyle("MPD Server Password", fyne.TextAlignTrailing, fyne.TextStyle{Bold: true}),
 		passEntry,
 		widget.NewLabelWithStyle("Shoutcast Server URL", fyne.TextAlignTrailing, fyne.TextStyle{Bold: true}),
 		shoutcastURLEntry,
-		widget.NewLabelWithStyle("happy.dev API key", fyne.TextAlignTrailing, fyne.TextStyle{Bold: true}),
-		happydevAPIKeyEntry,
+		widget.NewLabelWithStyle("genius access token", fyne.TextAlignTrailing, fyne.TextStyle{Bold: true}),
+		geniusAccessTokenEntry,
+		widget.NewLabelWithStyle("happi.dev API key", fyne.TextAlignTrailing, fyne.TextStyle{Bold: true}),
+		happidevAPIKeyEntry,
 		widget.NewLabelWithStyle("Discogs API key", fyne.TextAlignTrailing, fyne.TextStyle{Bold: true}),
 		discogsAPIKeyEntry,
 		widget.NewLabelWithStyle("Discogs API secret", fyne.TextAlignTrailing, fyne.TextStyle{Bold: true}),
