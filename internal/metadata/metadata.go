@@ -115,6 +115,44 @@ func ExtractLyricsFromHTML(nodes []*html.Node, excludeParams map[string]string) 
 	return lines
 }
 
+// NewExactMatcher returns a new matcher for matching the exact value.
+func NewExactMatcher(value string) Matcher {
+	return &matcher{
+		prefix: false,
+		value:  value,
+	}
+}
+
+// NewPrefixMatcher returns a new matcher for matching the prefix value.
+func NewPrefixMatcher(value string) Matcher {
+	return &matcher{
+		prefix: true,
+		value:  value,
+	}
+}
+
+// NodeParamsMatch returns whether the attributes of the given html.Node match one of the given matchers.
+// The actual value of an attribute is split by space and every single component is tested against the matchers for this attribute.
+// The method returns `true` as soon as any value matches.
+func NodeParamsMatch(node *html.Node, matchers map[string][]Matcher) bool {
+	for _, a := range node.Attr {
+		for _, m := range matchers[a.Key] {
+			for _, v := range strings.Split(a.Val, " ") {
+				if m.MatchPrefix() {
+					if strings.HasPrefix(v, m.Value()) {
+						return true
+					}
+				} else {
+					if v == m.Value() {
+						return true
+					}
+				}
+			}
+		}
+	}
+	return false
+}
+
 // ReducedTitle tries to convert and shorten a title to a minimal common part.
 // This might help match titles with different writings.
 func ReducedTitle(title string, language string) string {
@@ -130,6 +168,11 @@ func ReducedTitle(title string, language string) string {
 // SongID returns a unique ID to identify a song.
 func SongID(song *mpd.Song) string {
 	return fmt.Sprintf("%x", sha256.Sum256([]byte(song.File)))
+}
+
+type Matcher interface {
+	MatchPrefix() bool
+	Value() string
 }
 
 var generalTitleReplacer *strings.Replacer
@@ -160,4 +203,19 @@ func replaceNums(in, lang string) string {
 		}
 		return replacement
 	})
+}
+
+type matcher struct {
+	prefix bool
+	value  string
+}
+
+var _ Matcher = (*matcher)(nil)
+
+func (m *matcher) MatchPrefix() bool {
+	return m.prefix
+}
+
+func (m *matcher) Value() string {
+	return m.value
 }
