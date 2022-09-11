@@ -21,7 +21,7 @@ func CoverID(song *mpd.Song) string {
 }
 
 // ExtractLyricsFromHTML is a helper to extract lyrics from an HTML page.
-func ExtractLyricsFromHTML(nodes []*html.Node, excludeParams map[string]string) []string {
+func ExtractLyricsFromHTML(nodes []*html.Node, excludeParams map[string][]Matcher) []string {
 	var lines []string
 	var buf strings.Builder
 	appendToBuf := func(s string) {
@@ -46,18 +46,6 @@ func ExtractLyricsFromHTML(nodes []*html.Node, excludeParams map[string]string) 
 			lines = append(lines, subLines...)
 		}
 	}
-	shouldBeExcluded := func(node *html.Node) bool {
-		for _, a := range node.Attr {
-			if prefix := excludeParams[a.Key]; prefix != "" {
-				for _, v := range strings.Split(a.Val, " ") {
-					if strings.HasPrefix(v, prefix) {
-						return true
-					}
-				}
-			}
-		}
-		return false
-	}
 	for _, node := range nodes {
 		if len(lines) > 0 {
 			lines = append(lines, "")
@@ -67,7 +55,7 @@ func ExtractLyricsFromHTML(nodes []*html.Node, excludeParams map[string]string) 
 			case html.TextNode:
 				appendToBuf(strings.TrimSpace(c.Data))
 			case html.ElementNode:
-				if shouldBeExcluded(c) {
+				if NodeParamsMatch(c, excludeParams) {
 					continue
 				}
 

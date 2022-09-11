@@ -73,8 +73,8 @@ func TestExtractLyricsFromHTML(t *testing.T) {
 		},
 	} {
 		t.Run(name, func(t *testing.T) {
-			got := metadata.ExtractLyricsFromHTML(tt.nodes, map[string]string{
-				"exclude-filter-attr": "exclude-me",
+			got := metadata.ExtractLyricsFromHTML(tt.nodes, map[string][]metadata.Matcher{
+				"exclude-filter-attr": {metadata.NewPrefixMatcher("exclude-me")},
 			})
 			assert.Equal(t, tt.want, got)
 		})
