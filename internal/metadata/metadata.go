@@ -38,17 +38,17 @@ func ExtractLyricsFromHTML(nodes []*html.Node, excludeParams map[string][]Matche
 		lines = append(lines, line)
 		buf.Reset()
 	}
-	appendSubLines := func(subLines []string) {
-		if len(subLines) > 0 {
-			if len(lines) > 0 {
-				lines = append(lines, "")
-			}
-			lines = append(lines, subLines...)
+	appendBufLine := func(force bool) {
+		if force || buf.Len() > 0 {
+			appendLine(buf.String())
 		}
+	}
+	appendSubLines := func(subLines []string) {
+		lines = append(lines, subLines...)
 	}
 	for _, node := range nodes {
 		if len(lines) > 0 {
-			lines = append(lines, "")
+			appendLine("")
 		}
 		for c := node.FirstChild; c != nil; c = c.NextSibling {
 			switch c.Type {
@@ -61,28 +61,24 @@ func ExtractLyricsFromHTML(nodes []*html.Node, excludeParams map[string][]Matche
 
 				switch c.DataAtom {
 				case atom.Br:
-					appendLine(buf.String())
+					appendBufLine(true)
 				case atom.P, atom.Div:
-					if buf.Len() > 0 {
-						appendLine(buf.String())
-					}
+					appendBufLine(false)
+					appendLine("")
 					appendSubLines(ExtractLyricsFromHTML([]*html.Node{c}, nil))
 					appendLine("")
 				default:
 					subLines := ExtractLyricsFromHTML([]*html.Node{c}, nil)
 					if len(subLines) > 0 {
-						appendToBuf(subLines[0])
 						if len(subLines) > 1 {
-							appendLine(buf.String())
-							appendSubLines(subLines[1:])
+							appendSubLines(subLines[:len(subLines)-1])
 						}
+						appendToBuf(subLines[len(subLines)-1])
 					}
 				}
 			}
 		}
-		if line := buf.String(); line != "" {
-			appendLine(line)
-		}
+		appendBufLine(false)
 	}
 	if len(lines) > 0 {
 		for line := lines[0]; line == "" && len(lines) > 0; {

@@ -65,6 +65,8 @@ func TestExtractLyricsFromHTML(t *testing.T) {
 				"Famous Song!",
 				"",
 				"This song ain’t over",
+				"No!",
+				"It ain’t over, now!",
 				"",
 				"We won’t stop playing for you",
 				"",
