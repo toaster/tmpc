@@ -80,20 +80,18 @@ func ExtractLyricsFromHTML(nodes []*html.Node, excludeParams map[string][]Matche
 		}
 		appendBufLine(false)
 	}
-	if len(lines) > 0 {
-		for line := lines[0]; line == "" && len(lines) > 0; {
-			lines = lines[1:]
-			if len(lines) > 0 {
-				line = lines[0]
-			}
+	for i := 1; i < len(lines); i++ {
+		if lines[i] == "" && lines[i-1] == "" {
+			lines = append(lines[:i], lines[i+1:]...)
+			i--
 		}
-		if len(lines) > 0 {
-			for line := lines[len(lines)-1]; line == "" && len(lines) > 0; {
-				lines = lines[:len(lines)-1]
-				if len(lines) > 0 {
-					line = lines[len(lines)-1]
-				}
-			}
+	}
+	if len(lines) > 0 {
+		if lines[0] == "" {
+			lines = lines[1:]
+		}
+		if len(lines) > 0 && lines[len(lines)-1] == "" {
+			lines = lines[:len(lines)-1]
 		}
 	}
 	return lines
