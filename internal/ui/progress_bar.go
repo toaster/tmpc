@@ -86,20 +86,25 @@ type progressBarRenderer struct {
 }
 
 func (r *progressBarRenderer) Layout(size fyne.Size) {
+	const inset = 1
+	const barHeight = 6
+	const bgHeight = barHeight + 2*inset
+	const borderHeight = bgHeight + 2*inset
+
 	pos := fyne.NewPos(theme.Padding(), theme.Padding())
 	r.border.Move(pos)
-	r.bg.Move(pos.Add(fyne.NewPos(1, 1)))
-	r.bar.Move(pos.Add(fyne.NewPos(2, 2)))
+	r.bg.Move(pos.Add(fyne.NewPos(inset, inset)))
+	r.bar.Move(pos.Add(fyne.NewPos(2*inset, 2*inset)))
 
 	width := size.Width - theme.Padding()*2
-	r.border.Resize(fyne.NewSize(width, 10))
-	r.bg.Resize(fyne.NewSize(width-2, 8))
+	r.border.Resize(fyne.NewSize(width, borderHeight))
+	r.bg.Resize(fyne.NewSize(width-2*inset, bgHeight))
 
 	var ratio float64
 	if r.p.max != r.p.min {
 		ratio = float64(r.p.cur-r.p.min) / float64(r.p.max-r.p.min)
 	}
-	r.bar.Resize(fyne.NewSize(float32(ratio)*(width-4), 6))
+	r.bar.Resize(fyne.NewSize(float32(ratio)*(width-4*inset), barHeight))
 }
 
 func (r *progressBarRenderer) MinSize() fyne.Size {

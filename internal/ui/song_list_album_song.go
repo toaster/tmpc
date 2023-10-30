@@ -118,7 +118,8 @@ func (s *songListAlbumSong) TappedSecondary(e *fyne.PointEvent) {
 }
 
 func (s *songListAlbumSong) setDragMark(p fyne.Position, force bool) bool {
-	bottom := p.Y > 10
+	const bottomThreshold = 10 // TODO: compute from line height?
+	bottom := p.Y > bottomThreshold
 	if (bottom != s.insertMarkerBottom) || force {
 		s.insertMarkerBottom = bottom
 		if bottom {

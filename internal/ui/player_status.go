@@ -32,10 +32,12 @@ func NewPlayerStatus(onSeek func(int)) *PlayerStatus {
 
 // CreateRenderer satisfies the fyne.Widget interface.
 func (s *PlayerStatus) CreateRenderer() fyne.WidgetRenderer {
+	const progressTextScale = 0.8
+
 	aTitle := canvas.NewText("", theme.ForegroundColor())
 	aCover := canvas.NewImageFromResource(nil)
 	progress := canvas.NewText("0:00 / 0:00", theme.ForegroundColor())
-	progress.TextSize = theme.TextSize() * 8 / 10
+	progress.TextSize = theme.TextSize() * progressTextScale
 	s.progressBar = newProgressBar(0, 0, s.onSeek)
 	title := canvas.NewText("", theme.ForegroundColor())
 	title.TextStyle.Bold = true

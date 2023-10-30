@@ -26,11 +26,11 @@ type Queue struct {
 // NewQueue returns a new queue.
 func NewQueue(move func(*mpd.Song, int), onClear func(), onDetails, onPlay func(*mpd.Song), onRemove func([]*mpd.Song), coverLoader func(*mpd.Song, fyne.Resource, func(fyne.Resource))) *Queue {
 	playIndicator := canvas.NewImageFromResource(rscPlayIndicator)
-	playIndicator.Resize(fyne.NewSize(18, 18))
+	playIndicator.Resize(fyne.NewSize(queueIndicatorSize, queueIndicatorSize))
 	pauseIndicator := canvas.NewImageFromResource(rscPauseIndicator)
-	pauseIndicator.Resize(fyne.NewSize(18, 18))
+	pauseIndicator.Resize(fyne.NewSize(queueIndicatorSize, queueIndicatorSize))
 	stopIndicator := canvas.NewImageFromResource(rscStopIndicator)
-	stopIndicator.Resize(fyne.NewSize(18, 18))
+	stopIndicator.Resize(fyne.NewSize(queueIndicatorSize, queueIndicatorSize))
 	q := &Queue{
 		SongList: SongList{
 			box:          container.NewVBox(),
@@ -50,6 +50,8 @@ func NewQueue(move func(*mpd.Song, int), onClear func(), onDetails, onPlay func(
 	q.contextMenu = q.buildSongContextMenu()
 	return q
 }
+
+const queueIndicatorSize = 18
 
 // CurrentSongIndex returns the index in the queue of the currently played song.
 func (q *Queue) CurrentSongIndex() int {
