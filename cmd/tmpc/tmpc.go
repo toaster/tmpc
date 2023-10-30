@@ -453,6 +453,26 @@ func (t *tmpc) loadCover(song *mpd.Song, coverDefault fyne.Resource, callback fu
 	}()
 }
 
+func (t *tmpc) makePrefsEntry(key string, placeholder string) *widget.Entry {
+	entry := widget.NewEntry()
+	entry.SetText(t.fyne.Preferences().String(key))
+	entry.SetPlaceHolder(placeholder)
+	entry.OnChanged = func(s string) {
+		t.fyne.Preferences().SetString(key, s)
+	}
+	return entry
+}
+
+func (t *tmpc) makePrefsSecretEntry(key string, placeholder string) *widget.Entry {
+	entry := widget.NewPasswordEntry()
+	entry.SetText(t.fyne.Preferences().String(key))
+	entry.SetPlaceHolder(placeholder)
+	entry.OnChanged = func(s string) {
+		t.fyne.Preferences().SetString(key, s)
+	}
+	return entry
+}
+
 func (t *tmpc) moveSongInQueue(song *mpd.Song, index int) {
 	if !t.mpd.IsConnected() {
 		return
@@ -497,48 +517,6 @@ func (t *tmpc) showSettings() {
 		t.settings.RequestFocus()
 		return
 	}
-	urlEntry := widget.NewEntry()
-	urlEntry.SetText(t.fyne.Preferences().String("mpdURL"))
-	urlEntry.SetPlaceHolder("mpd.example.com:6600")
-	urlEntry.OnChanged = func(s string) {
-		t.fyne.Preferences().SetString("mpdURL", s)
-	}
-	passEntry := widget.NewPasswordEntry()
-	passEntry.SetText(t.fyne.Preferences().String("mpdPass"))
-	passEntry.SetPlaceHolder("top secret")
-	passEntry.OnChanged = func(s string) {
-		t.fyne.Preferences().SetString("mpdPass", s)
-	}
-	shoutcastURLEntry := widget.NewEntry()
-	shoutcastURLEntry.SetText(t.fyne.Preferences().String("shoutcastURL"))
-	shoutcastURLEntry.SetPlaceHolder("http://mpd.example.com:8000")
-	shoutcastURLEntry.OnChanged = func(s string) {
-		t.fyne.Preferences().SetString("shoutcastURL", s)
-	}
-	geniusAccessTokenEntry := widget.NewPasswordEntry()
-	geniusAccessTokenEntry.SetText(t.fyne.Preferences().String("geniusAccessToken"))
-	geniusAccessTokenEntry.SetPlaceHolder("top secret")
-	geniusAccessTokenEntry.OnChanged = func(s string) {
-		t.fyne.Preferences().SetString("geniusAccessToken", s)
-	}
-	happidevAPIKeyEntry := widget.NewPasswordEntry()
-	happidevAPIKeyEntry.SetText(t.fyne.Preferences().String("happiDevAPIKey"))
-	happidevAPIKeyEntry.SetPlaceHolder("top secret")
-	happidevAPIKeyEntry.OnChanged = func(s string) {
-		t.fyne.Preferences().SetString("happiDevAPIKey", s)
-	}
-	discogsAPIKeyEntry := widget.NewEntry()
-	discogsAPIKeyEntry.SetText(t.fyne.Preferences().String("discogsAPIKey"))
-	discogsAPIKeyEntry.SetPlaceHolder("key")
-	discogsAPIKeyEntry.OnChanged = func(s string) {
-		t.fyne.Preferences().SetString("discogsAPIKey", s)
-	}
-	discogsAPISecretEntry := widget.NewPasswordEntry()
-	discogsAPISecretEntry.SetText(t.fyne.Preferences().String("discogsAPISecret"))
-	discogsAPISecretEntry.SetPlaceHolder("secret")
-	discogsAPISecretEntry.OnChanged = func(s string) {
-		t.fyne.Preferences().SetString("discogsAPISecret", s)
-	}
 	themeSelector := widget.NewRadioGroup([]string{"Dark", "Light"}, func(s string) {
 		t.fyne.Preferences().SetString("theme", s)
 		t.applyTheme()
@@ -552,19 +530,19 @@ func (t *tmpc) showSettings() {
 		widget.NewLabelWithStyle("Cache Directory", fyne.TextAlignTrailing, fyne.TextStyle{Bold: true}),
 		widget.NewLabel(tmpDir),
 		widget.NewLabelWithStyle("MPD Server URL", fyne.TextAlignTrailing, fyne.TextStyle{Bold: true}),
-		urlEntry,
+		t.makePrefsEntry("mpdURL", "mpd.example.com:6600"),
 		widget.NewLabelWithStyle("MPD Server Password", fyne.TextAlignTrailing, fyne.TextStyle{Bold: true}),
-		passEntry,
+		t.makePrefsSecretEntry("mpdPass", "top secret"),
 		widget.NewLabelWithStyle("Shoutcast Server URL", fyne.TextAlignTrailing, fyne.TextStyle{Bold: true}),
-		shoutcastURLEntry,
+		t.makePrefsEntry("shoutcastURL", "http://mpd.example.com:8000"),
 		widget.NewLabelWithStyle("genius access token", fyne.TextAlignTrailing, fyne.TextStyle{Bold: true}),
-		geniusAccessTokenEntry,
+		t.makePrefsSecretEntry("geniusAccessToken", "top secret"),
 		widget.NewLabelWithStyle("happi.dev API key", fyne.TextAlignTrailing, fyne.TextStyle{Bold: true}),
-		happidevAPIKeyEntry,
+		t.makePrefsSecretEntry("happiDevAPIKey", "top secret"),
 		widget.NewLabelWithStyle("Discogs API key", fyne.TextAlignTrailing, fyne.TextStyle{Bold: true}),
-		discogsAPIKeyEntry,
+		t.makePrefsEntry("discogsAPIKey", "key"),
 		widget.NewLabelWithStyle("Discogs API secret", fyne.TextAlignTrailing, fyne.TextStyle{Bold: true}),
-		discogsAPISecretEntry,
+		t.makePrefsSecretEntry("discogsAPISecret", "secret"),
 		widget.NewLabelWithStyle("Theme", fyne.TextAlignTrailing, fyne.TextStyle{Bold: true}),
 		themeSelector,
 	)
