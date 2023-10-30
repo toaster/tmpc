@@ -8,6 +8,7 @@ import (
 
 	"github.com/toaster/tmpc/internal/metadata"
 	"github.com/toaster/tmpc/internal/mpd"
+	"github.com/toaster/tmpc/internal/util"
 )
 
 // FSLyrics is a file system cache for metadata.LyricsFetcher.
@@ -45,7 +46,7 @@ func (f *FSLyrics) FetchLyrics(song *mpd.Song) ([]string, error) {
 		return nil, err
 	}
 
-	err = os.WriteFile(path, []byte(strings.Join(lyrics, "\n")), 0600)
+	err = os.WriteFile(path, []byte(strings.Join(lyrics, "\n")), util.PermUserRead|util.PermUserWrite)
 	if err != nil {
 		log.Printf("could not write %s: %v", path, err)
 	}

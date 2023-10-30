@@ -9,6 +9,7 @@ import (
 
 	"github.com/toaster/tmpc/internal/metadata"
 	"github.com/toaster/tmpc/internal/mpd"
+	"github.com/toaster/tmpc/internal/util"
 )
 
 // FSCover is a file system cache for metadata.CoverFetcher.
@@ -47,7 +48,7 @@ func (f *FSCover) LoadCover(song *mpd.Song) (fyne.Resource, error) {
 		return nil, err
 	}
 
-	err = os.WriteFile(imgPath, cover.Content(), 0600)
+	err = os.WriteFile(imgPath, cover.Content(), util.PermUserRead|util.PermUserWrite)
 	if err != nil {
 		log.Printf("could not write %s: %v", imgPath, err)
 	}
