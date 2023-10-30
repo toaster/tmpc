@@ -81,9 +81,13 @@ func songsFromAttrs(attrs []mpd.Attrs) []*Song {
 		}
 		track, _ := strconv.Atoi(sAttrs["Track"])
 		var year int
-		fmt.Sscanf(sAttrs["OriginalDate"], "%d", &year)
+		if _, err := fmt.Sscanf(sAttrs["OriginalDate"], "%d", &year); err != nil {
+			fmt.Println("failed to scan OriginalDate:", err) // TODO: logging? return error?
+		}
 		if year == 0 {
-			fmt.Sscanf(sAttrs["Date"], "%d", &year)
+			if _, err := fmt.Sscanf(sAttrs["Date"], "%d", &year); err != nil {
+				fmt.Println("failed to scan Date:", err) // TODO: logging? return error?
+			}
 		}
 		songs[i] = &Song{
 			File:            sAttrs["file"],

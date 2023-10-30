@@ -19,8 +19,9 @@ func main() {
 		if err != nil {
 			log.Fatal(err)
 		}
-		pprof.StartCPUProfile(f)
-		defer pprof.StopCPUProfile()
+		if err := pprof.StartCPUProfile(f); err != nil {
+			defer pprof.StopCPUProfile()
+		}
 	}
 	newTMPC().Run()
 }

@@ -303,7 +303,9 @@ func (c *Client) Status() (*Status, error) {
 		return nil, err
 	}
 	var elapsed int
-	fmt.Sscanf(attrs["elapsed"], "%d", &elapsed)
+	if _, err = fmt.Sscanf(attrs["elapsed"], "%d", &elapsed); err != nil {
+		return nil, err
+	}
 	plID, _ := strconv.Atoi(attrs["playlist"])
 	sID, _ := strconv.Atoi(attrs["songid"])
 	sIdx, _ := strconv.Atoi(attrs["song"])
