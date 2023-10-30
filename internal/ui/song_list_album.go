@@ -2,6 +2,7 @@ package ui
 
 import (
 	"fmt"
+	"time"
 
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/canvas"
@@ -283,9 +284,11 @@ func (r *songListAlbumRenderer) computeMinSize() {
 }
 
 func timeString(seconds int) string {
-	h := seconds / 3600
-	m := seconds % 3600 / 60
-	s := seconds % 60
+	const secondsPerHour = int(time.Hour / time.Second)
+	const secondsPerMinute = int(time.Minute / time.Second)
+	h := seconds / secondsPerHour
+	m := seconds % secondsPerHour / secondsPerMinute
+	s := seconds % secondsPerMinute
 	switch {
 	case h > 0:
 		return fmt.Sprintf("%d:%02d:%02d", h, m, s)

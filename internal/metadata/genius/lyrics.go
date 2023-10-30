@@ -2,6 +2,7 @@ package genius
 
 import (
 	"fmt"
+	"net/http"
 	"net/url"
 	"strings"
 
@@ -130,7 +131,7 @@ func (l *Lyrics) gatherTrackID(artistID int, title string) (int, error) {
 		if err != nil {
 			return 0, err
 		}
-		if result.Meta.Status != 200 {
+		if result.Meta.Status != http.StatusOK {
 			return 0, fmt.Errorf("searching for s failed: %d - %s", result.Meta.Status, result.Meta.Message)
 		}
 
@@ -155,7 +156,7 @@ func (l *Lyrics) searchArtist(artist string) (int, error) {
 	if err != nil {
 		return 0, err
 	}
-	if result.Meta.Status != 200 {
+	if result.Meta.Status != http.StatusOK {
 		return 0, fmt.Errorf("searching for song failed: %d - %s", result.Meta.Status, result.Meta.Message)
 	}
 

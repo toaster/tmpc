@@ -95,9 +95,10 @@ func newTMPC() *tmpc {
 	mainMenu := fyne.NewMainMenu(appMenu, dbMenu)
 	player.win.SetMainMenu(mainMenu)
 
-	player.playlistsUpdate = make(chan bool, 100)
-	player.queueUpdate = make(chan bool, 100)
-	player.stateUpdate = make(chan bool, 100)
+	const updateChannelBufSize = 100
+	player.playlistsUpdate = make(chan bool, updateChannelBufSize)
+	player.queueUpdate = make(chan bool, updateChannelBufSize)
+	player.stateUpdate = make(chan bool, updateChannelBufSize)
 
 	return player
 }
@@ -378,7 +379,7 @@ func (t *tmpc) handleReplaceQueue(songs []*mpd.Song, play bool) {
 }
 
 func (t *tmpc) handleSearch(key, value string) ([]*mpd.Song, bool) {
-	limit := 100
+	const limit = 100
 	songs, err := t.mpd.Search(key, value, limit)
 	if err != nil {
 		t.addError(err)
@@ -532,13 +533,13 @@ func (t *tmpc) showSettings() {
 		widget.NewLabelWithStyle("MPD Server URL", fyne.TextAlignTrailing, fyne.TextStyle{Bold: true}),
 		t.makePrefsEntry("mpdURL", "mpd.example.com:6600"),
 		widget.NewLabelWithStyle("MPD Server Password", fyne.TextAlignTrailing, fyne.TextStyle{Bold: true}),
-		t.makePrefsSecretEntry("mpdPass", "top secret"),
+		t.makePrefsSecretEntry("mpdPass", "top secret MPD password"),
 		widget.NewLabelWithStyle("Shoutcast Server URL", fyne.TextAlignTrailing, fyne.TextStyle{Bold: true}),
 		t.makePrefsEntry("shoutcastURL", "http://mpd.example.com:8000"),
 		widget.NewLabelWithStyle("genius access token", fyne.TextAlignTrailing, fyne.TextStyle{Bold: true}),
-		t.makePrefsSecretEntry("geniusAccessToken", "top secret"),
+		t.makePrefsSecretEntry("geniusAccessToken", "top secret Genius access token"),
 		widget.NewLabelWithStyle("happi.dev API key", fyne.TextAlignTrailing, fyne.TextStyle{Bold: true}),
-		t.makePrefsSecretEntry("happiDevAPIKey", "top secret"),
+		t.makePrefsSecretEntry("happiDevAPIKey", "top secret happi.dev key"),
 		widget.NewLabelWithStyle("Discogs API key", fyne.TextAlignTrailing, fyne.TextStyle{Bold: true}),
 		t.makePrefsEntry("discogsAPIKey", "key"),
 		widget.NewLabelWithStyle("Discogs API secret", fyne.TextAlignTrailing, fyne.TextStyle{Bold: true}),
