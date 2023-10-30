@@ -1,6 +1,7 @@
 package cache
 
 import (
+	"fmt"
 	"log"
 	"os"
 	"path/filepath"
@@ -25,7 +26,7 @@ var _ metadata.LyricsFetcher = (*FSLyrics)(nil)
 func NewFSLyrics(fetcher metadata.LyricsFetcher) *FSLyrics {
 	dir, err := TmpDir()
 	if err != nil {
-		log.Fatal("cannot access temp dir:", err)
+		panic(fmt.Errorf("cannot access temp dir: %w", err))
 	}
 	return &FSLyrics{dir, fetcher}
 }
