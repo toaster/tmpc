@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"net/http"
 	"net/url"
 	"strings"
@@ -54,7 +53,7 @@ func (c *Cover) LoadCover(song *mpd.Song) (fyne.Resource, error) {
 	}
 	defer coverStream.Close()
 
-	content, err := ioutil.ReadAll(coverStream)
+	content, err := io.ReadAll(coverStream)
 	if err != nil {
 		return nil, fmt.Errorf("could not read cover for song “%s” of “%s”: %w", song.Title, song.Artist, err)
 	}
@@ -73,7 +72,7 @@ func (c *Cover) fetchCoverFromDiscogs(artist, album string) (io.ReadCloser, erro
 		return nil, fmt.Errorf("could not search %s - %s: %w", artist, album, err)
 	}
 	defer res.Body.Close()
-	b, err := ioutil.ReadAll(res.Body)
+	b, err := io.ReadAll(res.Body)
 	if err != nil {
 		return nil, err
 	}
@@ -96,7 +95,7 @@ func (c *Cover) fetchCoverFromDiscogs(artist, album string) (io.ReadCloser, erro
 	}
 	if res.StatusCode != http.StatusOK {
 		defer res.Body.Close()
-		b, _ = ioutil.ReadAll(res.Body)
+		b, _ = io.ReadAll(res.Body)
 		return nil, fmt.Errorf("could not download %s: %s", coverURL, string(b))
 	}
 

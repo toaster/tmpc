@@ -1,8 +1,8 @@
 package cache
 
 import (
-	"io/ioutil"
 	"log"
+	"os"
 	"path/filepath"
 	"strings"
 
@@ -35,7 +35,7 @@ func NewFSLyrics(fetcher metadata.LyricsFetcher) *FSLyrics {
 func (f *FSLyrics) FetchLyrics(song *mpd.Song) ([]string, error) {
 	path := filepath.Join(f.dir, metadata.SongID(song))
 
-	content, err := ioutil.ReadFile(path)
+	content, err := os.ReadFile(path)
 	if err == nil {
 		return strings.Split(string(content), "\n"), nil
 	}
@@ -45,7 +45,7 @@ func (f *FSLyrics) FetchLyrics(song *mpd.Song) ([]string, error) {
 		return nil, err
 	}
 
-	err = ioutil.WriteFile(path, []byte(strings.Join(lyrics, "\n")), 0600)
+	err = os.WriteFile(path, []byte(strings.Join(lyrics, "\n")), 0600)
 	if err != nil {
 		log.Printf("could not write %s: %v", path, err)
 	}

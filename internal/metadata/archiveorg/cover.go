@@ -2,7 +2,7 @@ package archiveorg
 
 import (
 	"fmt"
-	"io/ioutil"
+	"io"
 	"net/http"
 
 	"fyne.io/fyne/v2"
@@ -40,11 +40,11 @@ func (c *Cover) LoadCover(song *mpd.Song) (fyne.Resource, error) {
 	}
 	defer res.Body.Close()
 	if res.StatusCode != http.StatusOK {
-		b, _ := ioutil.ReadAll(res.Body)
+		b, _ := io.ReadAll(res.Body)
 		return nil, fmt.Errorf("could not download %s: %s", url, string(b))
 	}
 
-	content, err := ioutil.ReadAll(res.Body)
+	content, err := io.ReadAll(res.Body)
 	if err != nil {
 		return nil, fmt.Errorf("could not read album cover %s: %w", MBID, err)
 	}

@@ -1,8 +1,8 @@
 package cache
 
 import (
-	"io/ioutil"
 	"log"
+	"os"
 	"path/filepath"
 
 	"fyne.io/fyne/v2"
@@ -37,7 +37,7 @@ func (f *FSCover) LoadCover(song *mpd.Song) (fyne.Resource, error) {
 	id := metadata.CoverID(song)
 	imgPath := filepath.Join(dir, id)
 
-	content, err := ioutil.ReadFile(imgPath)
+	content, err := os.ReadFile(imgPath)
 	if err == nil {
 		return fyne.NewStaticResource(id, content), nil
 	}
@@ -47,7 +47,7 @@ func (f *FSCover) LoadCover(song *mpd.Song) (fyne.Resource, error) {
 		return nil, err
 	}
 
-	err = ioutil.WriteFile(imgPath, cover.Content(), 0600)
+	err = os.WriteFile(imgPath, cover.Content(), 0600)
 	if err != nil {
 		log.Printf("could not write %s: %v", imgPath, err)
 	}
