@@ -94,7 +94,3 @@ func (r *playlistListEntryRenderer) Layout(size fyne.Size) {
 func (r *playlistListEntryRenderer) MinSize() fyne.Size {
 	return r.text.MinSize().Add(r.listEntryRenderer.MinSize())
 }
-
-func confirmedDeletePlaylist(name string, callback func(bool), w fyne.Window) {
-
-}
