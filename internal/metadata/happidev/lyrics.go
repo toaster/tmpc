@@ -234,7 +234,7 @@ func (l *Lyrics) searchArtist(artist string, album string) (int, error) {
 	}
 
 	for _, hit := range result.Hits {
-		if strings.ToLower(hit.Artist) == strings.ToLower(artist) {
+		if strings.EqualFold(hit.Artist, artist) {
 			albumID, _ := l.gatherAlbumID(hit.ArtistID, album)
 			if albumID != 0 {
 				return hit.ArtistID, nil
@@ -265,9 +265,9 @@ func (l *Lyrics) searchTrack(artist string, title string, album string) (*songIn
 	}
 
 	for _, hit := range result.Hits {
-		if strings.ToLower(hit.Album) == strings.ToLower(album) &&
-			strings.ToLower(hit.Artist) == strings.ToLower(artist) &&
-			strings.ToLower(hit.Track) == strings.ToLower(title) {
+		if strings.EqualFold(hit.Album, album) &&
+			strings.EqualFold(hit.Artist, artist) &&
+			strings.EqualFold(hit.Track, title) {
 			return &hit, nil
 		}
 	}

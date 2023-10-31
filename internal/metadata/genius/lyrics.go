@@ -136,7 +136,7 @@ func (l *Lyrics) gatherTrackID(artistID int, title string) (int, error) {
 		}
 
 		for _, s := range result.Response.Songs {
-			if strings.ToLower(s.Title) == strings.ToLower(title) {
+			if strings.EqualFold(s.Title, title) {
 				return s.ID, nil
 			}
 		}
@@ -161,7 +161,7 @@ func (l *Lyrics) searchArtist(artist string) (int, error) {
 	}
 
 	for _, hit := range result.Response.Hits {
-		if strings.ToLower(hit.Result.PrimaryArtist.Name) == strings.ToLower(artist) {
+		if strings.EqualFold(hit.Result.PrimaryArtist.Name, artist) {
 			return hit.Result.PrimaryArtist.ID, nil
 		}
 	}
