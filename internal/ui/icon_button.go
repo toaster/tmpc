@@ -137,7 +137,6 @@ func newIconButtonRenderer(b *iconButton) *iconButtonRenderer {
 		disabledIcon:          canvas.NewImageFromResource(theme.NewDisabledResource(b.icon)),
 		icon:                  icon,
 	}
-
 }
 
 func (r *iconButtonRenderer) Layout(size fyne.Size) {

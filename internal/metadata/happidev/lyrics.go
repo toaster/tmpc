@@ -137,7 +137,6 @@ func (l *Lyrics) gatherAlbumID(artistID int, album string) (int, error) {
 	}
 
 	return 0, fmt.Errorf("could not find album “%s” in %v", album, result.Info)
-
 }
 
 func (l *Lyrics) gatherSongInfo(song *mpd.Song) (*songInfo, error) {
@@ -216,7 +215,6 @@ func (l *Lyrics) gatherTrackID(artistID, albumID int, track string) (int, error)
 	}
 
 	return 0, fmt.Errorf("could not find track “%s” in %v", track, result.Info)
-
 }
 
 func (l *Lyrics) searchArtist(artist string, album string) (int, error) {
