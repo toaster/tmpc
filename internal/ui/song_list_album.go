@@ -66,16 +66,16 @@ func newSongListAlbum(
 			// 3 times padding is the bottom padding of the head line and the whole padding of the first line
 			// +1 is the separator between header and first line
 			3*theme.Padding() + 1
-	time := 0
+	albumTime := 0
 	album.songs = make([]*songListAlbumSong, 0, len(songs))
 	for _, song := range songs {
 		entry := newSongListAlbumSong(contextMenu, song, insertSelection, selectionIsDragged, markSong, onSongClick, coverSize, setDragMarkAfter, setDragMarkBefore, dragSelection)
 		album.songs = append(album.songs, entry)
-		time += song.Time
+		albumTime += song.Time
 	}
 	album.header = newAlbumHeadLine(coverSize, []string{
 		fmt.Sprintf("%s - %s (%d)", songs[0].AlbumArtist, songs[0].Album, songs[0].Year),
-		timeString(time),
+		timeString(albumTime),
 	})
 	album.summary = newAlbumEntryLine(coverSize, []string{fmt.Sprintf("%d", len(songs)), "Tracks"})
 	img := canvas.NewImageFromResource(nil)
