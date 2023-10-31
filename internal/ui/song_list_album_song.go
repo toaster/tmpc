@@ -22,7 +22,7 @@ type songListAlbumSong struct {
 	contextMenu       *fyne.Menu
 	endDrag           func()
 	isDragging        func() bool
-	onMark            func(desktop.Modifier, *songListAlbumSong)
+	onMark            func(fyne.KeyModifier, *songListAlbumSong)
 	onClick           func(*mpd.Song)
 	setDragMarkAfter  func(*mpd.Song, bool)
 	setDragMarkBefore func(*mpd.Song, bool)
@@ -30,7 +30,7 @@ type songListAlbumSong struct {
 	song              *mpd.Song
 }
 
-func newSongListAlbumSong(contextMenu *fyne.Menu, song *mpd.Song, insertSelection func(), selectionIsDragged func() bool, markSong func(desktop.Modifier, *songListAlbumSong), onSongClick func(*mpd.Song), coverSize float32, setDragMarkAfter func(*mpd.Song, bool), setDragMarkBefore func(*mpd.Song, bool), dragSelection func()) *songListAlbumSong {
+func newSongListAlbumSong(contextMenu *fyne.Menu, song *mpd.Song, insertSelection func(), selectionIsDragged func() bool, markSong func(fyne.KeyModifier, *songListAlbumSong), onSongClick func(*mpd.Song), coverSize float32, setDragMarkAfter func(*mpd.Song, bool), setDragMarkBefore func(*mpd.Song, bool), dragSelection func()) *songListAlbumSong {
 	s := &songListAlbumSong{
 		contextMenu: contextMenu,
 		endDrag:     insertSelection,

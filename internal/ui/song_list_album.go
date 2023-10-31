@@ -27,7 +27,7 @@ type songListAlbum struct {
 	indicator         fyne.CanvasObject
 	isDragging        func() bool
 	header            *songListAlbumLine
-	markAlbum         func(desktop.Modifier, *songListAlbum)
+	markAlbum         func(fyne.KeyModifier, *songListAlbum)
 	setDragMarkAfter  func(*mpd.Song, bool)
 	setDragMarkBefore func(*mpd.Song, bool)
 	showSongs         bool
@@ -38,8 +38,8 @@ type songListAlbum struct {
 
 func newSongListAlbum(
 	songs []*mpd.Song,
-	markSong func(desktop.Modifier, *songListAlbumSong),
-	markAlbum func(desktop.Modifier, *songListAlbum),
+	markSong func(fyne.KeyModifier, *songListAlbumSong),
+	markAlbum func(fyne.KeyModifier, *songListAlbum),
 	dragSelection func(),
 	selectionIsDragged func() bool,
 	setDragMarkBefore, setDragMarkAfter func(*mpd.Song, bool),
