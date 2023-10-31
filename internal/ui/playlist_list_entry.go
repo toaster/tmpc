@@ -20,7 +20,7 @@ type playlistListEntry struct {
 }
 
 func newPlaylistListEntry(name string, playNow, deletePL func(string), w fyne.Window) *playlistListEntry {
-	delete := func() {
+	remove := func() {
 		callback := func(confirmed bool) {
 			if confirmed {
 				deletePL(name)
@@ -34,7 +34,7 @@ func newPlaylistListEntry(name string, playNow, deletePL func(string), w fyne.Wi
 		)
 	}
 	items := []*fyne.MenuItem{
-		fyne.NewMenuItem("Delete", delete),
+		fyne.NewMenuItem("Delete", remove),
 		fyne.NewMenuItem("Play Now And Replace Queue", func() { playNow(name) }),
 	}
 	e := &playlistListEntry{contextMenu: fyne.NewMenu("", items...), name: name}
