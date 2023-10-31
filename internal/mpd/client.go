@@ -78,7 +78,7 @@ func (c *Client) ClearQueue() error {
 // Connect tries to connect to the MPD server.
 func (c *Client) Connect() error {
 	if c.invalidPerms {
-		return fmt.Errorf("Insufficient MPD credentials: invalid permissions")
+		return fmt.Errorf("insufficient MPD credentials: invalid permissions")
 	}
 	if c.c == nil {
 		m, err := mpd.DialAuthenticated(networkProtocolTCP, c.url, c.pass)
