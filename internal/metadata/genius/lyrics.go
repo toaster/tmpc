@@ -48,14 +48,14 @@ func (l *Lyrics) FetchLyrics(song *mpd.Song) ([]string, error) {
 	if err != nil {
 		return nil, err
 	}
-	lyrics, err := l.fetchLyrics(info)
+	lyrics, err := l.fetchLyricsForSongInfo(info)
 	if err != nil {
 		return nil, err
 	}
 	return lyrics, nil
 }
 
-func (l *Lyrics) fetchLyrics(info *song) ([]string, error) {
+func (l *Lyrics) fetchLyricsForSongInfo(info *song) ([]string, error) {
 	if info.LyricsURL == "" {
 		return nil, fmt.Errorf("no lyrics provided for song “%s” of “%s” (%d)", info.Title, info.PrimaryArtist.Name, info.ID)
 	}
