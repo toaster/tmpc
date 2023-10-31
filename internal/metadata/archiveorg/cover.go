@@ -28,12 +28,12 @@ func NewCover() *Cover {
 //
 // @implements metadata.CoverFetcher
 func (*Cover) LoadCover(song *mpd.Song) (fyne.Resource, error) {
-	MBID := song.MBAlbumID
-	if MBID == "" {
+	mbID := song.MBAlbumID
+	if mbID == "" {
 		return nil, fmt.Errorf("cannot load cover for song without MBID")
 	}
 
-	url := fmt.Sprintf("http://coverartarchive.org/release/%s/front", MBID)
+	url := fmt.Sprintf("http://coverartarchive.org/release/%s/front", mbID)
 	res, err := util.HTTPGet(url)
 	if err != nil {
 		return nil, err
@@ -46,7 +46,7 @@ func (*Cover) LoadCover(song *mpd.Song) (fyne.Resource, error) {
 
 	content, err := io.ReadAll(res.Body)
 	if err != nil {
-		return nil, fmt.Errorf("could not read album cover %s: %w", MBID, err)
+		return nil, fmt.Errorf("could not read album cover %s: %w", mbID, err)
 	}
-	return fyne.NewStaticResource(MBID, content), nil
+	return fyne.NewStaticResource(mbID, content), nil
 }
