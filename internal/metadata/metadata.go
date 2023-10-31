@@ -133,7 +133,7 @@ func NodeParamsMatch(node *html.Node, matchers map[string][]Matcher) bool {
 // This might help match titles with different writings.
 func ReducedTitle(title string, language string) string {
 	reduced, _, _ := strings.Cut(title, ":")
-	reduced, _, _ = strings.Cut(title, ",")
+	reduced, _, _ = strings.Cut(reduced, ",")
 	reduced = generalTitleReplacer.Replace(reduced)
 	reduced = titleReplacers[language].Replace(reduced)
 	reduced = replaceNums(reduced, language)
