@@ -112,8 +112,7 @@ type iconButtonRenderer struct {
 }
 
 func newIconButtonRenderer(b *iconButton) *iconButtonRenderer {
-	var icon *canvas.Image
-	icon = canvas.NewImageFromResource(b.icon)
+	var icon = canvas.NewImageFromResource(b.icon)
 	badgeBGColor := &color.RGBA{R: badgeColourRed, A: badgeColourAlpha}
 	badgeBGL := canvas.NewCircle(badgeBGColor)
 	badgeBGL.Hide()
