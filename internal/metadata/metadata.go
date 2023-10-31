@@ -120,14 +120,8 @@ func NodeParamsMatch(node *html.Node, matchers map[string][]Matcher) bool {
 	for _, a := range node.Attr {
 		for _, m := range matchers[a.Key] {
 			for _, v := range strings.Split(a.Val, " ") {
-				if m.MatchPrefix() {
-					if strings.HasPrefix(v, m.Value()) {
-						return true
-					}
-				} else {
-					if v == m.Value() {
-						return true
-					}
+				if m.Matches(v) {
+					return true
 				}
 			}
 		}
@@ -152,9 +146,9 @@ func SongID(song *mpd.Song) string {
 	return fmt.Sprintf("%x", sha256.Sum256([]byte(song.File)))
 }
 
+// Matcher describes a matcher for string values.
 type Matcher interface {
-	MatchPrefix() bool
-	Value() string
+	Matches(string) bool
 }
 
 var generalTitleReplacer *strings.Replacer
@@ -194,10 +188,15 @@ type matcher struct {
 
 var _ Matcher = (*matcher)(nil)
 
-func (m *matcher) MatchPrefix() bool {
-	return m.prefix
-}
-
-func (m *matcher) Value() string {
-	return m.value
+func (m *matcher) Matches(v string) bool {
+	if m.prefix {
+		if strings.HasPrefix(v, m.value) {
+			return true
+		}
+	} else {
+		if v == m.value {
+			return true
+		}
+	}
+	return false
 }
