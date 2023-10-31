@@ -18,7 +18,8 @@ import (
 var coverArgReplacer *strings.Replacer
 
 func init() {
-	coverArgReplacer = strings.NewReplacer("!", " ", ":", " ", "-", " ")
+	const space = " "
+	coverArgReplacer = strings.NewReplacer("!", space, ":", space, "-", space)
 }
 
 // Cover is a CoverFetcher that delivers the cover of a song.

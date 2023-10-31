@@ -81,14 +81,14 @@ func (c *Client) Connect() error {
 		return fmt.Errorf("Insufficient MPD credentials: invalid permissions")
 	}
 	if c.c == nil {
-		m, err := mpd.DialAuthenticated("tcp", c.url, c.pass)
+		m, err := mpd.DialAuthenticated(networkProtocolTCP, c.url, c.pass)
 		if err != nil {
 			return err
 		}
 		c.c = m
 	}
 	if c.w == nil {
-		w, err := mpd.NewWatcher("tcp", c.url, c.pass,
+		w, err := mpd.NewWatcher(networkProtocolTCP, c.url, c.pass,
 			"database", "options", "player", "playlist", "stored_playlist")
 		if err != nil {
 			return err
@@ -179,7 +179,7 @@ func (c *Client) Pause(p bool) error {
 func (c *Client) retry(f func() error) error {
 	if err := f(); err != nil {
 		c.c.Close()
-		c.c, err = mpd.DialAuthenticated("tcp", c.url, c.pass)
+		c.c, err = mpd.DialAuthenticated(networkProtocolTCP, c.url, c.pass)
 		if err != nil {
 			return err
 		}
@@ -345,3 +345,5 @@ func (c *Client) Update() error {
 		return err
 	})
 }
+
+const networkProtocolTCP = "tcp"
