@@ -81,7 +81,7 @@ func (b *iconButton) MouseOut() {
 	b.Refresh()
 }
 
-func (b *iconButton) MouseMoved(_ *desktop.MouseEvent) {
+func (*iconButton) MouseMoved(_ *desktop.MouseEvent) {
 }
 
 func (b *iconButton) Tapped(*fyne.PointEvent) {
@@ -91,7 +91,7 @@ func (b *iconButton) Tapped(*fyne.PointEvent) {
 	b.onTap()
 }
 
-func (b *iconButton) TappedSecondary(*fyne.PointEvent) {
+func (*iconButton) TappedSecondary(*fyne.PointEvent) {
 }
 
 func (b *iconButton) UpdateBadgeCount(count int) {

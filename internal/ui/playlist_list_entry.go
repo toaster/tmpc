@@ -58,7 +58,7 @@ func (e *playlistListEntry) MouseIn(_ *desktop.MouseEvent) {
 	e.Refresh()
 }
 
-func (e *playlistListEntry) MouseMoved(_ *desktop.MouseEvent) {
+func (*playlistListEntry) MouseMoved(_ *desktop.MouseEvent) {
 }
 
 func (e *playlistListEntry) MouseOut() {
@@ -72,7 +72,7 @@ func (e *playlistListEntry) Refresh() {
 	canvas.Refresh(e)
 }
 
-func (e *playlistListEntry) Tapped(_ *fyne.PointEvent) {
+func (*playlistListEntry) Tapped(_ *fyne.PointEvent) {
 }
 
 func (e *playlistListEntry) TappedSecondary(pe *fyne.PointEvent) {

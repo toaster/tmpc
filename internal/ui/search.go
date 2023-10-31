@@ -122,7 +122,7 @@ type searchRenderer struct {
 
 var _ fyne.WidgetRenderer = (*searchRenderer)(nil)
 
-func (r *searchRenderer) Destroy() {
+func (*searchRenderer) Destroy() {
 }
 
 func (r *searchRenderer) Layout(size fyne.Size) {

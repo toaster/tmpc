@@ -147,10 +147,10 @@ func (a *songListAlbum) MouseOut() {
 	a.summary.Refresh()
 }
 
-func (a *songListAlbum) MouseUp(*desktop.MouseEvent) {
+func (*songListAlbum) MouseUp(*desktop.MouseEvent) {
 }
 
-func (a *songListAlbum) Tapped(_ *fyne.PointEvent) {
+func (*songListAlbum) Tapped(_ *fyne.PointEvent) {
 }
 
 func (a *songListAlbum) TappedSecondary(e *fyne.PointEvent) {

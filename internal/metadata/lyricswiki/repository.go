@@ -109,6 +109,6 @@ func (r *Repository) findLyricsInHTML(n *html.Node) *html.Node {
 	return nil
 }
 
-func (r *Repository) lyricsArg(s string) string {
+func (*Repository) lyricsArg(s string) string {
 	return strings.ReplaceAll(strings.Title(s), " ", "_")
 }

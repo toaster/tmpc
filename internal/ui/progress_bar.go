@@ -64,7 +64,7 @@ func (p *progressBar) Tapped(e *fyne.PointEvent) {
 	}
 }
 
-func (p *progressBar) TappedSecondary(*fyne.PointEvent) {
+func (*progressBar) TappedSecondary(*fyne.PointEvent) {
 }
 
 func (p *progressBar) Update(cur int) {
@@ -107,7 +107,7 @@ func (r *progressBarRenderer) Layout(size fyne.Size) {
 	r.bar.Resize(fyne.NewSize(float32(ratio)*(width-4*inset), barHeight))
 }
 
-func (r *progressBarRenderer) MinSize() fyne.Size {
+func (*progressBarRenderer) MinSize() fyne.Size {
 	return fyne.NewSize(10+theme.Padding()*2, 10+theme.Padding()*2)
 }
 

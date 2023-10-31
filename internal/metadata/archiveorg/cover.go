@@ -27,7 +27,7 @@ func NewCover() *Cover {
 // LoadCover loads the cover of a song.
 //
 // @implements metadata.CoverFetcher
-func (c *Cover) LoadCover(song *mpd.Song) (fyne.Resource, error) {
+func (*Cover) LoadCover(song *mpd.Song) (fyne.Resource, error) {
 	MBID := song.MBAlbumID
 	if MBID == "" {
 		return nil, fmt.Errorf("cannot load cover for song without MBID")

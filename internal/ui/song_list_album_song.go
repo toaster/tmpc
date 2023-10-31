@@ -100,7 +100,7 @@ func (s *songListAlbumSong) MouseOut() {
 	s.Refresh()
 }
 
-func (s *songListAlbumSong) MouseUp(*desktop.MouseEvent) {
+func (*songListAlbumSong) MouseUp(*desktop.MouseEvent) {
 }
 
 func (s *songListAlbumSong) Refresh() {
@@ -109,7 +109,7 @@ func (s *songListAlbumSong) Refresh() {
 	canvas.Refresh(s)
 }
 
-func (s *songListAlbumSong) Tapped(_ *fyne.PointEvent) {
+func (*songListAlbumSong) Tapped(_ *fyne.PointEvent) {
 }
 
 func (s *songListAlbumSong) TappedSecondary(e *fyne.PointEvent) {

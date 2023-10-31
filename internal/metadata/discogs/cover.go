@@ -61,7 +61,7 @@ func (c *Cover) LoadCover(song *mpd.Song) (fyne.Resource, error) {
 	return fyne.NewStaticResource(metadata.CoverID(song), content), nil
 }
 
-func (c *Cover) cleanupCoverArg(s string) string {
+func (*Cover) cleanupCoverArg(s string) string {
 	return coverArgReplacer.Replace(s)
 }
 
