@@ -5,6 +5,8 @@ import (
 	"strings"
 
 	"golang.org/x/net/html"
+	"golang.org/x/text/cases"
+	"golang.org/x/text/language"
 
 	"github.com/toaster/tmpc/internal/metadata"
 	"github.com/toaster/tmpc/internal/mpd"
@@ -110,5 +112,7 @@ func (r *Repository) findLyricsInHTML(n *html.Node) *html.Node {
 }
 
 func (*Repository) lyricsArg(s string) string {
-	return strings.ReplaceAll(strings.Title(s), " ", "_")
+	return strings.ReplaceAll(titleCaser.String(s), " ", "_")
 }
+
+var titleCaser = cases.Title(language.English)
