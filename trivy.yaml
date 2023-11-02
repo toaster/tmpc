@@ -1,0 +1,22 @@
+exit-code: 1
+format: table
+scan:
+  scanners:
+    - config
+    - secret
+    - vuln
+  skip-dirs:
+    - vendor/
+  skip-files:
+    - .envrc
+severity:
+  - UNKNOWN
+  - LOW
+  - MEDIUM
+  - HIGH
+  - CRITICAL
+vulnerability:
+  type:
+    - os
+    - library
+  ignore-unfixed: true
