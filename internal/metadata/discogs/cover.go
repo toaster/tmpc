@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"net/http"
 	"net/url"
 	"strings"
@@ -19,7 +18,8 @@ import (
 var coverArgReplacer *strings.Replacer
 
 func init() {
-	coverArgReplacer = strings.NewReplacer("!", " ", ":", " ", "-", " ")
+	const space = " "
+	coverArgReplacer = strings.NewReplacer("!", space, ":", space, "-", space)
 }
 
 // Cover is a CoverFetcher that delivers the cover of a song.
@@ -54,14 +54,14 @@ func (c *Cover) LoadCover(song *mpd.Song) (fyne.Resource, error) {
 	}
 	defer coverStream.Close()
 
-	content, err := ioutil.ReadAll(coverStream)
+	content, err := io.ReadAll(coverStream)
 	if err != nil {
 		return nil, fmt.Errorf("could not read cover for song “%s” of “%s”: %w", song.Title, song.Artist, err)
 	}
 	return fyne.NewStaticResource(metadata.CoverID(song), content), nil
 }
 
-func (c *Cover) cleanupCoverArg(s string) string {
+func (*Cover) cleanupCoverArg(s string) string {
 	return coverArgReplacer.Replace(s)
 }
 
@@ -73,7 +73,7 @@ func (c *Cover) fetchCoverFromDiscogs(artist, album string) (io.ReadCloser, erro
 		return nil, fmt.Errorf("could not search %s - %s: %w", artist, album, err)
 	}
 	defer res.Body.Close()
-	b, err := ioutil.ReadAll(res.Body)
+	b, err := io.ReadAll(res.Body)
 	if err != nil {
 		return nil, err
 	}
@@ -96,7 +96,7 @@ func (c *Cover) fetchCoverFromDiscogs(artist, album string) (io.ReadCloser, erro
 	}
 	if res.StatusCode != http.StatusOK {
 		defer res.Body.Close()
-		b, _ = ioutil.ReadAll(res.Body)
+		b, _ = io.ReadAll(res.Body)
 		return nil, fmt.Errorf("could not download %s: %s", coverURL, string(b))
 	}
 

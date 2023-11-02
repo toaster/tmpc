@@ -52,7 +52,7 @@ func (r *listEntryRenderer) Layout(size fyne.Size) {
 	r.insertMarker.Resize(fyne.NewSize(size.Width, 1))
 }
 
-func (r *listEntryRenderer) MinSize() fyne.Size {
+func (*listEntryRenderer) MinSize() fyne.Size {
 	return fyne.NewSize(0, 1)
 }
 

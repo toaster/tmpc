@@ -8,7 +8,7 @@ type containerRenderer struct {
 	b *fyne.Container
 }
 
-func (s *containerRenderer) Destroy() {
+func (*containerRenderer) Destroy() {
 }
 
 func (s *containerRenderer) Objects() []fyne.CanvasObject {
@@ -23,5 +23,5 @@ func (s *containerRenderer) MinSize() fyne.Size {
 	return s.b.Layout.MinSize(s.b.Objects)
 }
 
-func (s *containerRenderer) Refresh() {
+func (*containerRenderer) Refresh() {
 }

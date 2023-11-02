@@ -78,17 +78,17 @@ func (c *Client) ClearQueue() error {
 // Connect tries to connect to the MPD server.
 func (c *Client) Connect() error {
 	if c.invalidPerms {
-		return fmt.Errorf("Insufficient MPD credentials: invalid permissions")
+		return fmt.Errorf("insufficient MPD credentials: invalid permissions")
 	}
 	if c.c == nil {
-		m, err := mpd.DialAuthenticated("tcp", c.url, c.pass)
+		m, err := mpd.DialAuthenticated(networkProtocolTCP, c.url, c.pass)
 		if err != nil {
 			return err
 		}
 		c.c = m
 	}
 	if c.w == nil {
-		w, err := mpd.NewWatcher("tcp", c.url, c.pass,
+		w, err := mpd.NewWatcher(networkProtocolTCP, c.url, c.pass,
 			"database", "options", "player", "playlist", "stored_playlist")
 		if err != nil {
 			return err
@@ -179,7 +179,7 @@ func (c *Client) Pause(p bool) error {
 func (c *Client) retry(f func() error) error {
 	if err := f(); err != nil {
 		c.c.Close()
-		c.c, err = mpd.DialAuthenticated("tcp", c.url, c.pass)
+		c.c, err = mpd.DialAuthenticated(networkProtocolTCP, c.url, c.pass)
 		if err != nil {
 			return err
 		}
@@ -303,7 +303,9 @@ func (c *Client) Status() (*Status, error) {
 		return nil, err
 	}
 	var elapsed int
-	fmt.Sscanf(attrs["elapsed"], "%d", &elapsed)
+	if _, err = fmt.Sscanf(attrs["elapsed"], "%d", &elapsed); err != nil {
+		return nil, err
+	}
 	plID, _ := strconv.Atoi(attrs["playlist"])
 	sID, _ := strconv.Atoi(attrs["songid"])
 	sIdx, _ := strconv.Atoi(attrs["song"])
@@ -343,3 +345,5 @@ func (c *Client) Update() error {
 		return err
 	})
 }
+
+const networkProtocolTCP = "tcp"

@@ -10,6 +10,13 @@ import (
 	"github.com/toaster/tmpc/internal/mpd"
 )
 
+const (
+	searchCategoryAlbum  = "Album"
+	searchCategoryArtist = "Artist"
+	searchCategoryGenre  = "Genre"
+	searchCategorySong   = "Song"
+)
+
 // SearchFn is a function to perform a search on the MPD server.
 type SearchFn func(string, string) ([]*mpd.Song, bool)
 
@@ -40,10 +47,10 @@ func NewSearch(doSearch SearchFn, addToQueue, insertIntoQueue, replaceQueue, add
 	// TODO: min width bug -> need large enough placeholder
 	s.category = &widget.Select{
 		Options: []string{
-			"Album",
-			"Artist",
-			"Genre",
-			"Song",
+			searchCategoryAlbum,
+			searchCategoryArtist,
+			searchCategoryGenre,
+			searchCategorySong,
 		},
 		PlaceHolder: "Album",
 		Selected:    "Song",
@@ -97,11 +104,11 @@ func (s *Search) buildContextMenu(addToQueue, insertIntoQueue, replaceQueue, add
 func (s *Search) search(value string) {
 	searchKey := "title"
 	switch s.category.Selected {
-	case "Album":
+	case searchCategoryAlbum:
 		searchKey = "album"
-	case "Artist":
+	case searchCategoryArtist:
 		searchKey = "artist"
-	case "Genre":
+	case searchCategoryGenre:
 		searchKey = "genre"
 	}
 	songs, _ := s.doSearch(searchKey, value)
@@ -115,7 +122,7 @@ type searchRenderer struct {
 
 var _ fyne.WidgetRenderer = (*searchRenderer)(nil)
 
-func (r *searchRenderer) Destroy() {
+func (*searchRenderer) Destroy() {
 }
 
 func (r *searchRenderer) Layout(size fyne.Size) {

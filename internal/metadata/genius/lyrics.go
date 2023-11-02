@@ -2,6 +2,7 @@ package genius
 
 import (
 	"fmt"
+	"net/http"
 	"net/url"
 	"strings"
 
@@ -47,14 +48,14 @@ func (l *Lyrics) FetchLyrics(song *mpd.Song) ([]string, error) {
 	if err != nil {
 		return nil, err
 	}
-	lyrics, err := l.fetchLyrics(info)
+	lyrics, err := l.fetchLyricsForSongInfo(info)
 	if err != nil {
 		return nil, err
 	}
 	return lyrics, nil
 }
 
-func (l *Lyrics) fetchLyrics(info *song) ([]string, error) {
+func (l *Lyrics) fetchLyricsForSongInfo(info *song) ([]string, error) {
 	if info.LyricsURL == "" {
 		return nil, fmt.Errorf("no lyrics provided for song “%s” of “%s” (%d)", info.Title, info.PrimaryArtist.Name, info.ID)
 	}
@@ -130,12 +131,12 @@ func (l *Lyrics) gatherTrackID(artistID int, title string) (int, error) {
 		if err != nil {
 			return 0, err
 		}
-		if result.Meta.Status != 200 {
+		if result.Meta.Status != http.StatusOK {
 			return 0, fmt.Errorf("searching for s failed: %d - %s", result.Meta.Status, result.Meta.Message)
 		}
 
 		for _, s := range result.Response.Songs {
-			if strings.ToLower(s.Title) == strings.ToLower(title) {
+			if strings.EqualFold(s.Title, title) {
 				return s.ID, nil
 			}
 		}
@@ -155,12 +156,12 @@ func (l *Lyrics) searchArtist(artist string) (int, error) {
 	if err != nil {
 		return 0, err
 	}
-	if result.Meta.Status != 200 {
+	if result.Meta.Status != http.StatusOK {
 		return 0, fmt.Errorf("searching for song failed: %d - %s", result.Meta.Status, result.Meta.Message)
 	}
 
 	for _, hit := range result.Response.Hits {
-		if strings.ToLower(hit.Result.PrimaryArtist.Name) == strings.ToLower(artist) {
+		if strings.EqualFold(hit.Result.PrimaryArtist.Name, artist) {
 			return hit.Result.PrimaryArtist.ID, nil
 		}
 	}

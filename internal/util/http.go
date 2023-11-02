@@ -34,7 +34,7 @@ func HTTPGetHTML(url string) (*html.Node, error) {
 
 // HTTPGetJSON performs an HTTP GET with the TMPC user agent
 // and tries to unmarshal the response as JSON into the provided structure.
-func HTTPGetJSON(url string, data interface{}) error {
+func HTTPGetJSON(url string, data any) error {
 	res, err := HTTPGet(url)
 	if err != nil {
 		return fmt.Errorf("HTTP GET failed from %s: %w", url, err)

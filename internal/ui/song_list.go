@@ -3,7 +3,6 @@ package ui
 import (
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/container"
-	"fyne.io/fyne/v2/driver/desktop"
 	"fyne.io/fyne/v2/widget"
 
 	"github.com/toaster/tmpc/internal/mpd"
@@ -180,14 +179,14 @@ func (l *SongList) insertSelection() {
 	l.dragAfter = nil
 }
 
-func (l *SongList) markAlbum(m desktop.Modifier, a *songListAlbum) {
-	if m&desktop.ControlModifier != 0 {
+func (l *SongList) markAlbum(m fyne.KeyModifier, a *songListAlbum) {
+	if m&fyne.KeyModifierControl != 0 {
 		for _, qs := range a.songs {
 			if !qs.selected {
 				l.markSongWithoutAlbumRefresh(m, qs)
 			}
 		}
-	} else if m&desktop.ShiftModifier != 0 {
+	} else if m&fyne.KeyModifierShift != 0 {
 		fromFront := false
 	outerLoop:
 		for _, qa := range l.albums {
@@ -210,17 +209,17 @@ func (l *SongList) markAlbum(m desktop.Modifier, a *songListAlbum) {
 		m = 0
 		for _, qs := range a.songs {
 			l.markSongWithoutAlbumRefresh(m, qs)
-			m = desktop.ControlModifier
+			m = fyne.KeyModifierControl
 		}
 	}
 	l.recomputeAlbumSelections()
 }
 
-func (l *SongList) markSongWithoutAlbumRefresh(m desktop.Modifier, s *songListAlbumSong) {
+func (l *SongList) markSongWithoutAlbumRefresh(m fyne.KeyModifier, s *songListAlbumSong) {
 	var add, addSlice bool
-	if m&desktop.ControlModifier != 0 {
+	if m&fyne.KeyModifierControl != 0 {
 		add = true
-	} else if l.markAnchor != nil && m&desktop.ShiftModifier != 0 {
+	} else if l.markAnchor != nil && m&fyne.KeyModifierShift != 0 {
 		addSlice = true
 	}
 	if addSlice {
@@ -264,7 +263,7 @@ func (l *SongList) markSongWithoutAlbumRefresh(m desktop.Modifier, s *songListAl
 	}
 }
 
-func (l *SongList) markSong(m desktop.Modifier, s *songListAlbumSong) {
+func (l *SongList) markSong(m fyne.KeyModifier, s *songListAlbumSong) {
 	l.markSongWithoutAlbumRefresh(m, s)
 	l.recomputeAlbumSelections()
 }

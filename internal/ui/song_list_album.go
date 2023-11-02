@@ -2,6 +2,7 @@ package ui
 
 import (
 	"fmt"
+	"time"
 
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/canvas"
@@ -26,7 +27,7 @@ type songListAlbum struct {
 	indicator         fyne.CanvasObject
 	isDragging        func() bool
 	header            *songListAlbumLine
-	markAlbum         func(desktop.Modifier, *songListAlbum)
+	markAlbum         func(fyne.KeyModifier, *songListAlbum)
 	setDragMarkAfter  func(*mpd.Song, bool)
 	setDragMarkBefore func(*mpd.Song, bool)
 	showSongs         bool
@@ -37,8 +38,8 @@ type songListAlbum struct {
 
 func newSongListAlbum(
 	songs []*mpd.Song,
-	markSong func(desktop.Modifier, *songListAlbumSong),
-	markAlbum func(desktop.Modifier, *songListAlbum),
+	markSong func(fyne.KeyModifier, *songListAlbumSong),
+	markAlbum func(fyne.KeyModifier, *songListAlbum),
 	dragSelection func(),
 	selectionIsDragged func() bool,
 	setDragMarkBefore, setDragMarkAfter func(*mpd.Song, bool),
@@ -65,16 +66,16 @@ func newSongListAlbum(
 			// 3 times padding is the bottom padding of the head line and the whole padding of the first line
 			// +1 is the separator between header and first line
 			3*theme.Padding() + 1
-	time := 0
+	albumTime := 0
 	album.songs = make([]*songListAlbumSong, 0, len(songs))
 	for _, song := range songs {
 		entry := newSongListAlbumSong(contextMenu, song, insertSelection, selectionIsDragged, markSong, onSongClick, coverSize, setDragMarkAfter, setDragMarkBefore, dragSelection)
 		album.songs = append(album.songs, entry)
-		time += song.Time
+		albumTime += song.Time
 	}
 	album.header = newAlbumHeadLine(coverSize, []string{
 		fmt.Sprintf("%s - %s (%d)", songs[0].AlbumArtist, songs[0].Album, songs[0].Year),
-		timeString(time),
+		timeString(albumTime),
 	})
 	album.summary = newAlbumEntryLine(coverSize, []string{fmt.Sprintf("%d", len(songs)), "Tracks"})
 	img := canvas.NewImageFromResource(nil)
@@ -146,10 +147,10 @@ func (a *songListAlbum) MouseOut() {
 	a.summary.Refresh()
 }
 
-func (a *songListAlbum) MouseUp(*desktop.MouseEvent) {
+func (*songListAlbum) MouseUp(*desktop.MouseEvent) {
 }
 
-func (a *songListAlbum) Tapped(_ *fyne.PointEvent) {
+func (*songListAlbum) Tapped(_ *fyne.PointEvent) {
 }
 
 func (a *songListAlbum) TappedSecondary(e *fyne.PointEvent) {
@@ -283,9 +284,11 @@ func (r *songListAlbumRenderer) computeMinSize() {
 }
 
 func timeString(seconds int) string {
-	h := seconds / 3600
-	m := seconds % 3600 / 60
-	s := seconds % 60
+	const secondsPerHour = int(time.Hour / time.Second)
+	const secondsPerMinute = int(time.Minute / time.Second)
+	h := seconds / secondsPerHour
+	m := seconds % secondsPerHour / secondsPerMinute
+	s := seconds % secondsPerMinute
 	switch {
 	case h > 0:
 		return fmt.Sprintf("%d:%02d:%02d", h, m, s)

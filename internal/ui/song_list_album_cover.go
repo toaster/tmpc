@@ -36,7 +36,7 @@ func (c *songListAlbumCover) Tapped(_ *fyne.PointEvent) {
 	c.onClick()
 }
 
-func (c *songListAlbumCover) TappedSecondary(*fyne.PointEvent) {}
+func (*songListAlbumCover) TappedSecondary(*fyne.PointEvent) {}
 
 // Update changes the image.
 func (c *songListAlbumCover) Update(image fyne.Resource) {

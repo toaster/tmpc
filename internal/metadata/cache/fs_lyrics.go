@@ -1,13 +1,15 @@
 package cache
 
 import (
-	"io/ioutil"
+	"fmt"
 	"log"
+	"os"
 	"path/filepath"
 	"strings"
 
 	"github.com/toaster/tmpc/internal/metadata"
 	"github.com/toaster/tmpc/internal/mpd"
+	"github.com/toaster/tmpc/internal/util"
 )
 
 // FSLyrics is a file system cache for metadata.LyricsFetcher.
@@ -24,7 +26,7 @@ var _ metadata.LyricsFetcher = (*FSLyrics)(nil)
 func NewFSLyrics(fetcher metadata.LyricsFetcher) *FSLyrics {
 	dir, err := TmpDir()
 	if err != nil {
-		log.Fatal("cannot access temp dir:", err)
+		panic(fmt.Errorf("cannot access temp dir: %w", err))
 	}
 	return &FSLyrics{dir, fetcher}
 }
@@ -35,7 +37,7 @@ func NewFSLyrics(fetcher metadata.LyricsFetcher) *FSLyrics {
 func (f *FSLyrics) FetchLyrics(song *mpd.Song) ([]string, error) {
 	path := filepath.Join(f.dir, metadata.SongID(song))
 
-	content, err := ioutil.ReadFile(path)
+	content, err := os.ReadFile(path)
 	if err == nil {
 		return strings.Split(string(content), "\n"), nil
 	}
@@ -45,7 +47,7 @@ func (f *FSLyrics) FetchLyrics(song *mpd.Song) ([]string, error) {
 		return nil, err
 	}
 
-	err = ioutil.WriteFile(path, []byte(strings.Join(lyrics, "\n")), 0600)
+	err = os.WriteFile(path, []byte(strings.Join(lyrics, "\n")), util.PermUserRead|util.PermUserWrite)
 	if err != nil {
 		log.Printf("could not write %s: %v", path, err)
 	}

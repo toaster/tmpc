@@ -34,6 +34,8 @@ func NewStatusBar(playbackEnabled bool, onConnectClick, onErrorsClick func(), on
 	return b
 }
 
+const statusBarIconSize = 20
+
 // CreateRenderer is an internal function.
 func (b *StatusBar) CreateRenderer() fyne.WidgetRenderer {
 	separator := canvas.NewRectangle(theme.PlaceHolderColor())
@@ -50,8 +52,8 @@ func (b *StatusBar) CreateRenderer() fyne.WidgetRenderer {
 	}
 	r.playbackButton = newIconButton(HeadphonesIcon, callback)
 	r.playbackButtonDisabled = newIconButton(theme.NewDisabledResource(HeadphonesIcon), callback)
-	r.playbackButton.iconSize = fyne.NewSize(20, 20)
-	r.playbackButtonDisabled.iconSize = fyne.NewSize(20, 20)
+	r.playbackButton.iconSize = fyne.NewSize(statusBarIconSize, statusBarIconSize)
+	r.playbackButtonDisabled.iconSize = fyne.NewSize(statusBarIconSize, statusBarIconSize)
 	r.playbackButton.pad = false
 	r.playbackButtonDisabled.pad = false
 	r.updateIcons()
@@ -109,27 +111,27 @@ func (r *statusBarRenderer) updateIcons() {
 	}
 	if r.b.playing {
 		icon := canvas.NewImageFromResource(MusicIcon)
-		icon.SetMinSize(fyne.NewSize(20, 20))
+		icon.SetMinSize(fyne.NewSize(statusBarIconSize, statusBarIconSize))
 		r.box.Add(icon)
 	} else {
 		button := newIconButton(NoMusicIcon, r.b.onPlaybackConnectClick)
-		button.iconSize = fyne.NewSize(20, 20)
+		button.iconSize = fyne.NewSize(statusBarIconSize, statusBarIconSize)
 		button.pad = false
 		r.box.Add(button)
 	}
 	if r.b.connected {
 		icon := canvas.NewImageFromResource(PluggedIcon)
-		icon.SetMinSize(fyne.NewSize(20, 20))
+		icon.SetMinSize(fyne.NewSize(statusBarIconSize, statusBarIconSize))
 		r.box.Add(icon)
 	} else {
 		button := newIconButton(UnpluggedIcon, r.b.onConnectClick)
-		button.iconSize = fyne.NewSize(20, 20)
+		button.iconSize = fyne.NewSize(statusBarIconSize, statusBarIconSize)
 		button.pad = false
 		r.box.Add(button)
 	}
 	if r.b.errorCount > 0 {
 		button := newIconButton(ErrorIcon, r.b.onErrorsClick)
-		button.iconSize = fyne.NewSize(20, 20)
+		button.iconSize = fyne.NewSize(statusBarIconSize, statusBarIconSize)
 		button.pad = false
 		button.UpdateBadgeCount(r.b.errorCount)
 		r.box.Add(button)

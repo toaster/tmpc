@@ -21,6 +21,16 @@ import (
 // - Hover-Effekt (hilight) -> ggf. disjunkt zum hover-Rahmen
 // - runde Kanten
 
+const (
+	badgeAbbrevThreshold   = 1000
+	badgeColourRed         = 200
+	badgeColourAlpha       = 255
+	badgeOverflowThreshold = 9500
+	badgeOverflowValue     = ">9K"
+	badgeTextPadding       = float32(3)
+	badgeTextScale         = 0.4
+)
+
 type iconButton struct {
 	widget.BaseWidget
 	badgeCount int
@@ -33,7 +43,8 @@ type iconButton struct {
 }
 
 func newIconButton(icon fyne.Resource, onTap func()) *iconButton {
-	button := &iconButton{icon: icon, onTap: onTap, iconSize: fyne.NewSize(48, 48), pad: true}
+	const size = 48
+	button := &iconButton{icon: icon, onTap: onTap, iconSize: fyne.NewSize(size, size), pad: true}
 	button.ExtendBaseWidget(button)
 	return button
 }
@@ -70,7 +81,7 @@ func (b *iconButton) MouseOut() {
 	b.Refresh()
 }
 
-func (b *iconButton) MouseMoved(_ *desktop.MouseEvent) {
+func (*iconButton) MouseMoved(_ *desktop.MouseEvent) {
 }
 
 func (b *iconButton) Tapped(*fyne.PointEvent) {
@@ -80,7 +91,7 @@ func (b *iconButton) Tapped(*fyne.PointEvent) {
 	b.onTap()
 }
 
-func (b *iconButton) TappedSecondary(*fyne.PointEvent) {
+func (*iconButton) TappedSecondary(*fyne.PointEvent) {
 }
 
 func (b *iconButton) UpdateBadgeCount(count int) {
@@ -101,9 +112,8 @@ type iconButtonRenderer struct {
 }
 
 func newIconButtonRenderer(b *iconButton) *iconButtonRenderer {
-	var icon *canvas.Image
-	icon = canvas.NewImageFromResource(b.icon)
-	badgeBGColor := &color.RGBA{R: 200, A: 255}
+	var icon = canvas.NewImageFromResource(b.icon)
+	badgeBGColor := &color.RGBA{R: badgeColourRed, A: badgeColourAlpha}
 	badgeBGL := canvas.NewCircle(badgeBGColor)
 	badgeBGL.Hide()
 	badgeBGM := canvas.NewRectangle(badgeBGColor)
@@ -126,7 +136,6 @@ func newIconButtonRenderer(b *iconButton) *iconButtonRenderer {
 		disabledIcon:          canvas.NewImageFromResource(theme.NewDisabledResource(b.icon)),
 		icon:                  icon,
 	}
-
 }
 
 func (r *iconButtonRenderer) Layout(size fyne.Size) {
@@ -140,11 +149,11 @@ func (r *iconButtonRenderer) Layout(size fyne.Size) {
 	r.icon.Resize(size)
 	r.disabledIcon.Resize(size)
 
-	r.badgeText.TextSize = r.icon.Size().Height * 0.4
+	r.badgeText.TextSize = r.icon.Size().Height * badgeTextScale
 	r.badgeText.Resize(r.badgeText.MinSize())
 	badgeHeight := r.badgeText.MinSize().Height
-	badgeWidth := r.badgeText.MinSize().Width + 6
-	var textOffset float32 = 3
+	badgeWidth := r.badgeText.MinSize().Width + 2*badgeTextPadding
+	textOffset := badgeTextPadding
 	if badgeWidth < badgeHeight {
 		textOffset += badgeHeight - badgeWidth
 		badgeWidth = badgeHeight
@@ -188,10 +197,10 @@ func (r *iconButtonRenderer) Refresh() {
 		r.objects[1] = r.icon
 	}
 	if r.button.badgeCount > 0 {
-		if r.button.badgeCount > 9500 {
-			r.badgeText.Text = ">9K"
-		} else if r.button.badgeCount > 999 {
-			r.badgeText.Text = fmt.Sprintf("%dK", r.button.badgeCount/1000)
+		if r.button.badgeCount > badgeOverflowThreshold {
+			r.badgeText.Text = badgeOverflowValue
+		} else if r.button.badgeCount >= badgeAbbrevThreshold {
+			r.badgeText.Text = fmt.Sprintf("%dK", r.button.badgeCount/badgeAbbrevThreshold)
 		} else {
 			r.badgeText.Text = fmt.Sprintf("%d", r.button.badgeCount)
 		}

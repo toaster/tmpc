@@ -8,7 +8,7 @@ type baseRenderer struct {
 	objects []fyne.CanvasObject
 }
 
-func (b *baseRenderer) Destroy() {
+func (*baseRenderer) Destroy() {
 	// log.Println("Destroy")
 }
 

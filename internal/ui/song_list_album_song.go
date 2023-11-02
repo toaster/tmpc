@@ -22,7 +22,7 @@ type songListAlbumSong struct {
 	contextMenu       *fyne.Menu
 	endDrag           func()
 	isDragging        func() bool
-	onMark            func(desktop.Modifier, *songListAlbumSong)
+	onMark            func(fyne.KeyModifier, *songListAlbumSong)
 	onClick           func(*mpd.Song)
 	setDragMarkAfter  func(*mpd.Song, bool)
 	setDragMarkBefore func(*mpd.Song, bool)
@@ -30,7 +30,7 @@ type songListAlbumSong struct {
 	song              *mpd.Song
 }
 
-func newSongListAlbumSong(contextMenu *fyne.Menu, song *mpd.Song, insertSelection func(), selectionIsDragged func() bool, markSong func(desktop.Modifier, *songListAlbumSong), onSongClick func(*mpd.Song), coverSize float32, setDragMarkAfter func(*mpd.Song, bool), setDragMarkBefore func(*mpd.Song, bool), dragSelection func()) *songListAlbumSong {
+func newSongListAlbumSong(contextMenu *fyne.Menu, song *mpd.Song, insertSelection func(), selectionIsDragged func() bool, markSong func(fyne.KeyModifier, *songListAlbumSong), onSongClick func(*mpd.Song), coverSize float32, setDragMarkAfter func(*mpd.Song, bool), setDragMarkBefore func(*mpd.Song, bool), dragSelection func()) *songListAlbumSong {
 	s := &songListAlbumSong{
 		contextMenu: contextMenu,
 		endDrag:     insertSelection,
@@ -100,7 +100,7 @@ func (s *songListAlbumSong) MouseOut() {
 	s.Refresh()
 }
 
-func (s *songListAlbumSong) MouseUp(*desktop.MouseEvent) {
+func (*songListAlbumSong) MouseUp(*desktop.MouseEvent) {
 }
 
 func (s *songListAlbumSong) Refresh() {
@@ -109,7 +109,7 @@ func (s *songListAlbumSong) Refresh() {
 	canvas.Refresh(s)
 }
 
-func (s *songListAlbumSong) Tapped(_ *fyne.PointEvent) {
+func (*songListAlbumSong) Tapped(_ *fyne.PointEvent) {
 }
 
 func (s *songListAlbumSong) TappedSecondary(e *fyne.PointEvent) {
@@ -118,7 +118,8 @@ func (s *songListAlbumSong) TappedSecondary(e *fyne.PointEvent) {
 }
 
 func (s *songListAlbumSong) setDragMark(p fyne.Position, force bool) bool {
-	bottom := p.Y > 10
+	const bottomThreshold = 10 // TODO: compute from line height?
+	bottom := p.Y > bottomThreshold
 	if (bottom != s.insertMarkerBottom) || force {
 		s.insertMarkerBottom = bottom
 		if bottom {

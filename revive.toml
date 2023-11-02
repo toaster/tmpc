@@ -1,0 +1,24 @@
+enableAllRules = true
+errorCode = 1
+warningCode = 1
+
+[rule.add-constant]
+    Arguments = [{allowInts = "0,1,2,3", allowStrs = "\"\""}]
+[rule.argument-limit]
+    Disabled = true
+[rule.bare-return]
+    Disabled = true
+[rule.cognitive-complexity]
+    Disabled = true
+[rule.cyclomatic]
+    Disabled = true
+[rule.flag-parameter]
+    Disabled = true
+[rule.line-length-limit]
+    Disabled = true
+[rule.package-comments]
+    Disabled = true
+[rule.unchecked-type-assertion]
+    Disabled = true
+[rule.unhandled-error]
+    Arguments = [".*\\.WriteString", ".*\\.WriteRune", "fmt\\.Print.*"]

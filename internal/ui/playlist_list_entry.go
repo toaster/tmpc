@@ -20,7 +20,7 @@ type playlistListEntry struct {
 }
 
 func newPlaylistListEntry(name string, playNow, deletePL func(string), w fyne.Window) *playlistListEntry {
-	delete := func() {
+	remove := func() {
 		callback := func(confirmed bool) {
 			if confirmed {
 				deletePL(name)
@@ -34,7 +34,7 @@ func newPlaylistListEntry(name string, playNow, deletePL func(string), w fyne.Wi
 		)
 	}
 	items := []*fyne.MenuItem{
-		fyne.NewMenuItem("Delete", delete),
+		fyne.NewMenuItem("Delete", remove),
 		fyne.NewMenuItem("Play Now And Replace Queue", func() { playNow(name) }),
 	}
 	e := &playlistListEntry{contextMenu: fyne.NewMenu("", items...), name: name}
@@ -58,7 +58,7 @@ func (e *playlistListEntry) MouseIn(_ *desktop.MouseEvent) {
 	e.Refresh()
 }
 
-func (e *playlistListEntry) MouseMoved(_ *desktop.MouseEvent) {
+func (*playlistListEntry) MouseMoved(_ *desktop.MouseEvent) {
 }
 
 func (e *playlistListEntry) MouseOut() {
@@ -72,7 +72,7 @@ func (e *playlistListEntry) Refresh() {
 	canvas.Refresh(e)
 }
 
-func (e *playlistListEntry) Tapped(_ *fyne.PointEvent) {
+func (*playlistListEntry) Tapped(_ *fyne.PointEvent) {
 }
 
 func (e *playlistListEntry) TappedSecondary(pe *fyne.PointEvent) {
@@ -93,8 +93,4 @@ func (r *playlistListEntryRenderer) Layout(size fyne.Size) {
 
 func (r *playlistListEntryRenderer) MinSize() fyne.Size {
 	return r.text.MinSize().Add(r.listEntryRenderer.MinSize())
-}
-
-func confirmedDeletePlaylist(name string, callback func(bool), w fyne.Window) {
-
 }

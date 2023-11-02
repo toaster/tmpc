@@ -44,14 +44,14 @@ func (l *Lyrics) FetchLyrics(song *mpd.Song) ([]string, error) {
 	if err != nil {
 		return nil, err
 	}
-	lyrics, err := l.fetchLyrics(info)
+	lyrics, err := l.fetchLyricsForSongInfo(info)
 	if err != nil {
 		return nil, err
 	}
 	return lyrics, nil
 }
 
-func (l *Lyrics) fetchLyrics(info *songInfo) ([]string, error) {
+func (l *Lyrics) fetchLyricsForSongInfo(info *songInfo) ([]string, error) {
 	if !info.HasLyrics {
 		return nil, fmt.Errorf("no lyrics provided for song “%s” of “%s”", info.Track, info.Artist)
 	}
@@ -137,7 +137,6 @@ func (l *Lyrics) gatherAlbumID(artistID int, album string) (int, error) {
 	}
 
 	return 0, fmt.Errorf("could not find album “%s” in %v", album, result.Info)
-
 }
 
 func (l *Lyrics) gatherSongInfo(song *mpd.Song) (*songInfo, error) {
@@ -216,7 +215,6 @@ func (l *Lyrics) gatherTrackID(artistID, albumID int, track string) (int, error)
 	}
 
 	return 0, fmt.Errorf("could not find track “%s” in %v", track, result.Info)
-
 }
 
 func (l *Lyrics) searchArtist(artist string, album string) (int, error) {
@@ -236,7 +234,7 @@ func (l *Lyrics) searchArtist(artist string, album string) (int, error) {
 	}
 
 	for _, hit := range result.Hits {
-		if strings.ToLower(hit.Artist) == strings.ToLower(artist) {
+		if strings.EqualFold(hit.Artist, artist) {
 			albumID, _ := l.gatherAlbumID(hit.ArtistID, album)
 			if albumID != 0 {
 				return hit.ArtistID, nil
@@ -267,9 +265,9 @@ func (l *Lyrics) searchTrack(artist string, title string, album string) (*songIn
 	}
 
 	for _, hit := range result.Hits {
-		if strings.ToLower(hit.Album) == strings.ToLower(album) &&
-			strings.ToLower(hit.Artist) == strings.ToLower(artist) &&
-			strings.ToLower(hit.Track) == strings.ToLower(title) {
+		if strings.EqualFold(hit.Album, album) &&
+			strings.EqualFold(hit.Artist, artist) &&
+			strings.EqualFold(hit.Track, title) {
 			return &hit, nil
 		}
 	}
