@@ -8,6 +8,8 @@ import (
 	"log"
 	"os"
 	"runtime/pprof"
+
+	"fyne.io/fyne/v2"
 )
 
 var cpuprofile = flag.String("cpuprofile", "", "write cpu profile to file")
@@ -23,5 +25,7 @@ func main() {
 			defer pprof.StopCPUProfile()
 		}
 	}
-	newTMPC().Run()
+	t := newTMPC()
+	t.win.Resize(fyne.NewSize(800, 500))
+	t.Run()
 }
