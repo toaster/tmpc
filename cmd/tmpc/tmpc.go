@@ -35,7 +35,7 @@ type tmpc struct {
 	lyricsRepo      metadata.LyricsFetcher
 	mpd             *mpd.Client
 	playbackEnabled bool
-	playlists       []mpd.Playlist
+	playlists       []*mpd.Playlist
 	playlistsList   *ui.PlaylistList
 	playlistsUpdate chan bool
 	stateUpdate     chan bool

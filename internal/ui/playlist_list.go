@@ -37,7 +37,7 @@ func (p *PlaylistList) CreateRenderer() fyne.WidgetRenderer {
 }
 
 // Update replaces the lists contents with new ones.
-func (p *PlaylistList) Update(pls []mpd.Playlist) {
+func (p *PlaylistList) Update(pls []*mpd.Playlist) {
 	p.box.Objects = make([]fyne.CanvasObject, 0, len(pls))
 	for _, pl := range pls {
 		p.box.Objects = append(p.box.Objects, newPlaylistListEntry(pl.Name(), p.playNow, p.delete, p.window))
