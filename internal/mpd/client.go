@@ -229,7 +229,7 @@ func (c *Client) PlaylistRemove(name string) error {
 }
 
 // Playlists delivers all playlists stored on the server.
-func (c *Client) Playlists() ([]Playlist, error) {
+func (c *Client) Playlists() ([]*Playlist, error) {
 	if c.c == nil {
 		return nil, nil
 	}
@@ -241,10 +241,11 @@ func (c *Client) Playlists() ([]Playlist, error) {
 	if err != nil {
 		return nil, err
 	}
-	lists := make([]Playlist, len(raw))
+	lists := make([]*Playlist, len(raw))
 	for i, attrs := range raw {
+		// TODO the attrs contain "Last-Modified" … this could be useful to reduce the amount of update work
 		name := attrs["playlist"]
-		lists[i] = Playlist{c, name, nil}
+		lists[i] = &Playlist{c, name, nil}
 	}
 	return lists, nil
 }

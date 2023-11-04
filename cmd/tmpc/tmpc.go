@@ -35,7 +35,7 @@ type tmpc struct {
 	lyricsRepo      metadata.LyricsFetcher
 	mpd             *mpd.Client
 	playbackEnabled bool
-	playlists       []mpd.Playlist
+	playlists       []*mpd.Playlist
 	playlistsList   *ui.PlaylistList
 	playlistsUpdate chan bool
 	stateUpdate     chan bool
@@ -617,7 +617,8 @@ func (t *tmpc) updatePlaylists() {
 	var err error
 	t.playlists, err = t.mpd.Playlists()
 	if err != nil {
-		log.Println("MPD update playlistsList error:", err)
+		t.addError(fmt.Errorf("failed to update playlists: %w", err))
+		return
 	}
 
 	t.playlistsList.Update(t.playlists)
