@@ -243,6 +243,7 @@ func (c *Client) Playlists() ([]*Playlist, error) {
 	}
 	lists := make([]*Playlist, len(raw))
 	for i, attrs := range raw {
+		// TODO the attrs contain "Last-Modified" … this could be useful to reduce the amount of update work
 		name := attrs["playlist"]
 		lists[i] = &Playlist{c, name, nil}
 	}
