@@ -644,7 +644,7 @@ func (t *tmpc) updateState() {
 
 	s, err := t.mpd.Status()
 	if err != nil {
-		log.Println("MPD update state error:", err)
+		t.addError(fmt.Errorf("failed to get MPD status: %w", err))
 		return
 	}
 
@@ -663,7 +663,7 @@ func (t *tmpc) updateState() {
 	// TODO nur neu laden wenn nötig -> im tmpc cachen -> identifizierbar über die playlistID
 	songs, err := t.mpd.CurrentSongs()
 	if err != nil {
-		log.Println("MPD update state error:", err)
+		t.addError(fmt.Errorf("failed to get MPD queue: %w", err))
 	}
 	var song *mpd.Song
 	if len(songs) > 0 {
