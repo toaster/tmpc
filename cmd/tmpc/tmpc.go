@@ -72,8 +72,8 @@ func newTMPC() *tmpc {
 	player.search = ui.NewSearch(player.handleSearch, player.handleAddToQueue, player.handleInsertIntoQueue, player.handleReplaceQueue, player.handleAddToPlaylist, player.handleSongDetails, player.loadCover)
 
 	mainContent := container.NewAppTabs(
-		container.NewTabItemWithIcon("Queue", ui.QueueIcon, container.NewScroll(player.queue)),
-		container.NewTabItemWithIcon("Playlists", ui.ListIcon, container.NewScroll(player.playlistsList)),
+		container.NewTabItemWithIcon("Queue", ui.IconQueue, container.NewScroll(player.queue)),
+		container.NewTabItemWithIcon("Playlists", ui.IconList, container.NewScroll(player.playlistsList)),
 		container.NewTabItemWithIcon("Search", theme.SearchIcon(), player.search),
 		container.NewTabItemWithIcon("Information", theme.InfoIcon(), infoCont),
 	)
@@ -670,6 +670,6 @@ func (t *tmpc) updateState() {
 		song = songs[s.SongIdx]
 	}
 	t.status.UpdateSong(song, s.Elapsed, s.State == mpd.StatePlay)
-	t.loadCover(song, ui.AlbumIcon, t.status.UpdateCover)
+	t.loadCover(song, ui.IconAlbum, t.status.UpdateCover)
 	t.updateInfo(song)
 }

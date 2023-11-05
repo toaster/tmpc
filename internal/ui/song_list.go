@@ -162,7 +162,7 @@ func (l *SongList) appendAlbum(songs []*mpd.Song, songListSongs map[int]*songLis
 	for _, qs := range album.songs {
 		songListSongs[qs.song.ID] = qs
 	}
-	l.coverLoader(songs[0], AlbumIcon, album.UpdateCover)
+	l.coverLoader(songs[0], IconAlbum, album.UpdateCover)
 }
 
 func (l *SongList) dragSelection() {
