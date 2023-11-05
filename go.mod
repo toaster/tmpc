@@ -8,7 +8,7 @@ replace github.com/romantomjak/shoutcast => ../shoutcast
 
 require (
 	fyne.io/fyne/v2 v2.2.3
-	github.com/fhs/gompd v2.0.0+incompatible
+	github.com/fhs/gompd/v2 v2.3.0
 	github.com/hajimehoshi/go-mp3 v0.3.3
 	github.com/hajimehoshi/oto/v2 v2.3.0
 	github.com/romantomjak/shoutcast v1.1.0
@@ -20,7 +20,6 @@ require (
 require (
 	fyne.io/systray v1.10.1-0.20220621085403-9a2652634e93 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
-	github.com/fhs/gompd/v2 v2.0.3 // indirect
 	github.com/fredbi/uri v0.0.0-20181227131451-3dcfdacbaaf3 // indirect
 	github.com/fsnotify/fsnotify v1.5.4 // indirect
 	github.com/fyne-io/gl-js v0.0.0-20220119005834-d2da28d9ccfe // indirect

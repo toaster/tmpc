@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"strconv"
 
-	"github.com/fhs/gompd/mpd"
+	"github.com/fhs/gompd/v2/mpd"
 )
 
 /*
@@ -71,6 +71,13 @@ func (s *Song) DisplayTitle() string {
 	return s.Title
 }
 
+func parseAsYear(v string) (year int) {
+	if v != "" {
+		_, _ = fmt.Sscanf(v, "%d", &year)
+	}
+	return
+}
+
 func songsFromAttrs(attrs []mpd.Attrs) []*Song {
 	songs := make([]*Song, len(attrs))
 	for i, sAttrs := range attrs {
@@ -80,14 +87,9 @@ func songsFromAttrs(attrs []mpd.Attrs) []*Song {
 			time, _ = strconv.Atoi(sAttrs["duration"])
 		}
 		track, _ := strconv.Atoi(sAttrs["Track"])
-		var year int
-		if _, err := fmt.Sscanf(sAttrs["OriginalDate"], "%d", &year); err != nil {
-			fmt.Println("failed to scan OriginalDate:", err) // TODO: logging? return error?
-		}
+		year := parseAsYear(sAttrs["OriginalDate"])
 		if year == 0 {
-			if _, err := fmt.Sscanf(sAttrs["Date"], "%d", &year); err != nil {
-				fmt.Println("failed to scan Date:", err) // TODO: logging? return error?
-			}
+			year = parseAsYear(sAttrs["Date"])
 		}
 		songs[i] = &Song{
 			File:            sAttrs["file"],

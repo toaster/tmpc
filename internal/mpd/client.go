@@ -5,7 +5,7 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/fhs/gompd/mpd"
+	"github.com/fhs/gompd/v2/mpd"
 )
 
 // TODO: AlbumYear im Song
@@ -295,6 +295,7 @@ func (c *Client) Status() (*Status, error) {
 	if c.c == nil {
 		return &Status{}, nil
 	}
+
 	var attrs mpd.Attrs
 	err := c.retry(func() (err error) {
 		attrs, err = c.c.Status()
@@ -303,10 +304,9 @@ func (c *Client) Status() (*Status, error) {
 	if err != nil {
 		return nil, err
 	}
+
 	var elapsed int
-	if _, err = fmt.Sscanf(attrs["elapsed"], "%d", &elapsed); err != nil {
-		return nil, err
-	}
+	_, _ = fmt.Sscanf(attrs["elapsed"], "%d", &elapsed)
 	plID, _ := strconv.Atoi(attrs["playlist"])
 	sID, _ := strconv.Atoi(attrs["songid"])
 	sIdx, _ := strconv.Atoi(attrs["song"])

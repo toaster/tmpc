@@ -113,26 +113,20 @@ func (t *tmpc) Run() {
 	go func() {
 		for {
 			<-t.stateUpdate
-			log.Println("UPDATE: state")
 			t.updateState()
-			log.Println("UPDATE done: state")
 		}
 	}()
 	go func() {
 		for {
 			<-t.queueUpdate
-			log.Println("UPDATE: queue")
 			t.updateQueue()
-			log.Println("UPDATE done: queue")
 			t.stateUpdate <- true
 		}
 	}()
 	go func() {
 		for {
 			<-t.playlistsUpdate
-			log.Println("UPDATE: playlistsList")
 			t.updatePlaylists()
-			log.Println("UPDATE: playlistsList")
 		}
 	}()
 	t.win.ShowAndRun()
@@ -140,7 +134,6 @@ func (t *tmpc) Run() {
 
 // Update is a callback for the MPD watchdog and handles state updates.
 func (t *tmpc) Update(subsystem string) {
-	log.Println("UPDATE received:", subsystem)
 	switch subsystem {
 	case "player":
 		t.stateUpdate <- true
@@ -149,7 +142,6 @@ func (t *tmpc) Update(subsystem string) {
 	case "stored_playlist":
 		t.playlistsUpdate <- true
 	}
-	log.Println("UPDATE enqueued:", subsystem)
 }
 
 func (t *tmpc) applySettings(connect bool) {
@@ -644,7 +636,7 @@ func (t *tmpc) updateState() {
 
 	s, err := t.mpd.Status()
 	if err != nil {
-		log.Println("MPD update state error:", err)
+		t.addError(fmt.Errorf("failed to get MPD status: %w", err))
 		return
 	}
 
@@ -663,7 +655,7 @@ func (t *tmpc) updateState() {
 	// TODO nur neu laden wenn nötig -> im tmpc cachen -> identifizierbar über die playlistID
 	songs, err := t.mpd.CurrentSongs()
 	if err != nil {
-		log.Println("MPD update state error:", err)
+		t.addError(fmt.Errorf("failed to get MPD queue: %w", err))
 	}
 	var song *mpd.Song
 	if len(songs) > 0 {
