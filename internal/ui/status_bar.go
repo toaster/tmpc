@@ -50,8 +50,8 @@ func (b *StatusBar) CreateRenderer() fyne.WidgetRenderer {
 		r.b.playbackEnabled = r.b.onPlaybackClick()
 		r.Refresh()
 	}
-	r.playbackButton = newIconButton(HeadphonesIcon, callback)
-	r.playbackButtonDisabled = newIconButton(theme.NewDisabledResource(HeadphonesIcon), callback)
+	r.playbackButton = newIconButton(iconHeadphones, callback)
+	r.playbackButtonDisabled = newIconButton(theme.NewDisabledResource(iconHeadphones), callback)
 	r.playbackButton.iconSize = fyne.NewSize(statusBarIconSize, statusBarIconSize)
 	r.playbackButtonDisabled.iconSize = fyne.NewSize(statusBarIconSize, statusBarIconSize)
 	r.playbackButton.pad = false
@@ -110,27 +110,27 @@ func (r *statusBarRenderer) updateIcons() {
 		r.box.Add(r.playbackButtonDisabled)
 	}
 	if r.b.playing {
-		icon := canvas.NewImageFromResource(MusicIcon)
+		icon := canvas.NewImageFromResource(iconMusic)
 		icon.SetMinSize(fyne.NewSize(statusBarIconSize, statusBarIconSize))
 		r.box.Add(icon)
 	} else {
-		button := newIconButton(NoMusicIcon, r.b.onPlaybackConnectClick)
+		button := newIconButton(iconNoMusic, r.b.onPlaybackConnectClick)
 		button.iconSize = fyne.NewSize(statusBarIconSize, statusBarIconSize)
 		button.pad = false
 		r.box.Add(button)
 	}
 	if r.b.connected {
-		icon := canvas.NewImageFromResource(PluggedIcon)
+		icon := canvas.NewImageFromResource(iconPlugged)
 		icon.SetMinSize(fyne.NewSize(statusBarIconSize, statusBarIconSize))
 		r.box.Add(icon)
 	} else {
-		button := newIconButton(UnpluggedIcon, r.b.onConnectClick)
+		button := newIconButton(iconUnplugged, r.b.onConnectClick)
 		button.iconSize = fyne.NewSize(statusBarIconSize, statusBarIconSize)
 		button.pad = false
 		r.box.Add(button)
 	}
 	if r.b.errorCount > 0 {
-		button := newIconButton(ErrorIcon, r.b.onErrorsClick)
+		button := newIconButton(iconError, r.b.onErrorsClick)
 		button.iconSize = fyne.NewSize(statusBarIconSize, statusBarIconSize)
 		button.pad = false
 		button.UpdateBadgeCount(r.b.errorCount)
