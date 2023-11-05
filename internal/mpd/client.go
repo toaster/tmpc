@@ -5,7 +5,7 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/fhs/gompd/mpd"
+	"github.com/fhs/gompd/v2/mpd"
 )
 
 // TODO: AlbumYear im Song

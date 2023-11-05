@@ -48,11 +48,9 @@ fyne.io/systray/internal/generated/notifier
 # github.com/davecgh/go-spew v1.1.1
 ## explicit
 github.com/davecgh/go-spew/spew
-# github.com/fhs/gompd v2.0.0+incompatible => ../gompd
+# github.com/fhs/gompd/v2 v2.3.0
 ## explicit; go 1.11
-github.com/fhs/gompd/mpd
-# github.com/fhs/gompd/v2 v2.0.3
-## explicit
+github.com/fhs/gompd/v2/mpd
 # github.com/fredbi/uri v0.0.0-20181227131451-3dcfdacbaaf3
 ## explicit
 github.com/fredbi/uri

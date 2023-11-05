@@ -7,33 +7,42 @@
 package mpd
 
 import (
+	"errors"
 	"fmt"
+	"io"
 	"net/textproto"
 	"strconv"
 	"strings"
 	"time"
 )
 
-// Quote quotes strings in the format understood by MPD.
-// See: http://git.musicpd.org/cgit/master/mpd.git/tree/src/util/Tokenizer.cxx
+// Quote quotes string VALUES in the format understood by MPD.
+// See: https://github.com/MusicPlayerDaemon/MPD/blob/master/src/util/Tokenizer.cxx
+// NB: this function shouldn't be used on the PROTOCOL LEVEL because it considers single quotes special chars and
+// escapes them.
 func quote(s string) string {
-	q := make([]byte, 2+2*len(s))
-	i := 0
-	q[i], i = '"', i+1
+	// TODO: We are using strings.Builder even tough it's not ideal.
+	// When unsafe.{String,Slice}{,Data} is available, we should use buffer+unsafe.
+	//  q := make([]byte, 2+2*len(s))
+	//  return unsafe.String(unsafe.SliceData(q), len(q))
+	// [issue53003]: https://github.com/golang/go/issues/53003
+	var q strings.Builder
+	q.Grow(2 + 2*len(s))
+	q.WriteByte('"')
 	for _, c := range []byte(s) {
-		if c == '"' {
-			q[i], i = '\\', i+1
-			q[i], i = '"', i+1
-		} else {
-			q[i], i = c, i+1
+		// We need to escape single/double quotes and a backslash by prepending them with a '\'
+		switch c {
+		case '"', '\\', '\'':
+			q.WriteByte('\\')
 		}
+		q.WriteByte(c)
 	}
-	q[i], i = '"', i+1
-	return string(q[:i])
+	q.WriteByte('"')
+	return q.String()
 }
 
 // Quote quotes each string of args in the format understood by MPD.
-// See: http://git.musicpd.org/cgit/master/mpd.git/tree/src/util/Tokenizer.cxx
+// See: https://github.com/MusicPlayerDaemon/MPD/blob/master/src/util/Tokenizer.cxx
 func quoteArgs(args []string) string {
 	quoted := make([]string, len(args))
 	for index, arg := range args {
@@ -215,6 +224,24 @@ func (c *Client) readLine() (string, error) {
 	return line, nil
 }
 
+func (c *Client) readBytes(length int) ([]byte, error) {
+	// Read the entire chunk of data. ReadFull() makes sure the data length matches the expectation
+	data := make([]byte, length)
+	if _, err := io.ReadFull(c.text.R, data); err != nil {
+		return nil, err
+	}
+
+	// Verify there's a linebreak afterwards and skip it
+	termByte, err := c.text.R.ReadByte()
+	if err != nil {
+		return nil, textproto.ProtocolError("failed to read binary data terminator: " + err.Error())
+	}
+	if termByte != '\n' {
+		return nil, textproto.ProtocolError(fmt.Sprintf("wrong binary data terminator: want 0x0a, got %x", termByte))
+	}
+	return data, nil
+}
+
 func (c *Client) readAttrsList(startKey string) (attrs []Attrs, err error) {
 	attrs = []Attrs{}
 	startKey += ": "
@@ -259,6 +286,53 @@ func (c *Client) readAttrs(terminator string) (attrs Attrs, err error) {
 		attrs[key] = line[z+2:]
 	}
 	return
+}
+
+func (c *Client) readBinary() ([]byte, int, error) {
+	size := -1
+	for {
+		line, err := c.readLine()
+		switch {
+		case err != nil:
+			return nil, 0, err
+
+		// Check for the size key
+		case strings.HasPrefix(line, "size: "):
+			if size, err = strconv.Atoi(line[6:]); err != nil {
+				return nil, 0, textproto.ProtocolError("failed to parse size: " + err.Error())
+			}
+
+		// Check for the binary key
+		case strings.HasPrefix(line, "binary: "):
+			length := -1
+			if length, err = strconv.Atoi(line[8:]); err != nil {
+				return nil, 0, textproto.ProtocolError("failed to parse binary: " + err.Error())
+			}
+
+			// If no size is given, assume it's equal to the provided data's length
+			if size < 0 {
+				size = length
+			}
+
+			// The binary data must follow the 'binary:' key
+			data, err := c.readBytes(length)
+			if err != nil {
+				return nil, 0, err
+			}
+
+			// The binary data must be followed by the "OK" line
+			if s, err := c.readLine(); err != nil {
+				return nil, 0, err
+			} else if s != "OK" {
+				return nil, 0, textproto.ProtocolError("expected 'OK', got " + s)
+			}
+			return data, size, nil
+
+		// No more data. Obviously, no binary data encountered
+		case line == "", line == "OK":
+			return nil, 0, textproto.ProtocolError("no binary data found in response")
+		}
+	}
 }
 
 // CurrentSong returns information about the current song in the playlist.
@@ -436,7 +510,7 @@ func (c *Client) PlaylistInfo(start, end int) ([]Attrs, error) {
 		// Request the single playlist item at this position.
 		cmd = c.Command("playlistinfo %d", start)
 	case start < 0 && end >= 0:
-		return nil, fmt.Errorf("negative start index")
+		return nil, errors.New("negative start index")
 	default:
 		panic("unreachable")
 	}
@@ -450,7 +524,7 @@ func (c *Client) PlaylistInfo(start, end int) ([]Attrs, error) {
 func (c *Client) SetPriority(priority, start, end int) error {
 	switch {
 	case start < 0 && end < 0:
-		return fmt.Errorf("negative start and end index")
+		return errors.New("negative start and end index")
 	case start >= 0 && end >= 0:
 		// Update the prio for this range of playlist items.
 		return c.Command("prio %d %d:%d", priority, start, end).OK()
@@ -458,7 +532,7 @@ func (c *Client) SetPriority(priority, start, end int) error {
 		// Update the prio for a single playlist item at this position.
 		return c.Command("prio %d %d", priority, start).OK()
 	case start < 0 && end >= 0:
-		return fmt.Errorf("negative start index")
+		return errors.New("negative start index")
 	default:
 		panic("unreachable")
 	}
@@ -474,7 +548,7 @@ func (c *Client) SetPriorityID(priority, id int) error {
 // it deletes the song at position start.
 func (c *Client) Delete(start, end int) error {
 	if start < 0 {
-		return fmt.Errorf("negative start index")
+		return errors.New("negative start index")
 	}
 	if end < 0 {
 		return c.Command("delete %d", start).OK()
@@ -491,7 +565,7 @@ func (c *Client) DeleteID(id int) error {
 // position. If end is negative, only the song at position start is moved.
 func (c *Client) Move(start, end, position int) error {
 	if start < 0 {
-		return fmt.Errorf("negative start index")
+		return errors.New("negative start index")
 	}
 	if end < 0 {
 		return c.Command("move %d %d", start, position).OK()
@@ -559,6 +633,33 @@ func (c *Client) GetFiles() ([]string, error) {
 // The returned jobID identifies the update job, enqueued by MPD.
 func (c *Client) Update(uri string) (jobID int, err error) {
 	id, err := c.cmd("update %s", quote(uri))
+	if err != nil {
+		return
+	}
+	c.text.StartResponse(id)
+	defer c.text.EndResponse(id)
+
+	line, err := c.readLine()
+	if err != nil {
+		return
+	}
+	if !strings.HasPrefix(line, "updating_db: ") {
+		return 0, textproto.ProtocolError("unexpected response: " + line)
+	}
+	jobID, err = strconv.Atoi(line[13:])
+	if err != nil {
+		return
+	}
+	return jobID, c.readOKLine("OK")
+}
+
+// Rescan updates MPD's database like Update, but it also rescans unmodified
+// files. uri is a particular directory or file to update. If it is an empty
+// string, everything is updated.
+//
+// The returned jobID identifies the update job, enqueued by MPD.
+func (c *Client) Rescan(uri string) (jobID int, err error) {
+	id, err := c.cmd("rescan %s", quote(uri))
 	if err != nil {
 		return
 	}
@@ -698,6 +799,33 @@ func (c *Client) List(args ...string) ([]string, error) {
 		}
 	}
 	return ret, nil
+}
+
+// Partition commands
+
+// Partition switches the client to a different partition.
+func (c *Client) Partition(name string) error {
+	return c.Command("partition %s", name).OK()
+}
+
+// ListPartitions returns a list of partitions and their information.
+func (c *Client) ListPartitions() ([]Attrs, error) {
+	return c.Command("listpartitions").AttrsList("partition")
+}
+
+// NewPartition creates a new partition with the given name.
+func (c *Client) NewPartition(name string) error {
+	return c.Command("newpartition %s", name).OK()
+}
+
+// DelPartition deletes partition with the given name.
+func (c *Client) DelPartition(name string) error {
+	return c.Command("delpartition %s", name).OK()
+}
+
+// MoveOutput moves an output with the given name to the current partition.
+func (c *Client) MoveOutput(name string) error {
+	return c.Command("moveoutput %s", name).OK()
 }
 
 // Output related commands.
@@ -875,4 +1003,46 @@ func (c *Client) StickerList(uri string) ([]Sticker, error) {
 // StickerSet sets sticker value for the song with given URI.
 func (c *Client) StickerSet(uri string, name string, value string) error {
 	return c.Command("sticker set song %s %s %s", uri, name, value).OK()
+}
+
+// AlbumArt retrieves an album artwork image for a song with the given URI using MPD's albumart command.
+func (c *Client) AlbumArt(uri string) ([]byte, error) {
+	offset := 0
+	var data []byte
+	for {
+		// Read the data in chunks
+		chunk, size, err := c.Command("albumart %s %d", uri, offset).Binary()
+		if err != nil {
+			return nil, err
+		}
+
+		// Accumulate the data
+		data = append(data, chunk...)
+		offset = len(data)
+		if offset >= size {
+			break
+		}
+	}
+	return data, nil
+}
+
+// ReadPicture retrieves the embedded album artwork image for a song with the given URI using MPD's readpicture command.
+func (c *Client) ReadPicture(uri string) ([]byte, error) {
+	offset := 0
+	var data []byte
+	for {
+		// Read the data in chunks
+		chunk, size, err := c.Command("readpicture %s %d", uri, offset).Binary()
+		if err != nil {
+			return nil, err
+		}
+
+		// Accumulate the data
+		data = append(data, chunk...)
+		offset = len(data)
+		if offset >= size {
+			break
+		}
+	}
+	return data, nil
 }

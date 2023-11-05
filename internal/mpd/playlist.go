@@ -1,6 +1,6 @@
 package mpd
 
-import "github.com/fhs/gompd/mpd"
+import "github.com/fhs/gompd/v2/mpd"
 
 /*
 Notes on MPD data:
