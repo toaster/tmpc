@@ -11,7 +11,6 @@ import (
 	"github.com/toaster/tmpc/internal/metadata/cascade"
 	"github.com/toaster/tmpc/internal/metadata/discogs"
 	"github.com/toaster/tmpc/internal/metadata/genius"
-	"github.com/toaster/tmpc/internal/metadata/happidev"
 	"github.com/toaster/tmpc/internal/mpd"
 	"github.com/toaster/tmpc/internal/shoutcast"
 	"github.com/toaster/tmpc/internal/ui"
@@ -158,7 +157,6 @@ func (t *tmpc) applySettings(connect bool) {
 	t.shoutcast = shoutcast.NewClient(t.fyne.Preferences().String("shoutcastURL"), t.addError)
 	t.lyricsRepo = cache.NewFSLyrics(
 		cascade.NewLyrics([]metadata.LyricsFetcher{
-			happidev.NewLyrics(t.fyne.Preferences().String("happiDevAPIKey")),
 			genius.NewLyrics(t.fyne.Preferences().String("geniusAccessToken")),
 		}),
 	)
@@ -530,8 +528,6 @@ func (t *tmpc) showSettings() {
 		t.makePrefsEntry("shoutcastURL", "http://mpd.example.com:8000"),
 		widget.NewLabelWithStyle("genius access token", fyne.TextAlignTrailing, fyne.TextStyle{Bold: true}),
 		t.makePrefsSecretEntry("geniusAccessToken", "top secret Genius access token"),
-		widget.NewLabelWithStyle("happi.dev API key", fyne.TextAlignTrailing, fyne.TextStyle{Bold: true}),
-		t.makePrefsSecretEntry("happiDevAPIKey", "top secret happi.dev key"),
 		widget.NewLabelWithStyle("Discogs API key", fyne.TextAlignTrailing, fyne.TextStyle{Bold: true}),
 		t.makePrefsEntry("discogsAPIKey", "key"),
 		widget.NewLabelWithStyle("Discogs API secret", fyne.TextAlignTrailing, fyne.TextStyle{Bold: true}),
