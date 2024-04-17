@@ -137,8 +137,8 @@ func (l *Lyrics) gatherSongInfo(song *mpd.Song) (info *song, err error) {
 
 func (l *Lyrics) gatherTrackID(artistID int, title string) (int, error) {
 	page := 1
-	simplifiedTitleEN := metadata.ReducedTitle(title, "en")
-	simplifiedTitleDE := metadata.ReducedTitle(title, "de")
+	simplifiedTitleEN := metadata.ReducedTitle(title, metadata.LanguageEN)
+	simplifiedTitleDE := metadata.ReducedTitle(title, metadata.LanguageDE)
 	simplifiedDEMatch := 0
 	simplifiedENMatch := 0
 	for {
