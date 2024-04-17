@@ -137,6 +137,10 @@ func (l *Lyrics) gatherSongInfo(song *mpd.Song) (info *song, err error) {
 
 func (l *Lyrics) gatherTrackID(artistID int, title string) (int, error) {
 	page := 1
+	simplifiedTitleEN := metadata.ReducedTitle(title, "en")
+	simplifiedTitleDE := metadata.ReducedTitle(title, "de")
+	simplifiedDEMatch := 0
+	simplifiedENMatch := 0
 	for {
 		result := songsResult{}
 		err := util.HTTPGetJSON(
@@ -154,9 +158,21 @@ func (l *Lyrics) gatherTrackID(artistID int, title string) (int, error) {
 			if strings.EqualFold(s.Title, title) {
 				return s.ID, nil
 			}
+			if simplifiedDEMatch == 0 && strings.EqualFold(s.Title, simplifiedTitleDE) {
+				simplifiedDEMatch = s.ID
+			}
+			if simplifiedENMatch == 0 && strings.EqualFold(s.Title, simplifiedTitleEN) {
+				simplifiedENMatch = s.ID
+			}
 		}
 		page = result.Response.NextPage
 		if page == 0 {
+			if simplifiedENMatch != 0 {
+				return simplifiedENMatch, nil
+			}
+			if simplifiedDEMatch != 0 {
+				return simplifiedDEMatch, nil
+			}
 			return 0, fmt.Errorf("could not find song “%s” for artist ID “%d”", title, artistID)
 		}
 	}
