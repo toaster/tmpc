@@ -134,8 +134,8 @@ github.com/srwiley/oksvg
 # github.com/srwiley/rasterx v0.0.0-20200120212402-85cb7272f5e9
 ## explicit
 github.com/srwiley/rasterx
-# github.com/stretchr/testify v1.7.2
-## explicit; go 1.13
+# github.com/stretchr/testify v1.9.0
+## explicit; go 1.17
 github.com/stretchr/testify/assert
 github.com/stretchr/testify/require
 # github.com/tevino/abool v1.2.0
@@ -161,19 +161,19 @@ golang.org/x/image/vector
 # golang.org/x/mobile v0.0.0-20211207041440-4e6c2922fdee
 ## explicit; go 1.16
 golang.org/x/mobile/exp/f32
-# golang.org/x/net v0.17.0
-## explicit; go 1.17
+# golang.org/x/net v0.24.0
+## explicit; go 1.18
 golang.org/x/net/html
 golang.org/x/net/html/atom
 golang.org/x/net/html/charset
-# golang.org/x/sys v0.18.0
+# golang.org/x/sys v0.19.0
 ## explicit; go 1.18
 golang.org/x/sys/execabs
 golang.org/x/sys/unix
 golang.org/x/sys/windows
 golang.org/x/sys/windows/registry
-# golang.org/x/text v0.13.0
-## explicit; go 1.17
+# golang.org/x/text v0.14.0
+## explicit; go 1.18
 golang.org/x/text/cases
 golang.org/x/text/encoding
 golang.org/x/text/encoding/charmap
