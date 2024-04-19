@@ -2,8 +2,6 @@ module github.com/toaster/tmpc
 
 go 1.18
 
-replace github.com/fhs/gompd => ../gompd
-
 require (
 	fyne.io/fyne/v2 v2.2.3
 	github.com/fhs/gompd/v2 v2.3.0
