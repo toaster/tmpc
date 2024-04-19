@@ -96,15 +96,30 @@ func (l *Lyrics) gatherSongInfo(song *mpd.Song) (info *song, err error) {
 	if trackID == 0 {
 		artistID := l.artistIDsByMBArtistIDs[song.MBArtistID]
 		if artistID == 0 {
-			artistID, err = l.searchArtist(song.Artist)
+			artistID, trackID, err = l.searchSong(song)
 			if err != nil {
+				return
+			}
+
+			if artistID == 0 {
+				artistID, err = l.searchArtist(song.Artist)
+				if err != nil {
+					return
+				}
+			}
+
+			if artistID == 0 {
+				err = fmt.Errorf("failed to determine artist “%s” for song “%s” on Genius", song.Artist, song.Title)
 				return
 			}
 			l.artistIDsByMBArtistIDs[song.MBArtistID] = artistID
 		}
-		trackID, err = l.gatherTrackID(artistID, song.Title)
-		if err != nil {
-			return
+
+		if trackID == 0 {
+			trackID, err = l.gatherTrackID(artistID, song.Title)
+			if err != nil {
+				return
+			}
 		}
 	}
 
@@ -122,6 +137,11 @@ func (l *Lyrics) gatherSongInfo(song *mpd.Song) (info *song, err error) {
 
 func (l *Lyrics) gatherTrackID(artistID int, title string) (int, error) {
 	page := 1
+	simplifiedTitles := map[metadata.Language]string{}
+	for _, language := range metadata.Languages {
+		simplifiedTitles[language] = metadata.ReducedTitle(title, language)
+	}
+	simplifiedMatches := map[metadata.Language]int{}
 	for {
 		result := songsResult{}
 		err := util.HTTPGetJSON(
@@ -139,9 +159,19 @@ func (l *Lyrics) gatherTrackID(artistID int, title string) (int, error) {
 			if strings.EqualFold(s.Title, title) {
 				return s.ID, nil
 			}
+			for _, language := range metadata.Languages {
+				if simplifiedMatches[language] == 0 && strings.EqualFold(s.Title, simplifiedTitles[language]) {
+					simplifiedMatches[language] = s.ID
+				}
+			}
 		}
 		page = result.Response.NextPage
 		if page == 0 {
+			for _, language := range metadata.Languages {
+				if simplifiedMatches[language] != 0 {
+					return simplifiedMatches[language], nil
+				}
+			}
 			return 0, fmt.Errorf("could not find song “%s” for artist ID “%d”", title, artistID)
 		}
 	}
@@ -157,7 +187,7 @@ func (l *Lyrics) searchArtist(artist string) (int, error) {
 		return 0, err
 	}
 	if result.Meta.Status != http.StatusOK {
-		return 0, fmt.Errorf("searching for song failed: %d - %s", result.Meta.Status, result.Meta.Message)
+		return 0, fmt.Errorf("searching for artist failed: %d - %s", result.Meta.Status, result.Meta.Message)
 	}
 
 	for _, hit := range result.Response.Hits {
@@ -166,7 +196,35 @@ func (l *Lyrics) searchArtist(artist string) (int, error) {
 		}
 	}
 
-	return 0, fmt.Errorf("could not find “%s” in: %v", artist, result.Response.Hits)
+	// TODO: Logging
+	// return 0, fmt.Errorf("could not find “%s” in: %v", artist, result.Response.Hits)
+	return 0, nil
+}
+
+func (l *Lyrics) searchSong(song *mpd.Song) (artistID int, trackID int, err error) {
+	result := searchResult{}
+	err = util.HTTPGetJSON(
+		l.uri("search", fmt.Sprintf("q=%s", url.QueryEscape(fmt.Sprintf(`"%s" "%s"`, song.Artist, song.Title)))),
+		&result,
+	)
+	if err != nil {
+		return
+	}
+	if result.Meta.Status != 200 {
+		err = fmt.Errorf("searching for song failed: %d - %s", result.Meta.Status, result.Meta.Message)
+		return
+	}
+
+	for _, hit := range result.Response.Hits {
+		if strings.ToLower(hit.Result.PrimaryArtist.Name) == strings.ToLower(song.Artist) &&
+			strings.ToLower(hit.Result.Title) == strings.ToLower(song.Title) {
+			return hit.Result.PrimaryArtist.ID, hit.Result.ID, nil
+		}
+	}
+
+	// TODO: Logging
+	// err = fmt.Errorf("could not find “%s” of “%s” in: %v", song.Title, song.Artist, result.Response.Hits)
+	return
 }
 
 func (l *Lyrics) uri(path, query string) string {

@@ -62,7 +62,7 @@ func (c *Cover) LoadCover(song *mpd.Song) (fyne.Resource, error) {
 }
 
 func (*Cover) cleanupCoverArg(s string) string {
-	return coverArgReplacer.Replace(s)
+	return strings.ToLower(coverArgReplacer.Replace(s))
 }
 
 func (c *Cover) fetchCoverFromDiscogs(artist, album string) (io.ReadCloser, error) {
