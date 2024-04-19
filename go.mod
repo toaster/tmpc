@@ -4,14 +4,12 @@ go 1.18
 
 replace github.com/fhs/gompd => ../gompd
 
-replace github.com/romantomjak/shoutcast => ../shoutcast
-
 require (
 	fyne.io/fyne/v2 v2.2.3
 	github.com/fhs/gompd/v2 v2.3.0
 	github.com/hajimehoshi/go-mp3 v0.3.3
 	github.com/hajimehoshi/oto/v2 v2.3.0
-	github.com/romantomjak/shoutcast v1.1.0
+	github.com/romantomjak/shoutcast v1.2.0
 	github.com/stretchr/testify v1.7.2
 	golang.org/x/net v0.17.0
 	golang.org/x/text v0.13.0

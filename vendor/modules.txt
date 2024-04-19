@@ -118,8 +118,8 @@ github.com/jsummers/gobmp
 # github.com/pmezard/go-difflib v1.0.0
 ## explicit
 github.com/pmezard/go-difflib/difflib
-# github.com/romantomjak/shoutcast v1.1.0 => ../shoutcast
-## explicit; go 1.12
+# github.com/romantomjak/shoutcast v1.2.0
+## explicit
 github.com/romantomjak/shoutcast
 # github.com/srwiley/oksvg v0.0.0-20200311192757-870daf9aa564
 ## explicit
@@ -194,4 +194,3 @@ gopkg.in/yaml.v3
 ## explicit
 honnef.co/go/js/dom
 # github.com/fhs/gompd => ../gompd
-# github.com/romantomjak/shoutcast => ../shoutcast
