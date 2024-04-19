@@ -10,22 +10,24 @@ import (
 
 // Client is a ShoutCast client.
 type Client struct {
-	context *oto.Context
-	decoder *mp3.Decoder
-	onError func(error)
-	player  *oto.Player
-	stop    chan bool
-	stream  *shoutcast.Stream
-	url     string
+	bufferLength time.Duration
+	context      *oto.Context
+	decoder      *mp3.Decoder
+	onError      func(error)
+	player       *oto.Player
+	stop         chan bool
+	stream       *shoutcast.Stream
+	url          string
 }
 
 // NewClient creates a new Client for a URL.
 // `onError` is a function which receives all occurring errors.
-func NewClient(url string, onError func(error)) *Client {
+func NewClient(url string, onError func(error), bufferLength time.Duration) *Client {
 	return &Client{
-		onError: onError,
-		stop:    make(chan bool),
-		url:     url,
+		bufferLength: bufferLength,
+		onError:      onError,
+		stop:         make(chan bool),
+		url:          url,
 	}
 }
 
@@ -53,7 +55,12 @@ func (c *Client) Play() error {
 	}
 
 	var ready chan struct{}
-	c.context, ready, err = oto.NewContext(&oto.NewContextOptions{SampleRate: c.decoder.SampleRate(), ChannelCount: 2, Format: oto.FormatSignedInt16LE})
+	c.context, ready, err = oto.NewContext(&oto.NewContextOptions{
+		BufferSize:   c.bufferLength,
+		ChannelCount: 2,
+		Format:       oto.FormatSignedInt16LE,
+		SampleRate:   c.decoder.SampleRate(),
+	})
 	if err != nil {
 		_ = c.stream.Close()
 		return err

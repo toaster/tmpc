@@ -154,7 +154,7 @@ func (t *tmpc) applySettings(connect bool) {
 		t.Update,
 		t.addError,
 	)
-	t.shoutcast = shoutcast.NewClient(t.fyne.Preferences().String("shoutcastURL"), t.addError)
+	t.shoutcast = shoutcast.NewClient(t.fyne.Preferences().String("shoutcastURL"), t.addError, 0)
 	t.lyricsRepo = cache.NewFSLyrics(
 		cascade.NewLyrics([]metadata.LyricsFetcher{
 			genius.NewLyrics(t.fyne.Preferences().String("geniusAccessToken")),
