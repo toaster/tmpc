@@ -4,9 +4,9 @@ go 1.18
 
 require (
 	fyne.io/fyne/v2 v2.2.3
+	github.com/ebitengine/oto/v3 v3.2.0
 	github.com/fhs/gompd/v2 v2.3.0
-	github.com/hajimehoshi/go-mp3 v0.3.3
-	github.com/hajimehoshi/oto/v2 v2.3.0
+	github.com/hajimehoshi/go-mp3 v0.3.4
 	github.com/romantomjak/shoutcast v1.2.0
 	github.com/stretchr/testify v1.7.2
 	golang.org/x/net v0.17.0
@@ -16,6 +16,7 @@ require (
 require (
 	fyne.io/systray v1.10.1-0.20220621085403-9a2652634e93 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
+	github.com/ebitengine/purego v0.7.0 // indirect
 	github.com/fredbi/uri v0.0.0-20181227131451-3dcfdacbaaf3 // indirect
 	github.com/fsnotify/fsnotify v1.5.4 // indirect
 	github.com/fyne-io/gl-js v0.0.0-20220119005834-d2da28d9ccfe // indirect
@@ -34,7 +35,7 @@ require (
 	github.com/yuin/goldmark v1.4.0 // indirect
 	golang.org/x/image v0.13.0 // indirect
 	golang.org/x/mobile v0.0.0-20211207041440-4e6c2922fdee // indirect
-	golang.org/x/sys v0.13.0 // indirect
+	golang.org/x/sys v0.18.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 	honnef.co/go/js/dom v0.0.0-20210725211120-f030747120f2 // indirect
 )

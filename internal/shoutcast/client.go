@@ -3,8 +3,8 @@ package shoutcast
 import (
 	"time"
 
+	"github.com/ebitengine/oto/v3"
 	"github.com/hajimehoshi/go-mp3"
-	"github.com/hajimehoshi/oto/v2"
 	"github.com/romantomjak/shoutcast"
 )
 
@@ -13,7 +13,7 @@ type Client struct {
 	context *oto.Context
 	decoder *mp3.Decoder
 	onError func(error)
-	player  oto.Player
+	player  *oto.Player
 	stop    chan bool
 	stream  *shoutcast.Stream
 	url     string
@@ -53,7 +53,7 @@ func (c *Client) Play() error {
 	}
 
 	var ready chan struct{}
-	c.context, ready, err = oto.NewContext(c.decoder.SampleRate(), 2, 2)
+	c.context, ready, err = oto.NewContext(&oto.NewContextOptions{SampleRate: c.decoder.SampleRate(), ChannelCount: 2, Format: oto.FormatSignedInt16LE})
 	if err != nil {
 		_ = c.stream.Close()
 		return err
