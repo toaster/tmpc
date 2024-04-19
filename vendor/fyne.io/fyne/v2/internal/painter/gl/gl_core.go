@@ -6,7 +6,7 @@ package gl
 import (
 	"strings"
 
-	"github.com/go-gl/gl/v3.2-core/gl"
+	"github.com/go-gl/gl/v2.1/gl"
 
 	"fyne.io/fyne/v2"
 )
@@ -73,6 +73,8 @@ func (p *painter) Init() {
 	p.logError()
 	p.program = p.createProgram("simple")
 	p.lineProgram = p.createProgram("line")
+	p.rectangleProgram = p.createProgram("rectangle")
+	p.roundRectangleProgram = p.createProgram("round_rectangle")
 }
 
 type coreContext struct{}
@@ -246,6 +248,10 @@ func (c *coreContext) TexParameteri(target, param uint32, value int32) {
 
 func (c *coreContext) Uniform1f(uniform Uniform, v float32) {
 	gl.Uniform1f(int32(uniform), v)
+}
+
+func (c *coreContext) Uniform2f(uniform Uniform, v0, v1 float32) {
+	gl.Uniform2f(int32(uniform), v0, v1)
 }
 
 func (c *coreContext) Uniform4f(uniform Uniform, v0, v1, v2, v3 float32) {

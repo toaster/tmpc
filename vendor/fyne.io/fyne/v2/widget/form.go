@@ -2,6 +2,7 @@ package widget
 
 import (
 	"errors"
+	"reflect"
 
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/canvas"
@@ -89,6 +90,7 @@ func (f *Form) MinSize() fyne.Size {
 
 // Refresh updates the widget state when requested.
 func (f *Form) Refresh() {
+	f.ExtendBaseWidget(f)
 	cache.Renderer(f.super()) // we are about to make changes to renderer created content... not great!
 	f.ensureRenderItems()
 	f.updateButtons()
@@ -148,17 +150,30 @@ func (f *Form) createInput(item *FormItem) fyne.CanvasObject {
 		if !ok {
 			return item.Widget
 		}
-		if e, ok := item.Widget.(*Entry); ok && e.Validator == nil { // we don't have validation
+		if !f.itemWidgetHasValidator(item.Widget) { // we don't have validation
 			return item.Widget
 		}
 	}
 
 	text := canvas.NewText(item.HintText, theme.PlaceHolderColor())
 	text.TextSize = theme.CaptionTextSize()
-	text.Move(fyne.NewPos(theme.Padding()*2, theme.Padding()*-0.5))
 	item.helperOutput = text
 	f.updateHelperText(item)
-	return fyne.NewContainerWithLayout(layout.NewVBoxLayout(), item.Widget, fyne.NewContainerWithoutLayout(text))
+	textContainer := &fyne.Container{Objects: []fyne.CanvasObject{text}}
+	return &fyne.Container{Layout: formItemLayout{}, Objects: []fyne.CanvasObject{item.Widget, textContainer}}
+}
+
+func (f *Form) itemWidgetHasValidator(w fyne.CanvasObject) bool {
+	value := reflect.ValueOf(w).Elem()
+	validatorField := value.FieldByName("Validator")
+	if validatorField == (reflect.Value{}) {
+		return false
+	}
+	validator, ok := validatorField.Interface().(fyne.StringValidator)
+	if !ok {
+		return false
+	}
+	return validator != nil
 }
 
 func (f *Form) createLabel(text string) *canvas.Text {
@@ -338,7 +353,8 @@ func (f *Form) CreateRenderer() fyne.WidgetRenderer {
 	f.validationError = errFormItemInitialState // set initial state error to guarantee next error (if triggers) is always different
 
 	f.itemGrid = &fyne.Container{Layout: layout.NewFormLayout()}
-	renderer := NewSimpleRenderer(fyne.NewContainerWithLayout(layout.NewVBoxLayout(), f.itemGrid, f.buttonBox))
+	content := &fyne.Container{Layout: layout.NewVBoxLayout(), Objects: []fyne.CanvasObject{f.itemGrid, f.buttonBox}}
+	renderer := NewSimpleRenderer(content)
 	f.ensureRenderItems()
 	f.updateButtons()
 	f.updateLabels()
@@ -353,4 +369,22 @@ func NewForm(items ...*FormItem) *Form {
 	form.ExtendBaseWidget(form)
 
 	return form
+}
+
+type formItemLayout struct{}
+
+func (f formItemLayout) Layout(objs []fyne.CanvasObject, size fyne.Size) {
+	itemHeight := objs[0].MinSize().Height
+	objs[0].Resize(fyne.NewSize(size.Width, itemHeight))
+
+	objs[1].Move(fyne.NewPos(theme.InnerPadding(), itemHeight+theme.InnerPadding()/2))
+	objs[1].Resize(fyne.NewSize(size.Width, objs[1].MinSize().Width))
+}
+
+func (f formItemLayout) MinSize(objs []fyne.CanvasObject) fyne.Size {
+	min0 := objs[0].MinSize()
+	min1 := objs[1].MinSize()
+
+	minWidth := fyne.Max(min0.Width, min1.Width)
+	return fyne.NewSize(minWidth, min0.Height+min1.Height+theme.InnerPadding())
 }

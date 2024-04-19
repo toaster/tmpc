@@ -197,7 +197,9 @@ func addOrUpdateMenuItem(item *MenuItem) {
 	}
 }
 
-func addSeparator(id uint32) {
+func addSeparator(id uint32, parent uint32) {
+	menu, _ := findLayout(int32(parent))
+
 	instance.menuLock.Lock()
 	defer instance.menuLock.Unlock()
 	layout := &menuLayout{
@@ -207,7 +209,7 @@ func addSeparator(id uint32) {
 		},
 		V2: []dbus.Variant{},
 	}
-	instance.menu.V2 = append(instance.menu.V2, dbus.MakeVariant(layout))
+	menu.V2 = append(menu.V2, dbus.MakeVariant(layout))
 	refresh()
 }
 
@@ -253,6 +255,42 @@ func findSubLayout(id int32, vals []dbus.Variant) (*menuLayout, bool) {
 	return nil, false
 }
 
+func removeSubLayout(id int32, vals []dbus.Variant) ([]dbus.Variant, bool) {
+	for idx, i := range vals {
+		item := i.Value().(*menuLayout)
+		if item.V0 == id {
+			return append(vals[:idx], vals[idx+1:]...), true
+		}
+
+		if len(item.V2) > 0 {
+			if child, removed := removeSubLayout(id, item.V2); removed {
+				return child, true
+			}
+		}
+	}
+
+	return vals, false
+}
+
+func removeMenuItem(item *MenuItem) {
+	instance.menuLock.Lock()
+	defer instance.menuLock.Unlock()
+
+	parent := instance.menu
+	if item.parent != nil {
+		m, ok := findLayout(int32(item.parent.id))
+		if !ok {
+			return
+		}
+		parent = m
+	}
+
+	if items, removed := removeSubLayout(int32(item.id), parent.V2); removed {
+		parent.V2 = items
+		refresh()
+	}
+}
+
 func hideMenuItem(item *MenuItem) {
 	instance.menuLock.Lock()
 	defer instance.menuLock.Unlock()
@@ -281,7 +319,7 @@ func refresh() {
 	dbusErr := instance.menuProps.Set("com.canonical.dbusmenu", "Version",
 		dbus.MakeVariant(instance.menuVersion))
 	if dbusErr != nil {
-		log.Printf("systray error: failed to update menu version: %s\n", dbusErr)
+		log.Printf("systray error: failed to update menu version: %v\n", dbusErr)
 		return
 	}
 	err := menu.Emit(instance.conn, &menu.Dbusmenu_LayoutUpdatedSignal{
@@ -291,7 +329,7 @@ func refresh() {
 		},
 	})
 	if err != nil {
-		log.Printf("systray error: failed to emit layout updated signal: %s\n", err)
+		log.Printf("systray error: failed to emit layout updated signal: %v\n", err)
 	}
 
 }

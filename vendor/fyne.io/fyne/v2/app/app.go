@@ -4,6 +4,7 @@
 package app // import "fyne.io/fyne/v2/app"
 
 import (
+	"os"
 	"strconv"
 	"sync/atomic"
 	"time"
@@ -13,8 +14,6 @@ import (
 	"fyne.io/fyne/v2/internal/app"
 	intRepo "fyne.io/fyne/v2/internal/repository"
 	"fyne.io/fyne/v2/storage/repository"
-
-	"golang.org/x/sys/execabs"
 )
 
 // Declare conformity with App interface
@@ -25,13 +24,17 @@ type fyneApp struct {
 	icon     fyne.Resource
 	uniqueID string
 
+	cloud     fyne.CloudProvider
 	lifecycle fyne.Lifecycle
 	settings  *settings
-	storage   *store
+	storage   fyne.Storage
 	prefs     fyne.Preferences
 
 	running uint32 // atomic, 1 == running, 0 == stopped
-	exec    func(name string, arg ...string) *execabs.Cmd
+}
+
+func (a *fyneApp) CloudProvider() fyne.CloudProvider {
+	return a.cloud
 }
 
 func (a *fyneApp) Icon() fyne.Resource {
@@ -66,7 +69,6 @@ func (a *fyneApp) NewWindow(title string) fyne.Window {
 func (a *fyneApp) Run() {
 	if atomic.CompareAndSwapUint32(&a.running, 0, 1) {
 		a.driver.Run()
-		return
 	}
 }
 
@@ -104,6 +106,14 @@ func (a *fyneApp) Lifecycle() fyne.Lifecycle {
 	return a.lifecycle
 }
 
+func (a *fyneApp) newDefaultPreferences() *preferences {
+	p := newPreferences(a)
+	if a.uniqueID != "" {
+		p.load()
+	}
+	return p
+}
+
 // New returns a new application instance with the default driver and no unique ID (unless specified in FyneApp.toml)
 func New() fyne.App {
 	if meta.ID == "" {
@@ -112,30 +122,42 @@ func New() fyne.App {
 	return NewWithID(meta.ID)
 }
 
-func newAppWithDriver(d fyne.Driver, id string) fyne.App {
-	newApp := &fyneApp{uniqueID: id, driver: d, exec: execabs.Command, lifecycle: &app.Lifecycle{}}
-	fyne.SetCurrentApp(newApp)
-	newApp.settings = loadSettings()
-
-	newApp.prefs = newPreferences(newApp)
-	newApp.storage = &store{a: newApp}
+func makeStoreDocs(id string, s *store) *internal.Docs {
 	if id != "" {
-		if pref, ok := newApp.prefs.(interface{ load() }); ok {
-			pref.load()
+		err := os.MkdirAll(s.a.storageRoot(), 0755) // make the space before anyone can use it
+		if err != nil {
+			fyne.LogError("Failed to create app storage space", err)
 		}
 
-		root, _ := newApp.storage.docRootURI()
-		newApp.storage.Docs = &internal.Docs{RootDocURI: root}
+		root, _ := s.docRootURI()
+		return &internal.Docs{RootDocURI: root}
 	} else {
-		newApp.storage.Docs = &internal.Docs{} // an empty impl to avoid crashes
+		return &internal.Docs{} // an empty impl to avoid crashes
 	}
+}
+
+func newAppWithDriver(d fyne.Driver, id string) fyne.App {
+	newApp := &fyneApp{uniqueID: id, driver: d, lifecycle: &app.Lifecycle{}}
+	fyne.SetCurrentApp(newApp)
+
+	newApp.prefs = newApp.newDefaultPreferences()
+	newApp.lifecycle.(*app.Lifecycle).SetOnStoppedHookExecuted(func() {
+		if prefs, ok := newApp.prefs.(*preferences); ok {
+			prefs.forceImmediateSave()
+		}
+	})
+	newApp.settings = loadSettings()
+	store := &store{a: newApp}
+	store.Docs = makeStoreDocs(id, store)
+	newApp.storage = store
 
 	if !d.Device().IsMobile() {
 		newApp.settings.watchSettings()
 	}
 
-	repository.Register("http", intRepo.NewHTTPRepository())
-	repository.Register("https", intRepo.NewHTTPRepository())
+	httpHandler := intRepo.NewHTTPRepository()
+	repository.Register("http", httpHandler)
+	repository.Register("https", httpHandler)
 
 	return newApp
 }
