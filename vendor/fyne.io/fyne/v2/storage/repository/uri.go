@@ -16,13 +16,9 @@ var _ fyne.URI = &uri{}
 type uri struct {
 	scheme    string
 	authority string
-	// haveAuthority lets us distinguish between a present-but-empty
-	// authority, and having no authority. This is needed because net/url
-	// incorrectly handles scheme:/absolute/path URIs.
-	haveAuthority bool
-	path          string
-	query         string
-	fragment      string
+	path      string
+	query     string
+	fragment  string
 }
 
 func (u *uri) Extension() string {
@@ -34,7 +30,6 @@ func (u *uri) Name() string {
 }
 
 func (u *uri) MimeType() string {
-
 	mimeTypeFull := mime.TypeByExtension(u.Extension())
 	if mimeTypeFull == "" {
 		mimeTypeFull = "text/plain"
@@ -54,7 +49,12 @@ func (u *uri) MimeType() string {
 		}
 	}
 
-	return strings.Split(mimeTypeFull, ";")[0]
+	// Replace with strings.Cut() when Go 1.18 is our new base version.
+	semicolonIndex := strings.IndexByte(mimeTypeFull, ';')
+	if semicolonIndex == -1 {
+		return mimeTypeFull
+	}
+	return mimeTypeFull[:semicolonIndex]
 }
 
 func (u *uri) Scheme() string {
@@ -65,11 +65,7 @@ func (u *uri) String() string {
 	// NOTE: this string reconstruction is mandated by IETF RFC3986,
 	// section 5.3, pp. 35.
 
-	s := u.scheme + ":"
-	if u.haveAuthority {
-		s += "//" + u.authority
-	}
-	s += u.path
+	s := u.scheme + "://" + u.authority + u.path
 	if len(u.query) > 0 {
 		s += "?" + u.query
 	}

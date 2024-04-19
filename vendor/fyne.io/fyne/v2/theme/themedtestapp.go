@@ -12,6 +12,10 @@ type themedApp struct {
 	theme fyne.Theme
 }
 
+func (t *themedApp) CloudProvider() fyne.CloudProvider {
+	return nil
+}
+
 func (t *themedApp) BuildType() fyne.BuildType {
 	return fyne.BuildStandard
 }
@@ -84,8 +88,15 @@ func (t *themedApp) ThemeVariant() fyne.ThemeVariant {
 	return VariantDark
 }
 
+func (t *themedApp) SetCloudProvider(fyne.CloudProvider) {
+}
+
 func (t *themedApp) Scale() float32 {
 	return 1.0
+}
+
+func (t *themedApp) ShowAnimations() bool {
+	return true
 }
 
 func (t *themedApp) AddChangeListener(chan fyne.Settings) {

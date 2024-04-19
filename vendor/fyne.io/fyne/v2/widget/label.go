@@ -4,18 +4,28 @@ import (
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/data/binding"
 	"fyne.io/fyne/v2/internal/cache"
+	"fyne.io/fyne/v2/theme"
 )
 
 // Label widget is a label component with appropriate padding and layout.
 type Label struct {
 	BaseWidget
 	Text      string
-	Alignment fyne.TextAlign // The alignment of the Text
-	Wrapping  fyne.TextWrap  // The wrapping of the Text
+	Alignment fyne.TextAlign // The alignment of the text
+	Wrapping  fyne.TextWrap  // The wrapping of the text
 	TextStyle fyne.TextStyle // The style of the label text
-	provider  *RichText
 
-	binder basicBinder
+	// The truncation mode of the text
+	//
+	// Since: 2.4
+	Truncation fyne.TextTruncation
+	// Importance informs how the label should be styled, i.e. warning or disabled
+	//
+	// Since: 2.4
+	Importance Importance
+
+	provider *RichText
+	binder   basicBinder
 }
 
 // NewLabel creates a new label widget with the set text content
@@ -124,9 +134,29 @@ func (l *Label) Unbind() {
 }
 
 func (l *Label) syncSegments() {
+	var color fyne.ThemeColorName
+	switch l.Importance {
+	case LowImportance:
+		color = theme.ColorNameDisabled
+	case MediumImportance:
+		color = theme.ColorNameForeground
+	case HighImportance:
+		color = theme.ColorNamePrimary
+	case DangerImportance:
+		color = theme.ColorNameError
+	case WarningImportance:
+		color = theme.ColorNameWarning
+	case SuccessImportance:
+		color = theme.ColorNameSuccess
+	default:
+		color = theme.ColorNameForeground
+	}
+
 	l.provider.Wrapping = l.Wrapping
+	l.provider.Truncation = l.Truncation
 	l.provider.Segments[0].(*TextSegment).Style = RichTextStyle{
 		Alignment: l.Alignment,
+		ColorName: color,
 		Inline:    true,
 		TextStyle: l.TextStyle,
 	}

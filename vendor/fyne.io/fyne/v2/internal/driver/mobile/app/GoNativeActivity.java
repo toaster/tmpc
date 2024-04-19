@@ -21,8 +21,11 @@ import android.view.View;
 import android.view.WindowInsets;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
+import android.view.KeyEvent;
 import android.widget.EditText;
 import android.widget.FrameLayout;
+import android.widget.TextView;
+import android.widget.TextView.OnEditorActionListener;
 
 public class GoNativeActivity extends NativeActivity {
 	private static GoNativeActivity goNativeActivity;
@@ -40,10 +43,12 @@ public class GoNativeActivity extends NativeActivity {
     private native void insetsChanged(int top, int bottom, int left, int right);
     private native void keyboardTyped(String str);
     private native void keyboardDelete();
+    private native void backPressed();
     private native void setDarkMode(boolean dark);
 
 	private EditText mTextEdit;
 	private boolean ignoreKey = false;
+	private boolean keyboardUp = false;
 
 	public GoNativeActivity() {
 		super();
@@ -75,6 +80,7 @@ public class GoNativeActivity extends NativeActivity {
 
     static void showKeyboard(int keyboardType) {
         goNativeActivity.doShowKeyboard(keyboardType);
+        goNativeActivity.keyboardUp = true;
     }
 
     void doShowKeyboard(final int keyboardType) {
@@ -100,8 +106,18 @@ public class GoNativeActivity extends NativeActivity {
                     default:
                         Log.e("Fyne", "unknown keyboard type, use default");
                 }
-                mTextEdit.setImeOptions(imeOptions);
+                mTextEdit.setImeOptions(imeOptions|EditorInfo.IME_FLAG_NO_FULLSCREEN);
                 mTextEdit.setInputType(inputType);
+
+                mTextEdit.setOnEditorActionListener(new OnEditorActionListener() {
+                    @Override
+                    public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+                        if (actionId == EditorInfo.IME_ACTION_DONE) {
+                            keyboardTyped("\n");
+                        }
+                        return false;
+                    }
+                });
 
                 // always place one character so all keyboards can send backspace
                 ignoreKey = true;
@@ -121,6 +137,7 @@ public class GoNativeActivity extends NativeActivity {
 
     static void hideKeyboard() {
         goNativeActivity.doHideKeyboard();
+        goNativeActivity.keyboardUp = false;
     }
 
     void doHideKeyboard() {
@@ -298,6 +315,26 @@ public class GoNativeActivity extends NativeActivity {
 
         Uri uri = data.getData();
         filePickerReturned(uri.toString());
+    }
+
+    @Override
+    public void onBackPressed() {
+        if (goNativeActivity.keyboardUp) {
+            hideKeyboard();
+            return;
+        }
+
+        // skip the default behaviour - we can call finishActivity if we want to go back
+        backPressed();
+    }
+
+    public void finishActivity() {
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                GoNativeActivity.super.onBackPressed();
+            }
+        });
     }
 
     @Override
