@@ -216,8 +216,8 @@ func (l *Lyrics) searchSong(song *mpd.Song) (artistID int, trackID int, err erro
 	}
 
 	for _, hit := range result.Response.Hits {
-		if strings.ToLower(hit.Result.PrimaryArtist.Name) == strings.ToLower(song.Artist) &&
-			strings.ToLower(hit.Result.Title) == strings.ToLower(song.Title) {
+		if strings.EqualFold(hit.Result.PrimaryArtist.Name, song.Artist) &&
+			strings.EqualFold(hit.Result.Title, song.Title) {
 			return hit.Result.PrimaryArtist.ID, hit.Result.ID, nil
 		}
 	}
