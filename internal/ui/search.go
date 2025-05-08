@@ -112,7 +112,7 @@ func (s *Search) search(value string) {
 		searchKey = "genre"
 	}
 	songs, _ := s.doSearch(searchKey, value)
-	s.results.Update(songs, func(song *mpd.Song) {}, s.contextMenu)
+	s.results.Update(songs, func(*mpd.Song) {}, s.contextMenu)
 	s.Refresh()
 }
 
