@@ -65,8 +65,7 @@ func (q *Queue) SetCurrentSong(idx int, ps PlayerState) {
 	q.currentPlayerState = ps
 
 	offset := 0
-	for _, a := range q.box.Objects {
-		album := a.(*songListAlbum)
+	for _, album := range q.albums {
 		l := len(album.songs)
 		album.removeSongIndicator()
 		if offset <= idx && offset+l > idx {

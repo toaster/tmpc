@@ -157,7 +157,7 @@ func (l *SongList) appendAlbum(songs []*mpd.Song, songListSongs map[int]*songLis
 		onSongClick,
 		contextMenu,
 	)
-	l.box.Objects = append(l.box.Objects, album)
+	l.box.Add(album)
 	l.albums = append(l.albums, album)
 	for _, qs := range album.songs {
 		songListSongs[qs.song.ID] = qs
