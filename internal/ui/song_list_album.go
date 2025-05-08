@@ -60,10 +60,10 @@ func newSongListAlbum(
 	}
 	album.ExtendBaseWidget(album)
 	coverSize :=
-		// +1 is to ajust the textsize/dip difference
-		// would be nice to have a text size to dip coverter
+		// +1 is to adjust the text size/dip difference
+		// would be nice to have a text size to dip converter
 		(theme.TextSize()+1)*2 +
-			// 3 times padding is the bottom padding of the head line and the whole padding of the first line
+			// 3 times padding is the bottom padding of the headline and the whole padding of the first line
 			// +1 is the separator between header and first line
 			3*theme.Padding() + 1
 	albumTime := 0

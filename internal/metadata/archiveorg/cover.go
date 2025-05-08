@@ -1,6 +1,7 @@
 package archiveorg
 
 import (
+	"errors"
 	"fmt"
 	"io"
 	"net/http"
@@ -30,7 +31,7 @@ func NewCover() *Cover {
 func (*Cover) LoadCover(song *mpd.Song) (fyne.Resource, error) {
 	mbID := song.MBAlbumID
 	if mbID == "" {
-		return nil, fmt.Errorf("cannot load cover for song without MBID")
+		return nil, errors.New("cannot load cover for song without MBID")
 	}
 
 	url := fmt.Sprintf("http://coverartarchive.org/release/%s/front", mbID)

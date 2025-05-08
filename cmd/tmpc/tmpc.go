@@ -144,7 +144,6 @@ func (t *tmpc) Update(subsystem string) {
 }
 
 func (t *tmpc) applySettings(connect bool) {
-	t.applyTheme()
 	if t.mpd != nil && t.mpd.IsConnected() {
 		t.mpd.Disconnect()
 	}
@@ -171,14 +170,6 @@ func (t *tmpc) applySettings(connect bool) {
 	)
 	if connect {
 		t.connectMPD()
-	}
-}
-
-func (t *tmpc) applyTheme() {
-	if t.fyne.Preferences().String("theme") == "Dark" {
-		t.fyne.Settings().SetTheme(theme.DarkTheme())
-	} else {
-		t.fyne.Settings().SetTheme(theme.LightTheme())
 	}
 }
 
@@ -508,13 +499,6 @@ func (t *tmpc) showSettings() {
 		t.settings.RequestFocus()
 		return
 	}
-	themeSelector := widget.NewRadioGroup([]string{"Dark", "Light"}, func(s string) {
-		t.fyne.Preferences().SetString("theme", s)
-		t.applyTheme()
-	})
-	themeSelector.SetSelected(t.fyne.Preferences().String("theme"))
-	themeSelector.Required = true
-	themeSelector.Horizontal = true
 	tmpDir, _ := cache.TmpDir()
 	settingsContainer := container.New(
 		layout.NewFormLayout(),
@@ -532,8 +516,6 @@ func (t *tmpc) showSettings() {
 		t.makePrefsEntry("discogsAPIKey", "key"),
 		widget.NewLabelWithStyle("Discogs API secret", fyne.TextAlignTrailing, fyne.TextStyle{Bold: true}),
 		t.makePrefsSecretEntry("discogsAPISecret", "secret"),
-		widget.NewLabelWithStyle("Theme", fyne.TextAlignTrailing, fyne.TextStyle{Bold: true}),
-		themeSelector,
 	)
 	t.settings = t.fyne.NewWindow("Settings")
 	t.settings = fyne.CurrentApp().NewWindow("Settings")

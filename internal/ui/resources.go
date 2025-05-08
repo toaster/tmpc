@@ -48,8 +48,8 @@ func loadResource(name string) fyne.Resource {
 	return loadResourceFromFS(name, resources, "resource")
 }
 
-func loadResourceFromFS(name string, fs fs.FS, typ string) fyne.Resource {
-	f, err := fs.Open(typ + "s/" + name)
+func loadResourceFromFS(name string, src fs.FS, typ string) fyne.Resource {
+	f, err := src.Open(typ + "s/" + name)
 	if err != nil {
 		fyne.LogError("failed to load "+typ, err)
 		return nil

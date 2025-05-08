@@ -210,14 +210,14 @@ func (l *Lyrics) searchSong(song *mpd.Song) (artistID int, trackID int, err erro
 	if err != nil {
 		return
 	}
-	if result.Meta.Status != 200 {
+	if result.Meta.Status != http.StatusOK {
 		err = fmt.Errorf("searching for song failed: %d - %s", result.Meta.Status, result.Meta.Message)
 		return
 	}
 
 	for _, hit := range result.Response.Hits {
-		if strings.ToLower(hit.Result.PrimaryArtist.Name) == strings.ToLower(song.Artist) &&
-			strings.ToLower(hit.Result.Title) == strings.ToLower(song.Title) {
+		if strings.EqualFold(hit.Result.PrimaryArtist.Name, song.Artist) &&
+			strings.EqualFold(hit.Result.Title, song.Title) {
 			return hit.Result.PrimaryArtist.ID, hit.Result.ID, nil
 		}
 	}
