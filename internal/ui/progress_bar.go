@@ -15,11 +15,11 @@ type progressBar struct {
 	onClick func(int)
 }
 
-func newProgressBar(min, max int, onClick func(int)) *progressBar {
+func newProgressBar(vMin, vMax int, onClick func(int)) *progressBar {
 	b := &progressBar{
-		cur:     min,
-		max:     max,
-		min:     min,
+		cur:     vMin,
+		max:     vMax,
+		min:     vMin,
 		onClick: onClick,
 	}
 	b.ExtendBaseWidget(b)
@@ -39,9 +39,9 @@ func (p *progressBar) CreateRenderer() fyne.WidgetRenderer {
 	}
 }
 
-func (p *progressBar) ReInit(min, max, cur int) {
-	p.min = min
-	p.max = max
+func (p *progressBar) ReInit(vMin, vMax, cur int) {
+	p.min = vMin
+	p.max = vMax
 	p.cur = cur
 	p.Refresh()
 }
