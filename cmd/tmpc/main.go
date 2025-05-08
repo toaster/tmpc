@@ -12,6 +12,11 @@ import (
 	"fyne.io/fyne/v2"
 )
 
+const (
+	defaultWindowWidth  = 800
+	defaultWindowHeight = 500
+)
+
 var cpuprofile = flag.String("cpuprofile", "", "write cpu profile to file")
 
 func main() {
@@ -26,6 +31,6 @@ func main() {
 		}
 	}
 	t := newTMPC()
-	t.win.Resize(fyne.NewSize(800, 500))
+	t.win.Resize(fyne.NewSize(defaultWindowWidth, defaultWindowHeight))
 	t.Run()
 }

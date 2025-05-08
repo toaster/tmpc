@@ -210,7 +210,7 @@ func (l *Lyrics) searchSong(song *mpd.Song) (artistID int, trackID int, err erro
 	if err != nil {
 		return
 	}
-	if result.Meta.Status != 200 {
+	if result.Meta.Status != http.StatusOK {
 		err = fmt.Errorf("searching for song failed: %d - %s", result.Meta.Status, result.Meta.Message)
 		return
 	}
